@@ -1,0 +1,51 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+nosetests.xml
+
+# Translations
+*.mo
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+doc/build
+
+# pbr generates these
+AUTHORS
+ChangeLog
+
+# Editors
+*~
+*.sw?
+
+# Hidden directories
+/.*
+!/.coveragerc
+!/.gitignore
+!/.gitreview
+!/.mailmap
+!/.pylintrc
+!/.testr.conf
