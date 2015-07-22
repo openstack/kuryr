@@ -17,3 +17,22 @@ Features
 --------
 
 * TODO
+
+
+Prerequisites
+-------------
+
+::
+
+    $ sudo pip install -r requirements.txt
+
+Running Kuryr
+-------------
+
+Please run the following script, it creates `/usr/lib/docker/plugins/kuryr`
+and the JSON spec file, `/usr/lib/docker/plugins/kuryr/kuryr.json`, if they
+don't exist.
+
+::
+
+    $ ./scripts/run_kuryr.sh
