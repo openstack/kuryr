@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,8 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pbr.version
+import logging
+import sys
 
+from kuryr.utils import make_json_app
 
-__version__ = pbr.version.VersionInfo(
-    'kuryr').version_string()
+app = make_json_app(__name__)
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.INFO)

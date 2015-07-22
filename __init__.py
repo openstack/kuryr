@@ -15,5 +15,4 @@
 import pbr.version
 
 
-__version__ = pbr.version.VersionInfo(
-    'kuryr').version_string()
+__version__ = pbr.version.VersionInfo('kuryr').version_string()
