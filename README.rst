@@ -36,3 +36,10 @@ don't exist.
 ::
 
     $ ./scripts/run_kuryr.sh
+
+Testing Kuryr
+-------------
+
+::
+
+    $ tox
