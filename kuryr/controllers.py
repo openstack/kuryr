@@ -13,73 +13,44 @@
 from flask import jsonify
 
 from kuryr import app
-
-
-# NEXTHOP indicates a StaticRoute with an IP next hop.
-NEXTHOP = 0
-# CONNECTED indicates a StaticRoute with a interface for directly connected
-# peers.
-CONNECTED = 1
+from kuryr.constants import SCHEMA
 
 
 @app.route('/Plugin.Activate', methods=['POST'])
-def plubin_activate():
-    return jsonify({"Implements": ["NetworkDriver"]})
+def plugin_activate():
+    return jsonify(SCHEMA['PLUGIN_ACTIVATE'])
 
 
 @app.route('/NetworkDriver.CreateNetwork', methods=['POST'])
 def network_driver_create_network():
-    return jsonify({})
+    return jsonify(SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.DeleteNetwork', methods=['POST'])
 def network_driver_delete_network():
-    return jsonify({})
+    return jsonify(SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.CreateEndpoint', methods=['POST'])
 def network_driver_create_endpoint():
-    # TODO(tfukushima): This is mocked and should be replaced with real data.
-    return jsonify({
-        "Interfaces": [{
-            "ID": 1,
-            "Address": "192.168.1.42/24",
-            "AddressIPv6": "fe80::f816:3eff:fe20:57c3/64",
-            "MacAddress": "fa:16:3e:20:57:c3",
-        }]
-    })
+    return jsonify(SCHEMA['CREATE_ENDPOINT'])
 
 
 @app.route('/NetworkDriver.EndpointOperInfo', methods=['POST'])
 def network_driver_endpoint_operational_info():
-    # TODO(tfukushima): This is mocked and should be replaced with real data.
-    return jsonify({"Value": {}})
+    return jsonify(SCHEMA['ENDPOINT_OPER_INFO'])
 
 
 @app.route('/NetworkDriver.DeleteEndpoint', methods=['POST'])
 def network_driver_delete_endpoint():
-    return jsonify({})
+    return jsonify(SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.Join', methods=['POST'])
 def network_driver_join():
-    # TODO(tfukushima): This is mocked and should be replaced with real data.
-    return jsonify({
-        "InterfaceNames": [{
-            "SrcName": "foobar",
-            "DstPrefix": ""
-        }],
-        "Gateway": "192.168.1.1/24",
-        "GatewayIPv6": "fe80::f816:3eff:fe20:57c1/64",
-        "StaticRoutes": [{
-            "Destination": "192.168.1.42",
-            "RouteType": CONNECTED,
-            "NextHop": "",
-            "InterfaceID": 0
-        }]
-    })
+    return jsonify(SCHEMA['JOIN'])
 
 
 @app.route('/NetworkDriver.Leave', methods=['POST'])
 def network_driver_leave():
-    return jsonify({})
+    return jsonify(SCHEMA['SUCCESS'])
