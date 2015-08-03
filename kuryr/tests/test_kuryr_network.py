@@ -13,15 +13,15 @@
 import hashlib
 import random
 
-from neutronclient.common.exceptions import Unauthorized
+from neutronclient.common import exceptions
 from oslo_serialization import jsonutils
 
 from kuryr import app
-from kuryr.tests.base import TestKuryrFailures
+from kuryr.tests import base
 
 
-class TestKuryrNetworkFailures(TestKuryrFailures):
-    """Unittests for checking if Kuryr handles the failures for the networks.
+class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
+    """Unittests for the failures for creating networks.
 
     This test covers error responses listed in the spec:
       http://developer.openstack.org/api-ref-networking-v2-ext.html#createProviderNetwork  # noqa
@@ -29,14 +29,13 @@ class TestKuryrNetworkFailures(TestKuryrFailures):
 
     def _create_network_with_exception(self, network_name, ex):
         self.mox.StubOutWithMock(app.neutron, "create_network")
-        fake_bad_request_without_name = {
+        fake_request = {
             "network": {
                 "name": network_name,
                 "admin_state_up": True
             }
         }
-        app.neutron.create_network(
-            fake_bad_request_without_name).AndRaise(ex)
+        app.neutron.create_network(fake_request).AndRaise(ex)
         self.mox.ReplayAll()
 
     def _invoke_create_request(self, network_name):
@@ -50,7 +49,7 @@ class TestKuryrNetworkFailures(TestKuryrFailures):
         docker_network_id = hashlib.sha256(
             str(random.getrandbits(256))).hexdigest()
         self._create_network_with_exception(
-            docker_network_id, Unauthorized())
+            docker_network_id, exceptions.Unauthorized())
 
         response = self._invoke_create_request(docker_network_id)
 
@@ -58,4 +57,4 @@ class TestKuryrNetworkFailures(TestKuryrFailures):
         decoded_json = jsonutils.loads(response.data)
         self.assertTrue('Err' in decoded_json)
         self.assertEqual(
-            {'Err': 'Unauthorized: bad credentials.'}, decoded_json)
+            {'Err': exceptions.Unauthorized.message}, decoded_json)
