@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslotest import base
+from neutronclient.tests.unit.test_cli20 import CLITestV20Base
 
 from kuryr import app
 
 
-class TestCase(base.BaseTestCase):
+class TestCase(CLITestV20Base):
     """Test case base class for all unit tests."""
 
     def setUp(self):
@@ -23,6 +23,7 @@ class TestCase(base.BaseTestCase):
         app.config['DEBUG'] = True
         app.config['TESTING'] = True
         self.app = app.test_client()
+        self.app.neutron = self.client
 
 
 class TestKuryrBase(TestCase):
@@ -30,9 +31,12 @@ class TestKuryrBase(TestCase):
 
     def setUp(self):
         super(TestKuryrBase, self).setUp()
+        self.app.neutron.format = 'json'
 
     def tearDown(self):
         super(TestKuryrBase, self).tearDown()
+        self.mox.VerifyAll()
+        self.mox.UnsetStubs()
 
 
 class TestKuryrFailures(TestKuryrBase):

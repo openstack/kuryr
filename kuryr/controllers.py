@@ -10,10 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 from flask import jsonify
+from flask import request
+from neutronclient.neutron import client
 
 from kuryr import app
 from kuryr.constants import SCHEMA
+
+
+OS_URL = os.environ.get('OS_URL', 'http://127.0.0.1:9696/')
+OS_TOKEN = os.environ.get('OS_TOKEN', '9999888877776666')
+
+# TODO(tfukushima): Retrieve configuration info from a config file.
+app.neutron = client.Client('2.0', endpoint_url=OS_URL, token=OS_TOKEN)
+app.neutron.format = 'json'
 
 
 @app.route('/Plugin.Activate', methods=['POST'])
@@ -23,6 +35,35 @@ def plugin_activate():
 
 @app.route('/NetworkDriver.CreateNetwork', methods=['POST'])
 def network_driver_create_network():
+    """Creates a new Neutron Network which name is the given NetworkID.
+
+    This function takes the following JSON data and delegates the actual
+    network creation to the Neutron client. libnetwork's NetworkID is used as
+    the name of Network in Neutron. ::
+
+        {
+            "NetworkID": string,
+            "Options": {
+                ...
+            }
+        }
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-network  # noqa
+    """
+    json_data = request.get_json(force=True)
+
+    app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateNetwork"
+                     .format(json_data))
+    # TODO(tfukushima): Add a validation of the JSON data for the network.
+    neutron_network_name = json_data['NetworkID']
+
+    network = app.neutron.create_network(
+        {'network': {'name': neutron_network_name, "admin_state_up": True}})
+
+    app.logger.info("Created a new network with name {0} successfully: {1}"
+                    .format(neutron_network_name, network))
     return jsonify(SCHEMA['SUCCESS'])
 
 

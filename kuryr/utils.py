@@ -36,8 +36,9 @@ def make_json_app(import_name, **kwargs):
     @app.errorhandler(NeutronClientException)
     def make_json_error(ex):
         response = jsonify({"Err": str(ex)})
-        response.status_code = (ex.code
-                                if isinstance(ex, HTTPException)
+        response.status_code = (ex.code if isinstance(ex, HTTPException)
+                                else ex.status_code
+                                if isinstance(ex, NeutronClientException)
                                 else 500)
         content_type = 'application/vnd.docker.plugins.v1+json; charset=utf-8'
         response.headers['Content-Type'] = content_type

@@ -10,9 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import hashlib
+import random
+
 from ddt import ddt, data, unpack
 from oslo_serialization import jsonutils
 
+from kuryr import app
 from kuryr.constants import SCHEMA
 from kuryr.tests.base import TestKuryrBase
 
@@ -36,7 +40,6 @@ class TestKuryr(TestKuryrBase):
     - POST /NetworkDriver.Leave
     """
     @data(('/Plugin.Activate', SCHEMA['PLUGIN_ACTIVATE']),
-        ('/NetworkDriver.CreateNetwork', SCHEMA['SUCCESS']),
         ('/NetworkDriver.DeleteNetwork', SCHEMA['SUCCESS']),
         ('/NetworkDriver.CreateEndpoint', SCHEMA['CREATE_ENDPOINT']),
         ('/NetworkDriver.EndpointOperInfo', SCHEMA['ENDPOINT_OPER_INFO']),
@@ -48,3 +51,41 @@ class TestKuryr(TestKuryrBase):
         response = self.app.post(endpoint)
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual(expected, decoded_json)
+
+    def test_network_driver_create_network(self):
+        docker_network_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+        self.mox.StubOutWithMock(app.neutron, "create_network")
+        fake_request = {
+            "network": {
+                "name": docker_network_id,
+                "admin_state_up": True
+            }
+        }
+        # The following fake response is retrieved from the Neutron doc:
+        #   http://developer.openstack.org/api-ref-networking-v2.html#createNetwork  # noqa
+        fake_response = {
+            "network": {
+                "status": "ACTIVE",
+                "subnets": [],
+                "name": docker_network_id,
+                "admin_state_up": True,
+                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
+                "router:external": False,
+                "segments": [],
+                "shared": False,
+                "id": "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+            }
+        }
+        app.neutron.create_network(fake_request).AndReturn(fake_response)
+
+        self.mox.ReplayAll()
+
+        data = {'NetworkID': docker_network_id, 'Options': {}}
+        response = self.app.post('/NetworkDriver.CreateNetwork',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(data))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertEqual(SCHEMA['SUCCESS'], decoded_json)
