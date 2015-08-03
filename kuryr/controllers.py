@@ -18,6 +18,7 @@ from neutronclient.neutron import client
 
 from kuryr import app
 from kuryr.constants import SCHEMA
+from kuryr import exceptions
 
 
 OS_URL = os.environ.get('OS_URL', 'http://127.0.0.1:9696/')
@@ -69,7 +70,44 @@ def network_driver_create_network():
 
 @app.route('/NetworkDriver.DeleteNetwork', methods=['POST'])
 def network_driver_delete_network():
-    return jsonify(SCHEMA['SUCCESS'])
+    """Deletes the Neutron Network which name is the given NetworkID.
+
+    This function takes the following JSON data and delegates the actual
+    network deletion to the Neutron client. ::
+
+        {
+            "NetworkID": string
+        }
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-network  # noqa
+    """
+    json_data = request.get_json(force=True)
+
+    app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteNetwork"
+                     .format(json_data))
+    # TODO(tfukushima): Add a validation of the JSON data for the network.
+    neutron_network_name = json_data['NetworkID']
+
+    filtered_networks = app.neutron.list_networks(name=neutron_network_name)
+
+    # We assume Neutron's Network names are not conflicted in Kuryr because
+    # they are Docker IDs, 256 bits hashed values, which are rarely conflicted.
+    # However, if there're multiple networks associated with the single
+    # NetworkID, it raises DuplicatedResourceException and stops processes.
+    # See the following doc for more details about Docker's IDs:
+    #   https://github.com/docker/docker/blob/master/docs/terms/container.md#container-ids  # noqa
+    if len(filtered_networks) > 1:
+        raise exceptions.DuplicatedResourceException(
+            "Multiple Neutron Networks exist for NetworkID {0}"
+            .format(neutron_network_name))
+    else:
+        neutron_network_id = filtered_networks['networks'][0]['id']
+        app.neutron.delete_network(neutron_network_id)
+        app.logger.info("Deleted the network with ID {} successfully"
+                        .format(neutron_network_id))
+        return jsonify(SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.CreateEndpoint', methods=['POST'])

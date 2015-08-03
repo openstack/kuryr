@@ -40,7 +40,6 @@ class TestKuryr(TestKuryrBase):
     - POST /NetworkDriver.Leave
     """
     @data(('/Plugin.Activate', SCHEMA['PLUGIN_ACTIVATE']),
-        ('/NetworkDriver.DeleteNetwork', SCHEMA['SUCCESS']),
         ('/NetworkDriver.CreateEndpoint', SCHEMA['CREATE_ENDPOINT']),
         ('/NetworkDriver.EndpointOperInfo', SCHEMA['ENDPOINT_OPER_INFO']),
         ('/NetworkDriver.DeleteEndpoint', SCHEMA['SUCCESS']),
@@ -83,6 +82,40 @@ class TestKuryr(TestKuryrBase):
 
         data = {'NetworkID': docker_network_id, 'Options': {}}
         response = self.app.post('/NetworkDriver.CreateNetwork',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(data))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertEqual(SCHEMA['SUCCESS'], decoded_json)
+
+    def test_network_driver_delete_network(self):
+        docker_network_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+        fake_neutron_network_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+        fake_list_response = {
+            "networks": [{
+                "status": "ACTIVE",
+                "subnets": [],
+                "name": docker_network_id,
+                "admin_state_up": True,
+                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
+                "router:external": False,
+                "segments": [],
+                "shared": False,
+                "id": fake_neutron_network_id
+            }]
+        }
+
+        self.mox.StubOutWithMock(app.neutron, 'list_networks')
+        app.neutron.list_networks(
+            name=docker_network_id).AndReturn(fake_list_response)
+        self.mox.StubOutWithMock(app.neutron, 'delete_network')
+        app.neutron.delete_network(fake_neutron_network_id).AndReturn(None)
+        self.mox.ReplayAll()
+
+        data = {'NetworkID': docker_network_id}
+        response = self.app.post('/NetworkDriver.DeleteNetwork',
                                  content_type='application/json',
                                  data=jsonutils.dumps(data))
 
