@@ -66,7 +66,16 @@ User Workflow
        $ sudo docker network create --driver=kuryr foo
        51c75a2515d47edecc3f720bb541e287224416fb66715eb7802011d6ffd499f1
 
-   This makes a HTTP POST call on ``/NetworkDriver.CraeteNetwork``
+   This makes a HTTP POST call on ``/NetworkDriver.CraeteNetwork`` with the
+   following JSON data.
+   ::
+
+        {
+            "NetworkID": "51c75a2515d47edecc3f720bb541e287224416fb66715eb7802011d6ffd499f1",
+            "Options": {
+                ...
+            }
+        }
 
 2. A user creates a service ``bar`` against network ``foo``
    ::
@@ -74,7 +83,20 @@ User Workflow
        $ sudo docker network publish service bar.foo
        98953db3f8e6628caf4a7cad3c866cb090654e3dee3e37206ad8c0a81355f1b7
 
-   This makes a HTTP POST call on ``/NetworkDriver.CreateEndpoint``
+   This makes a HTTP POST call on ``/NetworkDriver.CreateEndpoint`` with the
+   following JSON data.
+   ::
+
+       {
+           "NetworkID": "51c75a2515d47edecc3f720bb541e287224416fb66715eb7802011d6ffd499f1",
+           "EndpointID": "98953db3f8e6628caf4a7cad3c866cb090654e3dee3e37206ad8c0a81355f1b7",
+           "Interfaces": [
+               ...
+           ],
+           "Options": {
+               ...
+           }
+       }
 
 3. A user shows information of the service
    ::
@@ -99,28 +121,59 @@ User Workflow
        $ sudo docker run --publish-service=bar.foo -itd busybox
        12bbda391ed0728787b2c2131f091f6d5744806b538b9314c15e789e5a1ba047
 
-   This makes a HTTP POST call on ``/NetworkDriver.Join``
+   This makes a HTTP POST call on ``/NetworkDriver.Join`` with the following
+   JOSN data.
+   ::
+
+       {
+           "NetworkID": "51c75a2515d47edecc3f720bb541e287224416fb66715eb7802011d6ffd499f1",
+           "EndpointID": "98953db3f8e6628caf4a7cad3c866cb090654e3dee3e37206ad8c0a81355f1b7",
+           "SandboxKey": "/var/run/docker/netns/12bbda391ed0",
+           "Options": {
+               ...
+           }
+       }
 
 5. A user detaches the container from the service
    ::
 
        $ sudo docker service detach $CID bar.foo
 
-   This makes a HTTP POST call on ``/NetworkDriver.Leave``
+   This makes a HTTP POST call on ``/NetworkDriver.Leave`` with the following
+   JSON data.
+   ::
+
+       {
+           "NetworkID": "51c75a2515d47edecc3f720bb541e287224416fb66715eb7802011d6ffd499f1",
+           "EndpointID": "98953db3f8e6628caf4a7cad3c866cb090654e3dee3e37206ad8c0a81355f1b7"
+       }
 
 6. A user unpublishes the service
    ::
 
        $ sudo docker unpublish bar.foo
 
-   This makes a HTTP POST call on ``/NetworkDriver.DeleteEndpoint``
+   This makes a HTTP POST call on ``/NetworkDriver.DeleteEndpoint`` with the
+   following JSON data.
+   ::
+
+       {
+           "NetworkID": "51c75a2515d47edecc3f720bb541e287224416fb66715eb7802011d6ffd499f1",
+           "EndpointID": "98953db3f8e6628caf4a7cad3c866cb090654e3dee3e37206ad8c0a81355f1b7"
+       }
 
 7. A user deletes the network
    ::
 
        $ sudo  docker network rm foo
 
-   This makes a HTTP POST call on ``/NetworkDriver.DeleteNetwork``
+   This makes a HTTP POST call on ``/NetworkDriver.DeleteNetwork`` with the
+   following JSON data.
+   ::
+
+       {
+           "NetworkID": "51c75a2515d47edecc3f720bb541e287224416fb66715eb7802011d6ffd499f1"
+       }
 
 The workflows described in 2., 4., 5. and 6. can be done in the following
 single command.::
