@@ -84,8 +84,6 @@ User Workflow
                Name: bar
                Network: foo
 
-   This makes a HTTP POST call on ``/NetworkDriver.EndpointOperInfo``
-
 4. A user attaches a container to the service
    ::
 
