@@ -228,10 +228,10 @@ def network_driver_delete_network():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-network  # noqa
     """
     json_data = request.get_json(force=True)
-
     app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteNetwork"
                      .format(json_data))
-    # TODO(tfukushima): Add a validation of the JSON data for the network.
+    validate(json_data, schemata.NETWORK_DELETE_SCHEMA)
+
     neutron_network_name = json_data['NetworkID']
 
     filtered_networks = app.neutron.list_networks(name=neutron_network_name)

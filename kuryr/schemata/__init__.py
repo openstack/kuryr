@@ -11,3 +11,4 @@
 # under the License.
 
 from kuryr.schemata.network_create import NETWORK_CREATE_SCHEMA  # noqa
+from kuryr.schemata.network_delete import NETWORK_DELETE_SCHEMA  # noqa

@@ -122,3 +122,14 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
         decoded_json = jsonutils.loads(response.data)
         self.assertTrue('Err' in decoded_json)
         self.assertEqual({'Err': GivenException.message}, decoded_json)
+
+    def test_delete_network_bad_request(self):
+        invalid_docker_network_id = 'invalid-network-id'
+
+        response = self._invoke_delete_request(invalid_docker_network_id)
+
+        self.assertEqual(400, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertTrue('Err' in decoded_json)
+        self.assertTrue(invalid_docker_network_id in decoded_json['Err'])
+        self.assertTrue('NetworkID' in decoded_json['Err'])
