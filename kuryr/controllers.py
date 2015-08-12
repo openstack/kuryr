@@ -329,9 +329,9 @@ def network_driver_delete_endpoint():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-endpoint  # noqa
     """
     json_data = request.get_json(force=True)
-    # TODO(tfukushima): Add a validation of the JSON data for the subnet.
     app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteEndpoint"
                      .format(json_data))
+    validate(json_data, schemata.ENDPOINT_DELETE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
     endpoint_id = json_data['EndpointID']

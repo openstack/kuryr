@@ -395,3 +395,18 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
         decoded_json = jsonutils.loads(response.data)
         self.assertTrue('Err' in decoded_json)
         self.assertEqual({'Err': GivenException.message}, decoded_json)
+
+    def test_delete_endpoint_bad_request(self):
+        fake_docker_network_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+        invalid_docker_endpoint_id = 'id-should-be-hexdigits'
+
+        response = self._invoke_delete_request(
+            fake_docker_network_id, invalid_docker_endpoint_id)
+
+        self.assertEqual(400, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertTrue('Err' in decoded_json)
+        # TODO(tfukushima): Add the better error message validation.
+        self.assertTrue(invalid_docker_endpoint_id in decoded_json['Err'])
+        self.assertTrue('EndpointID' in decoded_json['Err'])
