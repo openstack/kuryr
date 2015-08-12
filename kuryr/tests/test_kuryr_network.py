@@ -61,6 +61,17 @@ class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
         self.assertEqual(
             {'Err': exceptions.Unauthorized.message}, decoded_json)
 
+    def test_create_network_bad_request(self):
+        invalid_docker_network_id = 'id-should-be-hexdigits'
+        response = self._invoke_create_request(invalid_docker_network_id)
+
+        self.assertEqual(400, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertTrue('Err' in decoded_json)
+        # TODO(tfukushima): Add the better error message validation.
+        self.assertTrue(invalid_docker_network_id in decoded_json['Err'])
+        self.assertTrue('NetworkID' in decoded_json['Err'])
+
 
 @ddt
 class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):

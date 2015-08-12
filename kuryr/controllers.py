@@ -14,12 +14,14 @@ import os
 
 from flask import jsonify
 from flask import request
+from jsonschema import validate
 import netaddr
 from neutronclient.common import exceptions as n_exceptions
 
 from kuryr import app
 from kuryr.constants import SCHEMA
 from kuryr import exceptions
+from kuryr import schemata
 from kuryr import utils
 
 
@@ -198,7 +200,8 @@ def network_driver_create_network():
     json_data = request.get_json(force=True)
     app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateNetwork"
                      .format(json_data))
-    # TODO(tfukushima): Add a validation of the JSON data for the network.
+    validate(json_data, schemata.NETWORK_CREATE_SCHEMA)
+
     neutron_network_name = json_data['NetworkID']
 
     network = app.neutron.create_network(

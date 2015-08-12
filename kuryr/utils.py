@@ -11,6 +11,7 @@
 # under the License.
 
 from flask import Flask, jsonify
+from jsonschema import ValidationError
 from neutronclient.common.exceptions import NeutronClientException
 from neutronclient.neutron import client
 from neutronclient.v2_0 import client as client_v2
@@ -54,12 +55,16 @@ def make_json_app(import_name, **kwargs):
     app = Flask(import_name, **kwargs)
 
     @app.errorhandler(NeutronClientException)
+    @app.errorhandler(ValidationError)
     def make_json_error(ex):
         response = jsonify({"Err": str(ex)})
-        response.status_code = (ex.code if isinstance(ex, HTTPException)
-                                else ex.status_code
-                                if isinstance(ex, NeutronClientException)
-                                else 500)
+        response.status_code = 500
+        if isinstance(ex, HTTPException):
+            response.status_code = ex.code
+        elif isinstance(ex, NeutronClientException):
+            response.status_code = ex.status_code
+        elif isinstance(ex, ValidationError):
+            response.status_code = 400
         content_type = 'application/vnd.docker.plugins.v1+json; charset=utf-8'
         response.headers['Content-Type'] = content_type
         return response
