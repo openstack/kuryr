@@ -280,10 +280,10 @@ def network_driver_create_endpoint():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-endpoint  # noqa
     """
     json_data = request.get_json(force=True)
-
     app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateEndpoint"
                      .format(json_data))
-    # TODO(tfukushima): Add a validation of the JSON data for the subnet.
+    validate(json_data, schemata.ENDPOINT_CREATE_SCHEMA)
+
     neutron_network_name = json_data['NetworkID']
     endpoint_id = json_data['EndpointID']
 
