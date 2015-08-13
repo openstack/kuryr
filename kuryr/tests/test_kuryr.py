@@ -14,11 +14,11 @@ from ddt import ddt, data, unpack
 from oslo_serialization import jsonutils
 
 from kuryr.constants import SCHEMA
-from kuryr.tests import base
+from kuryr.tests.base import TestKuryrBase
 
 
 @ddt
-class TestKuryr(base.TestCase):
+class TestKuryr(TestKuryrBase):
     """Basic unitests for libnetwork remote driver URI endpoints.
 
     This test class covers the following HTTP methods and URIs as described in
@@ -35,7 +35,6 @@ class TestKuryr(base.TestCase):
     - POST /NetworkDriver.Join
     - POST /NetworkDriver.Leave
     """
-
     @data(('/Plugin.Activate', SCHEMA['PLUGIN_ACTIVATE']),
         ('/NetworkDriver.CreateNetwork', SCHEMA['SUCCESS']),
         ('/NetworkDriver.DeleteNetwork', SCHEMA['SUCCESS']),

@@ -11,6 +11,7 @@
 # under the License.
 
 from flask import Flask, jsonify
+from neutronclient.common.exceptions import NeutronClientException
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
 
@@ -30,6 +31,9 @@ def make_json_app(import_name, **kwargs):
     See:
       - https://github.com/docker/libnetwork/blob/3c8e06bc0580a2a1b2440fe0792fbfcd43a9feca/docs/remote.md#errors  # noqa
     """
+    app = Flask(import_name, **kwargs)
+
+    @app.errorhandler(NeutronClientException)
     def make_json_error(ex):
         response = jsonify({"Err": str(ex)})
         response.status_code = (ex.code
@@ -38,8 +42,6 @@ def make_json_app(import_name, **kwargs):
         content_type = 'application/vnd.docker.plugins.v1+json; charset=utf-8'
         response.headers['Content-Type'] = content_type
         return response
-
-    app = Flask(import_name, **kwargs)
 
     for code in default_exceptions.iterkeys():
         app.error_handler_spec[None][code] = make_json_error

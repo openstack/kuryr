@@ -20,5 +20,20 @@ class TestCase(base.BaseTestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
+        app.config['DEBUG'] = True
         app.config['TESTING'] = True
         self.app = app.test_client()
+
+
+class TestKuryrBase(TestCase):
+    """Base class for all Kuryr unittests."""
+
+    def setUp(self):
+        super(TestKuryrBase, self).setUp()
+
+    def tearDown(self):
+        super(TestKuryrBase, self).tearDown()
+
+
+class TestKuryrFailures(TestKuryrBase):
+    """Unitests for checking if Kuryr handles the failures appropriately."""
