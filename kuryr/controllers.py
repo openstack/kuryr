@@ -311,7 +311,77 @@ def network_driver_endpoint_operational_info():
 
 @app.route('/NetworkDriver.DeleteEndpoint', methods=['POST'])
 def network_driver_delete_endpoint():
-    return jsonify(SCHEMA['SUCCESS'])
+    """Deletes Neutron Subnets and a Port with the given EndpointID.
+
+    This function takes the following JSON data and delegates the actual
+    endpoint deletion to the Neutron client mapping it into Subnet and Port. ::
+
+        {
+            "NetworkID": string,
+            "EndpointID": string
+        }
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-endpoint  # noqa
+    """
+    json_data = request.get_json(force=True)
+    # TODO(tfukushima): Add a validation of the JSON data for the subnet.
+    app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteEndpoint"
+                     .format(json_data))
+
+    neutron_network_name = json_data['NetworkID']
+    endpoint_id = json_data['EndpointID']
+
+    filtered_networks = app.neutron.list_networks(name=neutron_network_name)
+
+    if not filtered_networks:
+        return jsonify({
+            'Err': "Neutron network associated with ID {0} doesn't exit."
+            .format(neutron_network_name)
+        })
+    elif len(filtered_networks) > 1:
+        raise exceptions.DuplicatedResourceException(
+            "Multiple Neutron Networks exist for NetworkID {0}"
+            .format(neutron_network_name))
+    else:
+        neutron_network_id = filtered_networks['networks'][0]['id']
+        filtered_ports = []
+        concerned_subnet_ids = []
+        try:
+            filtered_ports = app.neutron.list_ports(
+                network_id=neutron_network_id)
+            filtered_ports = [port for port in filtered_ports['ports']
+                              if endpoint_id in port['name']]
+            for port in filtered_ports:
+                fixed_ips = port.get('fixed_ips', [])
+                for fixed_ip in fixed_ips:
+                    concerned_subnet_ids.append(fixed_ip['subnet_id'])
+                app.neutron.delete_port(port['id'])
+        except n_exceptions.NeutronClientException as ex:
+            app.logger.error("Error happend during deleting a "
+                             "Neutron ports: {0}".format(ex))
+            raise
+
+        for subnet_id in concerned_subnet_ids:
+            # If the subnet to be deleted has any port, when some ports are
+            # referring to the subnets in other words, delete_subnet throws an
+            # exception, SubnetInUse that extends Conflict. This can happen
+            # when the multiple Docker endpoints are created with the same
+            # subnet CIDR and it's totally the normal case. So we'd just log
+            # that and continue to proceed.
+            try:
+                app.neutron.delete_subnet(subnet_id)
+            except n_exceptions.Conflict as ex:
+                app.logger.info("The subnet with ID {0} is still referred "
+                                "from other ports and it can't be deleted for "
+                                "now.".format(subnet_id))
+            except n_exceptions.NeutronClientException as ex:
+                app.logger.error("Error happend during deleting a "
+                                 "Neutron subnets: {0}".format(ex))
+                raise
+
+        return jsonify(SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.Join', methods=['POST'])
