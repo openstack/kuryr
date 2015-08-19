@@ -38,6 +38,27 @@ class TestKuryrBase(TestCase):
         self.mox.VerifyAll()
         self.mox.UnsetStubs()
 
+    def _mock_out_network(self, neutron_network_id, docker_network_id):
+        fake_list_response = {
+            "networks": [{
+                "status": "ACTIVE",
+                "subnets": [],
+                "name": docker_network_id,
+                "admin_state_up": True,
+                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
+                "router:external": False,
+                "segments": [],
+                "shared": False,
+                "id": neutron_network_id
+            }]
+        }
+        self.mox.StubOutWithMock(app.neutron, 'list_networks')
+        app.neutron.list_networks(
+            name=docker_network_id).AndReturn(fake_list_response)
+        self.mox.ReplayAll()
+
+        return neutron_network_id
+
 
 class TestKuryrFailures(TestKuryrBase):
     """Unitests for checking if Kuryr handles the failures appropriately."""

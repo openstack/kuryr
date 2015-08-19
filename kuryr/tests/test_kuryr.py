@@ -12,6 +12,7 @@
 
 import hashlib
 import random
+import uuid
 
 from ddt import ddt, data, unpack
 from oslo_serialization import jsonutils
@@ -92,24 +93,9 @@ class TestKuryr(TestKuryrBase):
     def test_network_driver_delete_network(self):
         docker_network_id = hashlib.sha256(
             str(random.getrandbits(256))).hexdigest()
-        fake_neutron_network_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
-        fake_list_response = {
-            "networks": [{
-                "status": "ACTIVE",
-                "subnets": [],
-                "name": docker_network_id,
-                "admin_state_up": True,
-                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
-                "router:external": False,
-                "segments": [],
-                "shared": False,
-                "id": fake_neutron_network_id
-            }]
-        }
+        fake_neutron_network_id = str(uuid.uuid4())
+        self._mock_out_network(fake_neutron_network_id, docker_network_id)
 
-        self.mox.StubOutWithMock(app.neutron, 'list_networks')
-        app.neutron.list_networks(
-            name=docker_network_id).AndReturn(fake_list_response)
         self.mox.StubOutWithMock(app.neutron, 'delete_network')
         app.neutron.delete_network(fake_neutron_network_id).AndReturn(None)
         self.mox.ReplayAll()
