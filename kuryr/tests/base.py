@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from neutronclient.tests.unit.test_cli20 import CLITestV20Base
+from neutronclient.tests.unit import test_cli20
 
 from kuryr import app
 
 
-class TestCase(CLITestV20Base):
+class TestCase(test_cli20.CLITestV20Base):
     """Test case base class for all unit tests."""
 
     def setUp(self):
