@@ -12,14 +12,13 @@
 
 import os
 
-from flask import jsonify
-from flask import request
-from jsonschema import validate
+import flask
+import jsonschema
 import netaddr
 from neutronclient.common import exceptions as n_exceptions
 
 from kuryr import app
-from kuryr.constants import SCHEMA
+from kuryr import constants
 from kuryr import exceptions
 from kuryr import schemata
 from kuryr import utils
@@ -175,7 +174,7 @@ def _create_subnets_and_or_port(interfaces, neutron_network_id, endpoint_id):
 
 @app.route('/Plugin.Activate', methods=['POST'])
 def plugin_activate():
-    return jsonify(SCHEMA['PLUGIN_ACTIVATE'])
+    return flask.jsonify(constants.SCHEMA['PLUGIN_ACTIVATE'])
 
 
 @app.route('/NetworkDriver.CreateNetwork', methods=['POST'])
@@ -197,10 +196,10 @@ def network_driver_create_network():
 
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-network  # noqa
     """
-    json_data = request.get_json(force=True)
+    json_data = flask.request.get_json(force=True)
     app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateNetwork"
                      .format(json_data))
-    validate(json_data, schemata.NETWORK_CREATE_SCHEMA)
+    jsonschema.validate(json_data, schemata.NETWORK_CREATE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
 
@@ -209,7 +208,7 @@ def network_driver_create_network():
 
     app.logger.info("Created a new network with name {0} successfully: {1}"
                     .format(neutron_network_name, network))
-    return jsonify(SCHEMA['SUCCESS'])
+    return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.DeleteNetwork', methods=['POST'])
@@ -227,10 +226,10 @@ def network_driver_delete_network():
 
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-network  # noqa
     """
-    json_data = request.get_json(force=True)
+    json_data = flask.request.get_json(force=True)
     app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteNetwork"
                      .format(json_data))
-    validate(json_data, schemata.NETWORK_DELETE_SCHEMA)
+    jsonschema.validate(json_data, schemata.NETWORK_DELETE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
 
@@ -251,7 +250,7 @@ def network_driver_delete_network():
         app.neutron.delete_network(neutron_network_id)
         app.logger.info("Deleted the network with ID {0} successfully"
                         .format(neutron_network_id))
-        return jsonify(SCHEMA['SUCCESS'])
+        return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.CreateEndpoint', methods=['POST'])
@@ -279,10 +278,10 @@ def network_driver_create_endpoint():
 
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-endpoint  # noqa
     """
-    json_data = request.get_json(force=True)
+    json_data = flask.request.get_json(force=True)
     app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateEndpoint"
                      .format(json_data))
-    validate(json_data, schemata.ENDPOINT_CREATE_SCHEMA)
+    jsonschema.validate(json_data, schemata.ENDPOINT_CREATE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
     endpoint_id = json_data['EndpointID']
@@ -290,7 +289,7 @@ def network_driver_create_endpoint():
     filtered_networks = app.neutron.list_networks(name=neutron_network_name)
 
     if not filtered_networks:
-        return jsonify({
+        return flask.jsonify({
             'Err': "Neutron network associated with ID {0} doesn't exit."
             .format(neutron_network_name)
         })
@@ -304,12 +303,12 @@ def network_driver_create_endpoint():
         response_interfaces = _create_subnets_and_or_port(
             interfaces, neutron_network_id, endpoint_id)
 
-        return jsonify({'Interfaces': response_interfaces})
+        return flask.jsonify({'Interfaces': response_interfaces})
 
 
 @app.route('/NetworkDriver.EndpointOperInfo', methods=['POST'])
 def network_driver_endpoint_operational_info():
-    return jsonify(SCHEMA['ENDPOINT_OPER_INFO'])
+    return flask.jsonify(constants.SCHEMA['ENDPOINT_OPER_INFO'])
 
 
 @app.route('/NetworkDriver.DeleteEndpoint', methods=['POST'])
@@ -328,10 +327,10 @@ def network_driver_delete_endpoint():
 
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-endpoint  # noqa
     """
-    json_data = request.get_json(force=True)
+    json_data = flask.request.get_json(force=True)
     app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteEndpoint"
                      .format(json_data))
-    validate(json_data, schemata.ENDPOINT_DELETE_SCHEMA)
+    jsonschema.validate(json_data, schemata.ENDPOINT_DELETE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
     endpoint_id = json_data['EndpointID']
@@ -339,7 +338,7 @@ def network_driver_delete_endpoint():
     filtered_networks = app.neutron.list_networks(name=neutron_network_name)
 
     if not filtered_networks:
-        return jsonify({
+        return flask.jsonify({
             'Err': "Neutron network associated with ID {0} doesn't exit."
             .format(neutron_network_name)
         })
@@ -384,14 +383,14 @@ def network_driver_delete_endpoint():
                                  "Neutron subnets: {0}".format(ex))
                 raise
 
-        return jsonify(SCHEMA['SUCCESS'])
+        return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.Join', methods=['POST'])
 def network_driver_join():
-    return jsonify(SCHEMA['JOIN'])
+    return flask.jsonify(constants.SCHEMA['JOIN'])
 
 
 @app.route('/NetworkDriver.Leave', methods=['POST'])
 def network_driver_leave():
-    return jsonify(SCHEMA['SUCCESS'])
+    return flask.jsonify(constants.SCHEMA['SUCCESS'])
