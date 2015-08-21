@@ -10,13 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from flask import Flask, jsonify
-from jsonschema import ValidationError
-from neutronclient.common.exceptions import NeutronClientException
+import flask
+import jsonschema
+from neutronclient.common import exceptions as n_exceptions
 from neutronclient.neutron import client
 from neutronclient.v2_0 import client as client_v2
-from werkzeug.exceptions import default_exceptions
-from werkzeug.exceptions import HTTPException
+from werkzeug import exceptions as w_exceptions
 
 
 def get_neutron_client_simple(url, token):
@@ -52,24 +51,24 @@ def make_json_app(import_name, **kwargs):
     See:
       - https://github.com/docker/libnetwork/blob/3c8e06bc0580a2a1b2440fe0792fbfcd43a9feca/docs/remote.md#errors  # noqa
     """
-    app = Flask(import_name, **kwargs)
+    app = flask.Flask(import_name, **kwargs)
 
-    @app.errorhandler(NeutronClientException)
-    @app.errorhandler(ValidationError)
+    @app.errorhandler(n_exceptions.NeutronClientException)
+    @app.errorhandler(jsonschema.ValidationError)
     def make_json_error(ex):
-        response = jsonify({"Err": str(ex)})
+        response = flask.jsonify({"Err": str(ex)})
         response.status_code = 500
-        if isinstance(ex, HTTPException):
+        if isinstance(ex, w_exceptions.HTTPException):
             response.status_code = ex.code
-        elif isinstance(ex, NeutronClientException):
+        elif isinstance(ex, n_exceptions.NeutronClientException):
             response.status_code = ex.status_code
-        elif isinstance(ex, ValidationError):
+        elif isinstance(ex, jsonschema.ValidationError):
             response.status_code = 400
         content_type = 'application/vnd.docker.plugins.v1+json; charset=utf-8'
         response.headers['Content-Type'] = content_type
         return response
 
-    for code in default_exceptions.iterkeys():
+    for code in w_exceptions.default_exceptions.iterkeys():
         app.error_handler_spec[None][code] = make_json_error
 
     return app
