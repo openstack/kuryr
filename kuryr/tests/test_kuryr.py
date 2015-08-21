@@ -14,16 +14,16 @@ import hashlib
 import random
 import uuid
 
-from ddt import ddt, data, unpack
+import ddt
 from oslo_serialization import jsonutils
 
 from kuryr import app
-from kuryr.constants import SCHEMA
-from kuryr.tests.base import TestKuryrBase
+from kuryr import constants
+from kuryr.tests import base
 
 
-@ddt
-class TestKuryr(TestKuryrBase):
+@ddt.ddt
+class TestKuryr(base.TestKuryrBase):
     """Basic unitests for libnetwork remote driver URI endpoints.
 
     This test class covers the following HTTP methods and URIs as described in
@@ -40,11 +40,12 @@ class TestKuryr(TestKuryrBase):
     - POST /NetworkDriver.Join
     - POST /NetworkDriver.Leave
     """
-    @data(('/Plugin.Activate', SCHEMA['PLUGIN_ACTIVATE']),
-        ('/NetworkDriver.EndpointOperInfo', SCHEMA['ENDPOINT_OPER_INFO']),
-        ('/NetworkDriver.Join', SCHEMA['JOIN']),
-        ('/NetworkDriver.Leave', SCHEMA['SUCCESS']))
-    @unpack
+    @ddt.data(('/Plugin.Activate', constants.SCHEMA['PLUGIN_ACTIVATE']),
+        ('/NetworkDriver.EndpointOperInfo',
+         constants.SCHEMA['ENDPOINT_OPER_INFO']),
+        ('/NetworkDriver.Join', constants.SCHEMA['JOIN']),
+        ('/NetworkDriver.Leave', constants.SCHEMA['SUCCESS']))
+    @ddt.unpack
     def test_remote_driver_endpoint(self, endpoint, expected):
         response = self.app.post(endpoint)
         decoded_json = jsonutils.loads(response.data)
@@ -86,7 +87,7 @@ class TestKuryr(TestKuryrBase):
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertEqual(SCHEMA['SUCCESS'], decoded_json)
+        self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
     def test_network_driver_delete_network(self):
         docker_network_id = hashlib.sha256(
@@ -105,7 +106,7 @@ class TestKuryr(TestKuryrBase):
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertEqual(SCHEMA['SUCCESS'], decoded_json)
+        self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
     def test_network_driver_create_endpoint(self):
         docker_network_id = hashlib.sha256(
@@ -308,4 +309,4 @@ class TestKuryr(TestKuryrBase):
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertEqual(SCHEMA['SUCCESS'], decoded_json)
+        self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
