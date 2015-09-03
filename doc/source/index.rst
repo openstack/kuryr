@@ -17,6 +17,14 @@ Contents:
    usage
    contributing
 
+Design and Developer Docs
+==========================
+
+.. toctree::
+   :maxdepth: 1
+
+   devref/index
+
 Indices and tables
 ==================
 
