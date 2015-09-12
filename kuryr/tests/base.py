@@ -32,11 +32,8 @@ class TestKuryrBase(TestCase):
     def setUp(self):
         super(TestKuryrBase, self).setUp()
         self.app.neutron.format = 'json'
-
-    def tearDown(self):
-        super(TestKuryrBase, self).tearDown()
-        self.mox.VerifyAll()
-        self.mox.UnsetStubs()
+        self.addCleanup(self.mox.VerifyAll)
+        self.addCleanup(self.mox.UnsetStubs)
 
     def _mock_out_network(self, neutron_network_id, docker_network_id):
         fake_list_response = {
