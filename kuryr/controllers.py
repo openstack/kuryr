@@ -105,7 +105,7 @@ def network_driver_delete_network():
     else:
         neutron_network_id = filtered_networks['networks'][0]['id']
         app.neutron.delete_network(neutron_network_id)
-        app.logger.info("Deleted the network with ID {} successfully"
+        app.logger.info("Deleted the network with ID {0} successfully"
                         .format(neutron_network_id))
         return jsonify(SCHEMA['SUCCESS'])
 
