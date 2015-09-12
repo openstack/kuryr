@@ -4,8 +4,9 @@ kuryr
 
 Docker for Openstack Neutron
 
-Kuryr is a Docker network plugin that uses Neutron to provide networking services to Docker containers.
-It provides containerised images for the common Neutron plugins.
+Kuryr is a Docker network plugin that uses Neutron to provide networking
+services to Docker containers. It provides containerised images for the
+common Neutron plugins.
 
 
 * Free software: Apache license
