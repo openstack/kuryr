@@ -10,12 +10,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 import flask
 import jsonschema
 from neutronclient.common import exceptions as n_exceptions
 from neutronclient.neutron import client
 from neutronclient.v2_0 import client as client_v2
 from werkzeug import exceptions as w_exceptions
+
+
+DOCKER_NETNS_BASE = '/var/run/docker/netns'
 
 
 def get_neutron_client_simple(url, token):
@@ -72,3 +77,12 @@ def make_json_app(import_name, **kwargs):
         app.error_handler_spec[None][code] = make_json_error
 
     return app
+
+
+def get_sandbox_key(container_id):
+    """Returns a sandbox key constructed with the given container ID.
+
+    :param container_id: the ID of the Docker container as string
+    :returns: the constructed sandbox key as string
+    """
+    return os.path.join(DOCKER_NETNS_BASE, container_id[:12])
