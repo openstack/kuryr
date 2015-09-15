@@ -18,8 +18,8 @@ import netaddr
 from neutronclient.common import exceptions as n_exceptions
 
 from kuryr import app
-from kuryr import constants
-from kuryr import exceptions
+from kuryr.common import constants
+from kuryr.common import exceptions
 from kuryr import schemata
 from kuryr import utils
 

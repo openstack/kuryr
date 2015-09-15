@@ -20,7 +20,7 @@ from neutronclient.common import exceptions
 from oslo_serialization import jsonutils
 
 from kuryr import app
-from kuryr import constants
+from kuryr.common import constants
 from kuryr.tests.base import TestKuryrFailures
 
 
