@@ -14,18 +14,29 @@ import os
 
 from flask import jsonify
 from flask import request
-from neutronclient.neutron import client
 
 from kuryr import app
 from kuryr.constants import SCHEMA
 from kuryr import exceptions
+from kuryr import utils
 
-
-OS_URL = os.environ.get('OS_URL', 'http://127.0.0.1:9696/')
-OS_TOKEN = os.environ.get('OS_TOKEN', '9999888877776666')
 
 # TODO(tfukushima): Retrieve configuration info from a config file.
-app.neutron = client.Client('2.0', endpoint_url=OS_URL, token=OS_TOKEN)
+OS_URL = os.environ.get('OS_URL', 'http://127.0.0.1:9696/')
+OS_TOKEN = os.environ.get('OS_TOKEN', '9999888877776666')
+OS_AUTH_URL = os.environ.get('OS_AUTH_URL', 'https://127.0.0.1:5000/v2.0/')
+OS_USERNAME = os.environ.get('OS_USERNAME', '')
+OS_PASSWORD = os.environ.get('OS_PASSWORD', '')
+OS_TENANT_NAME = os.environ.get('OS_TENANT_NAME', '')
+
+if OS_USERNAME and OS_PASSWORD:
+    # Authenticate with password crentials
+    app.neutron = utils.get_neutron_client(
+        url=OS_URL, username=OS_USERNAME, tenant_name=OS_TENANT_NAME,
+        password=OS_PASSWORD, auth_url=OS_AUTH_URL)
+else:
+    app.neutron = utils.get_neutron_client_simple(url=OS_URL, token=OS_TOKEN)
+
 app.neutron.format = 'json'
 
 
@@ -54,7 +65,6 @@ def network_driver_create_network():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-network  # noqa
     """
     json_data = request.get_json(force=True)
-
     app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateNetwork"
                      .format(json_data))
     # TODO(tfukushima): Add a validation of the JSON data for the network.

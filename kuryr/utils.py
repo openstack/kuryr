@@ -12,8 +12,28 @@
 
 from flask import Flask, jsonify
 from neutronclient.common.exceptions import NeutronClientException
+from neutronclient.neutron import client
+from neutronclient.v2_0 import client as client_v2
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
+
+
+def get_neutron_client_simple(url, token):
+    return client.Client('2.0', endpoint_url=url, token=token)
+
+
+def get_neutron_client(url, username, tenant_name, password,
+                       auth_url, timeout=30):
+    params = {
+        'endpoint_url': url,
+        'timeout': timeout,
+    }
+
+    params['username'] = username
+    params['tenant_name'] = tenant_name
+    params['password'] = password
+    params['auth_url'] = auth_url
+    return client_v2.Client(**params)
 
 
 # Return all errors as JSON. From http://flask.pocoo.org/snippets/83/
