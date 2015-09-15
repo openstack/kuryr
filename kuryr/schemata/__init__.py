@@ -12,5 +12,6 @@
 
 from kuryr.schemata.endpoint_create import ENDPOINT_CREATE_SCHEMA  # noqa
 from kuryr.schemata.endpoint_delete import ENDPOINT_DELETE_SCHEMA  # noqa
+from kuryr.schemata.join import JOIN_SCHEMA  # noqa
 from kuryr.schemata.network_create import NETWORK_CREATE_SCHEMA  # noqa
 from kuryr.schemata.network_delete import NETWORK_DELETE_SCHEMA  # noqa

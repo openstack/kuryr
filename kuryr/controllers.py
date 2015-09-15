@@ -388,6 +388,46 @@ def network_driver_delete_endpoint():
 
 @app.route('/NetworkDriver.Join', methods=['POST'])
 def network_driver_join():
+    """Binds a Neutron Port to a network interface attached to a container.
+
+    This function takes the following JSON data, creates a veth pair, put one
+    end inside of the container and binds another end to the Neutron Port
+    specified in the request. ::
+
+        {
+            "NetworkID": string,
+            "EndpointID": string,
+            "SandboxKey": string,
+            "Options": {
+                ...
+            }
+        }
+
+    If the binding is succeeded, the following JSON response is returned.::
+
+        {
+            "InterfaceName": {
+                SrcName: string,
+                DstPrefix: string
+            },
+            "Gateway": string,
+            "GatewayIPv6": string,
+            "StaticRoutes": [{
+                "Destination": string,
+                "RouteType": int,
+                "NextHop": string,
+            }, ...]
+        }
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#join  # noqa
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for /NetworkDriver.Join"
+                     .format(json_data))
+    jsonschema.validate(json_data, schemata.JOIN_SCHEMA)
+
     return flask.jsonify(constants.SCHEMA['JOIN'])
 
 

@@ -20,6 +20,7 @@ from oslo_serialization import jsonutils
 from kuryr import app
 from kuryr.common import constants
 from kuryr.tests import base
+from kuryr import utils
 
 
 @ddt.ddt
@@ -43,7 +44,6 @@ class TestKuryr(base.TestKuryrBase):
     @ddt.data(('/Plugin.Activate', constants.SCHEMA['PLUGIN_ACTIVATE']),
         ('/NetworkDriver.EndpointOperInfo',
          constants.SCHEMA['ENDPOINT_OPER_INFO']),
-        ('/NetworkDriver.Join', constants.SCHEMA['JOIN']),
         ('/NetworkDriver.Leave', constants.SCHEMA['SUCCESS']))
     @ddt.unpack
     def test_remote_driver_endpoint(self, endpoint, expected):
@@ -310,3 +310,26 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
+
+    def test_network_driver_join(self):
+        fake_docker_network_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+        fake_docker_endpoint_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+        fake_container_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+
+        data = {
+            'NetworkID': fake_docker_network_id,
+            'EndpointID': fake_docker_endpoint_id,
+            'SandboxKey': utils.get_sandbox_key(fake_container_id),
+            'Options': {},
+        }
+        response = self.app.post('/NetworkDriver.Join',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(data))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        app.logger.info(decoded_json)
+        self.assertEqual(constants.SCHEMA['JOIN'], decoded_json)
