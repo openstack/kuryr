@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr.schemata.commons import COMMONS
+from kuryr.schemata import commons
 
 NETWORK_CREATE_SCHEMA = {
     u'links': [{
@@ -37,4 +37,4 @@ NETWORK_CREATE_SCHEMA = {
     }
 }
 
-NETWORK_CREATE_SCHEMA[u'definitions'][u'commons'] = COMMONS
+NETWORK_CREATE_SCHEMA[u'definitions'][u'commons'] = commons.COMMONS

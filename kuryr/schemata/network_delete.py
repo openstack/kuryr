@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr.schemata.commons import COMMONS
+from kuryr.schemata import commons
 
 NETWORK_DELETE_SCHEMA = {
     u'links': [{
@@ -33,4 +33,4 @@ NETWORK_DELETE_SCHEMA = {
     }
 }
 
-NETWORK_DELETE_SCHEMA[u'definitions'][u'commons'] = COMMONS
+NETWORK_DELETE_SCHEMA[u'definitions'][u'commons'] = commons.COMMONS

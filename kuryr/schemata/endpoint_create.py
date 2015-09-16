@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr.schemata.commons import COMMONS
+from kuryr.schemata import commons
 
 ENDPOINT_CREATE_SCHEMA = {
     u'links': [{
@@ -48,4 +48,4 @@ ENDPOINT_CREATE_SCHEMA = {
     }
 }
 
-ENDPOINT_CREATE_SCHEMA[u'definitions'][u'commons'] = COMMONS
+ENDPOINT_CREATE_SCHEMA[u'definitions'][u'commons'] = commons.COMMONS
