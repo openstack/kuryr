@@ -14,17 +14,16 @@ import hashlib
 import random
 import uuid
 
-from ddt import data
-from ddt import ddt
+import ddt
 from neutronclient.common import exceptions
 from oslo_serialization import jsonutils
 
 from kuryr import app
 from kuryr.common import constants
-from kuryr.tests.base import TestKuryrFailures
+from kuryr.tests import base
 
 
-class TestKuryrEndpointFailures(TestKuryrFailures):
+class TestKuryrEndpointFailures(base.TestKuryrFailures):
     """Base class that has the methods commonly shared among endpoint tests.
 
     This class mainly has the methods for mocking API calls against Neutron.
@@ -201,7 +200,7 @@ class TestKuryrEndpointFailures(TestKuryrFailures):
         self.mox.ReplayAll()
 
 
-@ddt
+@ddt.ddt
 class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
     """Unit tests for the failures for creating endpoints.
 
@@ -226,8 +225,8 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
                                  data=jsonutils.dumps(data))
         return response
 
-    @data(exceptions.Unauthorized, exceptions.Forbidden, exceptions.NotFound,
-          exceptions.Conflict)
+    @ddt.data(exceptions.Unauthorized, exceptions.Forbidden,
+              exceptions.NotFound, exceptions.Conflict)
     def test_create_endpoint_subnet_failures(self, GivenException):
         fake_docker_network_id = hashlib.sha256(
             str(random.getrandbits(256))).hexdigest()
@@ -255,8 +254,8 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
         self.assertTrue('Err' in decoded_json)
         self.assertEqual({'Err': GivenException.message}, decoded_json)
 
-    @data(exceptions.Unauthorized, exceptions.Forbidden, exceptions.NotFound,
-          exceptions.ServiceUnavailable)
+    @ddt.data(exceptions.Unauthorized, exceptions.Forbidden,
+              exceptions.NotFound, exceptions.ServiceUnavailable)
     def test_create_endpoint_port_failures(self, GivenException):
         fake_docker_network_id = hashlib.sha256(
             str(random.getrandbits(256))).hexdigest()
@@ -308,7 +307,7 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
         self.assertTrue('EndpointID' in decoded_json['Err'])
 
 
-@ddt
+@ddt.ddt
 class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
     """Unit tests for the failures for deleting endpoints.
 
@@ -323,7 +322,8 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
                                  data=jsonutils.dumps(data))
         return response
 
-    @data(exceptions.Unauthorized, exceptions.NotFound, exceptions.Conflict)
+    @ddt.data(exceptions.Unauthorized, exceptions.NotFound,
+              exceptions.Conflict)
     def test_delete_endpoint_subnet_failures(self, GivenException):
         fake_docker_network_id = hashlib.sha256(
             str(random.getrandbits(256))).hexdigest()
@@ -367,7 +367,8 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
             self.assertTrue('Err' in decoded_json)
             self.assertEqual({'Err': GivenException.message}, decoded_json)
 
-    @data(exceptions.Unauthorized, exceptions.NotFound, exceptions.Conflict)
+    @ddt.data(exceptions.Unauthorized, exceptions.NotFound,
+              exceptions.Conflict)
     def test_delete_endpiont_port_failures(self, GivenException):
         fake_docker_network_id = hashlib.sha256(
             str(random.getrandbits(256))).hexdigest()
