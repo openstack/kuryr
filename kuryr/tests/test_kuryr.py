@@ -121,12 +121,12 @@ class TestKuryr(base.TestKuryrBase):
         fake_existing_subnets_response = {
             "subnets": []
         }
-        fake_cidr_v4 = '192.168.1.2/24'
+        fake_cidr_v4 = '192.168.1.0/24'
         app.neutron.list_subnets(
             network_id=fake_neutron_network_id,
             cidr=fake_cidr_v4).AndReturn(fake_existing_subnets_response)
 
-        fake_cidr_v6 = 'fe80::f816:3eff:fe20:57c4/64'
+        fake_cidr_v6 = 'fe80::/64'
         app.neutron.list_subnets(
             network_id=fake_neutron_network_id,
             cidr=fake_cidr_v6).AndReturn(fake_existing_subnets_response)
@@ -187,8 +187,10 @@ class TestKuryr(base.TestKuryrBase):
         app.neutron.create_subnet(
             fake_subnet_request).AndReturn(fake_subnet_response)
 
-        subnet_v4_address = fake_cidr_v4.split('/')[0]
-        subnet_v6_address = fake_cidr_v6.split('/')[0]
+        fake_ipv4cidr = '192.168.1.2/24'
+        fake_ipv6cidr = 'fe80::f816:3eff:fe20:57c4/64'
+        subnet_v4_address = fake_ipv4cidr.split('/')[0]
+        subnet_v6_address = fake_ipv6cidr.split('/')[0]
         self.mox.StubOutWithMock(app.neutron, 'create_port')
         fake_port_request = {
             'port': {
@@ -238,8 +240,8 @@ class TestKuryr(base.TestKuryrBase):
             'Options': {},
             'Interfaces': [{
                 'ID': 0,
-                'Address': '192.168.1.2/24',
-                'AddressIPv6': 'fe80::f816:3eff:fe20:57c4/64',
+                'Address': fake_ipv4cidr,
+                'AddressIPv6': fake_ipv6cidr,
                 'MacAddress': "fa:16:3e:20:57:c3"
             }]
         }

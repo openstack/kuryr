@@ -72,9 +72,13 @@ def _handle_allocation_from_pools(neutron_network_id, existing_subnets):
 
 
 def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
-                    new_subnets, existing_subnets):
+                    new_subnets, existing_subnets, pool_id=None):
+    cidr = netaddr.IPNetwork(interface_cidr)
+    subnet_network = str(cidr.network)
+    subnet_cidr = '/'.join([subnet_network,
+                            str(cidr.prefixlen)])
     subnets = _get_subnets_by_attrs(
-        network_id=neutron_network_id, cidr=interface_cidr)
+        network_id=neutron_network_id, cidr=subnet_cidr)
     if subnets:
         existing_subnets += subnets
     else:

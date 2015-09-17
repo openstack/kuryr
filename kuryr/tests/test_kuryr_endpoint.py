@@ -237,10 +237,10 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
         self.mox.StubOutWithMock(app.neutron, 'list_subnets')
         app.neutron.list_subnets(
             network_id=fake_neutron_network_id,
-            cidr='192.168.1.2/24').AndReturn({'subnets': []})
+            cidr='192.168.1.0/24').AndReturn({'subnets': []})
         app.neutron.list_subnets(
             network_id=fake_neutron_network_id,
-            cidr='fe80::f816:3eff:fe20:57c4/64').AndReturn({'subnets': []})
+            cidr='fe80::/64').AndReturn({'subnets': []})
 
         self._create_subnet_with_exception(
             fake_neutron_network_id, fake_docker_endpoint_id, GivenException())
@@ -266,10 +266,10 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
         self.mox.StubOutWithMock(app.neutron, 'list_subnets')
         app.neutron.list_subnets(
             network_id=fake_neutron_network_id,
-            cidr='192.168.1.2/24').AndReturn({'subnets': []})
+            cidr='192.168.1.0/24').AndReturn({'subnets': []})
         app.neutron.list_subnets(
             network_id=fake_neutron_network_id,
-            cidr='fe80::f816:3eff:fe20:57c4/64').AndReturn({'subnets': []})
+            cidr='fe80::/64').AndReturn({'subnets': []})
 
         (fake_neutron_subnet_v4_id,
          fake_neutron_subnet_v6_id) = self._create_subnet_with_exception(
