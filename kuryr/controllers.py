@@ -92,16 +92,24 @@ def _get_subnets_by_attrs(**attrs):
     return subnets['subnets']
 
 
-def _handle_allocation_from_pools(neutron_network_id, existing_subnets):
-    for v4_subnet_name in SUBNET_POOLS_V4:
-        v4_subnets = _get_subnets_by_attrs(
-            network_id=neutron_network_id, name=v4_subnet_name)
-        existing_subnets += v4_subnets
+def _get_ports_by_attrs(**attrs):
+    ports = app.neutron.list_ports(**attrs)
+    if len(ports.get('ports', [])) > 1:
+        raise exceptions.DuplicatedResourceException(
+            "Multiple Neutron ports exist for the params {0} "
+            .format(', '.join(['{0}={1}'.format(k, v)
+                               for k, v in attrs.items()])))
+    return ports['ports']
 
-    for v6_subnet_name in SUBNET_POOLS_V6:
-        v6_subnets = _get_subnets_by_attrs(
-            network_id=neutron_network_id, name=v6_subnet_name)
-        existing_subnets += v6_subnets
+
+def _get_subnetpools_by_attrs(**attrs):
+    subnetpools = app.neutron.list_subnetpools(**attrs)
+    if len(subnetpools.get('subnetpools', [])) > 1:
+        raise exceptions.DuplicatedResourceException(
+            "Multiple Neutron subnetspool exist for the params {0} "
+            .format(', '.join(['{0}={1}'.format(k, v)
+                               for k, v in attrs.items()])))
+    return subnetpools['subnetpools']
 
 
 def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
@@ -115,12 +123,54 @@ def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
     if subnets:
         existing_subnets += subnets
     else:
-        new_subnets.append({
+
+        cidr = netaddr.IPNetwork(interface_cidr)
+        subnet_network = str(cidr.network)
+        subnet_cidr = '/'.join([subnet_network,
+                                str(cidr.prefixlen)])
+        new_subnet = {
             'name': '-'.join([endpoint_id, subnet_network]),
             'network_id': neutron_network_id,
             'ip_version': cidr.version,
             'cidr': subnet_cidr,
-        })
+        }
+        if pool_id:
+            del new_subnet['cidr']
+            new_subnet['subnetpool_id'] = pool_id
+
+        new_subnets.append(new_subnet)
+
+
+def _get_or_create_subnet_by_pools(subnetpool_names, neutron_network_id,
+                                   endpoint_id, new_subnets, existing_subnets):
+    for subnetpool_name in subnetpool_names:
+        pools = _get_subnetpools_by_attrs(name=subnetpool_name)
+        if pools:
+            pool = pools[0]
+            prefixes = pool['prefixes']
+            for prefix in prefixes:
+                _process_subnet(neutron_network_id, endpoint_id, prefix,
+                                new_subnets, existing_subnets,
+                                pool_id=pool['id'])
+    if not (new_subnets or existing_subnets):
+        raise exceptions.NoResourceException(
+            "No subnetpools with name {0} is found."
+            .format(', '.join(subnetpool_names)))
+
+
+def _handle_allocation_from_pools(neutron_network_id, endpoint_id,
+                                  new_subnets, existing_subnets):
+    _get_or_create_subnet_by_pools(SUBNET_POOLS_V4, neutron_network_id,
+                                   endpoint_id, new_subnets, existing_subnets)
+    _get_or_create_subnet_by_pools(SUBNET_POOLS_V6, neutron_network_id,
+                                   endpoint_id, new_subnets, existing_subnets)
+
+    created_subnets_response = {'subnets': []}
+    if new_subnets:
+        created_subnets_response = app.neutron.create_subnet(
+            {'subnets': new_subnets})
+
+    return created_subnets_response
 
 
 def _handle_explicit_allocation(neutron_network_id, endpoint_id,
@@ -134,11 +184,13 @@ def _handle_explicit_allocation(neutron_network_id, endpoint_id,
         _process_subnet(neutron_network_id, endpoint_id, interface_cidrv6,
                         new_subnets, existing_subnets)
 
+    created_subnets_response = {'subnets': []}
     if new_subnets:
         # Bulk create operation of subnets
-        created_subnets = app.neutron.create_subnet({'subnets': new_subnets})
+        created_subnets_response = app.neutron.create_subnet(
+            {'subnets': new_subnets})
 
-        return created_subnets
+    return created_subnets_response
 
 
 def _create_subnets_and_or_port(interfaces, neutron_network_id, endpoint_id):
@@ -150,7 +202,7 @@ def _create_subnets_and_or_port(interfaces, neutron_network_id, endpoint_id):
 
     for interface in interfaces:
         existing_subnets = []
-        created_subnets = {}
+        created_subnets_response = {}
         # v4 and v6 Subnets for bulk creation.
         new_subnets = []
 
@@ -160,12 +212,15 @@ def _create_subnets_and_or_port(interfaces, neutron_network_id, endpoint_id):
         interface_mac = interface.get('MacAddress', '')
 
         if interface_cidrv4 or interface_cidrv6:
-            created_subnets = _handle_explicit_allocation(
+            created_subnets_response = _handle_explicit_allocation(
                 neutron_network_id, endpoint_id, interface_cidrv4,
                 interface_cidrv6, new_subnets, existing_subnets)
         else:
-            _handle_allocation_from_pools(
-                neutron_network_id, existing_subnets)
+            app.logger.info("Retrieving or creating subnets with the default "
+                            "subnetpool because Address and AddressIPv6 are "
+                            "not given.")
+            created_subnets_response = _handle_allocation_from_pools(
+                neutron_network_id, endpoint_id, new_subnets, existing_subnets)
 
         try:
             port = {
@@ -175,15 +230,15 @@ def _create_subnets_and_or_port(interfaces, neutron_network_id, endpoint_id):
             }
             if interface_mac:
                 port['mac_address'] = interface_mac
-            created_subnets = created_subnets.get('subnets', [])
+            created_subnets = created_subnets_response.get('subnets', [])
             all_subnets = created_subnets + existing_subnets
             fixed_ips = port['fixed_ips'] = []
             for subnet in all_subnets:
                 fixed_ip = {'subnet_id': subnet['id']}
                 if interface_cidrv4 or interface_cidrv6:
-                    if subnet['ip_version'] == 4:
+                    if subnet['ip_version'] == 4 and interface_cidrv4:
                         cidr = netaddr.IPNetwork(interface_cidrv4)
-                    else:
+                    elif subnet['ip_version'] == 6 and interface_cidrv6:
                         cidr = netaddr.IPNetwork(interface_cidrv6)
                     subnet_cidr = '/'.join([str(cidr.network),
                                             str(cidr.prefixlen)])

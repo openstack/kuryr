@@ -15,9 +15,33 @@ class KuryrException(Exception):
     """Default Kuryr exception"""
 
 
+class BindingFailure(KuryrException):
+    """Exception represents the binding is failed.
+
+    This exception is thrown when the executable script for the binding is
+    failed and Kuryr can't proceed further.
+    """
+
+
 class DuplicatedResourceException(KuryrException):
     """Exception represents there're multiple resources for the ID.
 
     This exception is thrown when you query the Neutron resouce associated with
     the ID and you get multiple resources.
+    """
+
+
+class NoResourceException(KuryrException):
+    """Exception represents there's no resource for the given query.
+
+    This exception is thrown when you query the Neutron resource associated
+    with the given query and you get none of them actually.
+    """
+
+
+class VethCreatationFailure(KuryrException):
+    """Exception represents the veth pair creation is failed.
+
+    This exception is thrown when the veth pair is not created appropriately
+    and Kuryr can't proceed the binding further.
     """
