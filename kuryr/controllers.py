@@ -82,10 +82,6 @@ def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
     if subnets:
         existing_subnets += subnets
     else:
-        cidr = netaddr.IPNetwork(interface_cidr)
-        subnet_network = str(cidr.network)
-        subnet_cidr = '/'.join([subnet_network,
-                                str(cidr.prefixlen)])
         new_subnets.append({
             'name': '-'.join([endpoint_id, subnet_network]),
             # Allocate all IP addresses in the subnet.
