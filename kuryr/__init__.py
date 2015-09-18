@@ -13,9 +13,9 @@
 import logging
 import sys
 
-from kuryr.utils import make_json_app
+from kuryr import utils
 
-app = make_json_app(__name__)
+app = utils.make_json_app(__name__)
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.INFO)
 
