@@ -56,6 +56,86 @@ class TestKuryrBase(TestCase):
 
         return neutron_network_id
 
+    @staticmethod
+    def _get_fake_subnets(docker_endpoint_id, neutron_network_id,
+                          fake_neutron_subnet_v4_id,
+                          fake_neutron_subnet_v6_id):
+        # The following fake response is retrieved from the Neutron doc:
+        #   http://developer.openstack.org/api-ref-networking-v2.html#createSubnet  # noqa
+        fake_subnet_response = {
+            "subnets": [{
+                "name": '-'.join([docker_endpoint_id, '192.168.1.0']),
+                "network_id": neutron_network_id,
+                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
+                "allocation_pools": [{"start": "192.168.1.2",
+                                      "end": "192.168.1.254"}],
+                "gateway_ip": "192.168.1.1",
+                "ip_version": 4,
+                "cidr": "192.168.1.0/24",
+                "id": fake_neutron_subnet_v4_id,
+                "enable_dhcp": True
+            }, {
+                "name": '-'.join([docker_endpoint_id, 'fe80::']),
+                "network_id": neutron_network_id,
+                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
+                "allocation_pools": [{"start": "fe80::f816:3eff:fe20:57c4",
+                                      "end": "fe80::ffff:ffff:ffff:ffff"}],
+                "gateway_ip": "fe80::f816:3eff:fe20:57c3",
+                "ip_version": 6,
+                "cidr": "fe80::/64",
+                "id": fake_neutron_subnet_v6_id,
+                "enable_dhcp": True
+            }]
+        }
+        return fake_subnet_response
+
+    @staticmethod
+    def _get_fake_port(docker_endpoint_id, neutron_network_id,
+                       fake_neutron_port_id,
+                       fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id):
+        # The following fake response is retrieved from the Neutron doc:
+        #   http://developer.openstack.org/api-ref-networking-v2.html#createPort  # noqa
+        fake_port = {
+            'port': {
+                "status": "DOWN",
+                "name": '-'.join([docker_endpoint_id, '0', 'port']),
+                "allowed_address_pairs": [],
+                "admin_state_up": True,
+                "network_id": neutron_network_id,
+                "tenant_id": "d6700c0c9ffa4f1cb322cd4a1f3906fa",
+                "device_owner": "",
+                "mac_address": "fa:16:3e:20:57:c3",
+                "fixed_ips": [{
+                    "subnet_id": fake_neutron_subnet_v4_id,
+                    "ip_address": "192.168.1.2"
+                }, {
+                    "subnet_id": fake_neutron_subnet_v6_id,
+                    "ip_address": "fe80::f816:3eff:fe20:57c4"
+                }],
+                "id": fake_neutron_port_id,
+                "security_groups": [],
+                "device_id": ""
+            }
+        }
+        return fake_port
+
+    @classmethod
+    def _get_fake_ports(cls, docker_endpoint_id, neutron_network_id,
+                        fake_neutron_port_id,
+                        fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id):
+        fake_port = cls._get_fake_port(
+            docker_endpoint_id, neutron_network_id,
+            fake_neutron_port_id,
+            fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id)
+        fake_port = fake_port['port']
+        fake_ports = {
+            'ports': [
+                fake_port
+            ]
+        }
+
+        return fake_ports
+
 
 class TestKuryrFailures(TestKuryrBase):
     """Unitests for checking if Kuryr handles the failures appropriately."""

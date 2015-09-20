@@ -153,37 +153,9 @@ class TestKuryr(base.TestKuryrBase):
         #   http://developer.openstack.org/api-ref-networking-v2.html#createSubnet  # noqa
         subnet_v4_id = "9436e561-47bf-436a-b1f1-fe23a926e031"
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
-        fake_subnet_response = {
-            "subnets": [{
-                "name": '-'.join([docker_endpoint_id,
-                                  '192.168.1.0']),
-                "network_id": docker_network_id,
-                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
-                "allocation_pools": [{
-                    "start": "192.168.1.2",
-                    "end": "192.168.1.254"
-                }],
-                "gateway_ip": "192.168.1.1",
-                "ip_version": 4,
-                "cidr": '192.168.1.0/24',
-                "id": subnet_v4_id,
-                "enable_dhcp": True
-            }, {
-                "name": '-'.join([docker_endpoint_id,
-                                  'fe80::']),
-                "network_id": docker_network_id,
-                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
-                "allocation_pools": [{
-                    "start": "fe80::f816:3eff:fe20:57c4",
-                    "end": "fe80::ffff:ffff:ffff:ffff"
-                }],
-                "gateway_ip": "fe80::f816:3eff:fe20:57c3",
-                "ip_version": 6,
-                "cidr": 'fe80::/64',
-                "id": subnet_v6_id,
-                "enable_dhcp": True
-            }]
-        }
+        fake_subnet_response = self._get_fake_subnets(
+            docker_endpoint_id, fake_neutron_network_id,
+            subnet_v4_id, subnet_v6_id)
         app.neutron.create_subnet(
             fake_subnet_request).AndReturn(fake_subnet_response)
 
@@ -207,30 +179,11 @@ class TestKuryr(base.TestKuryrBase):
                 }]
             }
         }
-        # The following fake response is retrieved from the Neutron doc:
-        #   http://developer.openstack.org/api-ref-networking-v2.html#createPort  # noqa
-        fake_port = {
-            "port": {
-                "status": "DOWN",
-                "name": '-'.join([docker_endpoint_id, '0', 'port']),
-                "allowed_address_pairs": [],
-                "admin_state_up": True,
-                "network_id": fake_neutron_network_id,
-                "tenant_id": "d6700c0c9ffa4f1cb322cd4a1f3906fa",
-                "device_owner": "",
-                "mac_address": "fa:16:3e:20:57:c3",
-                "fixed_ips": [{
-                    'subnet_id': subnet_v4_id,
-                    'ip_address': subnet_v4_address
-                }, {
-                    'subnet_id': subnet_v6_id,
-                    'ip_address': subnet_v6_address
-                }],
-                "id": "65c0ee9f-d634-4522-8954-51021b570b0d",
-                "security_groups": [],
-                "device_id": ""
-            }
-        }
+        fake_port_id = str(uuid.uuid4())
+        fake_port = self._get_fake_port(
+            docker_endpoint_id, fake_neutron_network_id,
+            fake_port_id,
+            subnet_v4_id, subnet_v6_id)
         app.neutron.create_port(fake_port_request).AndReturn(fake_port)
         self.mox.ReplayAll()
 
@@ -270,30 +223,9 @@ class TestKuryr(base.TestKuryrBase):
         app.neutron.delete_subnet(fake_subnet_v6_id).AndReturn(None)
 
         fake_neutron_port_id = '65c0ee9f-d634-4522-8954-51021b570b0d'
-        # The following fake response is retrieved from the Neutron doc:
-        #   http://developer.openstack.org/api-ref-networking-v2.html#createPort  # noqa
-        fake_ports = {
-            "ports": [{
-                "status": "DOWN",
-                "name": '-'.join([docker_endpoint_id, '0', 'port']),
-                "allowed_address_pairs": [],
-                "admin_state_up": True,
-                "network_id": fake_neutron_network_id,
-                "tenant_id": "d6700c0c9ffa4f1cb322cd4a1f3906fa",
-                "device_owner": "",
-                "mac_address": "fa:16:3e:20:57:c3",
-                "fixed_ips": [{
-                    "subnet_id": fake_subnet_v4_id,
-                    "ip_address": "192.168.1.2"
-                }, {
-                    "subnet_id": fake_subnet_v6_id,
-                    "ip_address": "fe80::f816:3eff:fe20:57c4"
-                }],
-                "id": fake_neutron_port_id,
-                "security_groups": [],
-                "device_id": ""
-            }]
-        }
+        fake_ports = self._get_fake_ports(
+            docker_endpoint_id, fake_neutron_network_id, fake_neutron_port_id,
+            fake_subnet_v4_id, fake_subnet_v6_id)
         self.mox.StubOutWithMock(app.neutron, 'list_ports')
         app.neutron.list_ports(
             network_id=fake_neutron_network_id).AndReturn(fake_ports)
