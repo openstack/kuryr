@@ -270,6 +270,17 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
         fake_neutron_subnet_v6_id = str(uuid.uuid4())
 
         self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
+
+        self.mox.StubOutWithMock(app.neutron, 'list_subnetpools')
+        fake_default_v4_subnetpool_id = str(uuid.uuid4())
+        app.neutron.list_subnetpools(name='kuryr').AndReturn(
+            self._get_fake_v4_subnetpools(
+                fake_default_v4_subnetpool_id))
+        fake_default_v6_subnetpool_id = str(uuid.uuid4())
+        app.neutron.list_subnetpools(name='kuryr6').AndReturn(
+            self._get_fake_v6_subnetpools(
+                fake_default_v6_subnetpool_id))
+
         fake_ports = self._get_fake_ports(
             fake_docker_endpoint_id, fake_neutron_network_id,
             fake_neutron_port_id,
@@ -279,6 +290,21 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
             network_id=fake_neutron_network_id).AndReturn(fake_ports)
         self.mox.StubOutWithMock(app.neutron, 'delete_port')
         app.neutron.delete_port(fake_neutron_port_id).AndReturn(None)
+
+        self.mox.StubOutWithMock(app.neutron, 'show_subnet')
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            fake_docker_network_id, fake_docker_endpoint_id,
+            fake_neutron_subnet_v4_id)
+        app.neutron.show_subnet(
+            fake_neutron_subnet_v4_id).AndReturn(fake_v4_subnet)
+
+        if GivenException is exceptions.Conflict:
+            fake_v6_subnet = self._get_fake_v6_subnet(
+                fake_docker_network_id, fake_docker_endpoint_id,
+                fake_neutron_subnet_v6_id)
+            app.neutron.show_subnet(
+                fake_neutron_subnet_v6_id).AndReturn(fake_v6_subnet)
+
         self.mox.ReplayAll()
 
         if GivenException is exceptions.Conflict:

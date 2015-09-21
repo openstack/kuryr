@@ -34,6 +34,8 @@ class TestKuryrBase(TestCase):
         self.app.neutron.format = 'json'
         self.addCleanup(self.mox.VerifyAll)
         self.addCleanup(self.mox.UnsetStubs)
+        if hasattr(app, 'DEFAULT_POOL_IDS'):
+            del app.DEFAULT_POOL_IDS
 
     def _mock_out_network(self, neutron_network_id, docker_network_id):
         fake_list_response = {
@@ -185,6 +187,54 @@ class TestKuryrBase(TestCase):
             fake_v6_subnet['subnet'].update(subnetpool_id=subnetpool_id)
 
         return fake_v6_subnet
+
+    @staticmethod
+    def _get_fake_v4_subnetpools(fake_kuryr_subnetpool_id):
+        # The following fake response is retrieved from the Neutron doc:
+        #   http://developer.openstack.org/api-ref-networking-v2-ext.html#listSubnetPools  # noqa
+        fake_kuryr_subnetpools = {
+            "subnetpools": [{
+                "min_prefixlen": "24",
+                "address_scope_id": None,
+                "default_prefixlen": "24",
+                "id": fake_kuryr_subnetpool_id,
+                "max_prefixlen": "24",
+                "name": "kuryr",
+                "default_quota": None,
+                "tenant_id": "9fadcee8aa7c40cdb2114fff7d569c08",
+                "prefixes": [
+                    "192.168.1.0/24"
+                ],
+                "ip_version": 4,
+                "shared": False
+            }]
+        }
+
+        return fake_kuryr_subnetpools
+
+    @staticmethod
+    def _get_fake_v6_subnetpools(fake_kuryr6_subnetpool_id):
+        # The following fake response is retrieved from the Neutron doc:
+        #   http://developer.openstack.org/api-ref-networking-v2-ext.html#listSubnetPools  # noqa
+        fake_kuryr6_subnetpools = {
+            "subnetpools": [{
+                "min_prefixlen": "64",
+                "address_scope_id": None,
+                "default_prefixlen": "64",
+                "id": fake_kuryr6_subnetpool_id,
+                "max_prefixlen": "64",
+                "name": "kuryr6",
+                "default_quota": None,
+                "tenant_id": "9fadcee8aa7c40cdb2114fff7d569c08",
+                "prefixes": [
+                    'fe80::/64'
+                ],
+                "ip_version": 6,
+                "shared": False
+            }]
+        }
+
+        return fake_kuryr6_subnetpools
 
 
 class TestKuryrFailures(TestKuryrBase):
