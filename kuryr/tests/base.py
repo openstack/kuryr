@@ -136,6 +136,56 @@ class TestKuryrBase(TestCase):
 
         return fake_ports
 
+    @staticmethod
+    def _get_fake_v4_subnet(docker_network_id, docker_endpoint_id,
+                            subnet_v4_id, subnetpool_id=None):
+        fake_v4_subnet = {
+            'subnet': {
+                "name": '-'.join([docker_endpoint_id,
+                                  '192.168.1.0']),
+                "network_id": docker_network_id,
+                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
+                "allocation_pools": [{
+                    "start": "192.168.1.2",
+                    "end": "192.168.1.254"
+                }],
+                "gateway_ip": "192.168.1.1",
+                "ip_version": 4,
+                "cidr": '192.168.1.0/24',
+                "id": subnet_v4_id,
+                "enable_dhcp": True
+            }
+        }
+        if subnetpool_id:
+            fake_v4_subnet['subnet'].update(subnetpool_id=subnetpool_id)
+
+        return fake_v4_subnet
+
+    @staticmethod
+    def _get_fake_v6_subnet(docker_network_id, docker_endpoint_id,
+                            subnet_v6_id, subnetpool_id=None):
+        fake_v6_subnet = {
+            'subnet': {
+                "name": '-'.join([docker_endpoint_id,
+                                  'fe80::']),
+                "network_id": docker_network_id,
+                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
+                "allocation_pools": [{
+                    "start": "fe80::f816:3eff:fe20:57c4",
+                    "end": "fe80::ffff:ffff:ffff:ffff"
+                }],
+                "gateway_ip": "fe80::f816:3eff:fe20:57c3",
+                "ip_version": 6,
+                "cidr": 'fe80::/64',
+                "id": subnet_v6_id,
+                "enable_dhcp": True
+            }
+        }
+        if subnetpool_id:
+            fake_v6_subnet['subnet'].update(subnetpool_id=subnetpool_id)
+
+        return fake_v6_subnet
+
 
 class TestKuryrFailures(TestKuryrBase):
     """Unitests for checking if Kuryr handles the failures appropriately."""

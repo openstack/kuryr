@@ -153,9 +153,16 @@ class TestKuryr(base.TestKuryrBase):
         #   http://developer.openstack.org/api-ref-networking-v2.html#createSubnet  # noqa
         subnet_v4_id = "9436e561-47bf-436a-b1f1-fe23a926e031"
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
-        fake_subnet_response = self._get_fake_subnets(
-            docker_endpoint_id, fake_neutron_network_id,
-            subnet_v4_id, subnet_v6_id)
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            docker_network_id, docker_endpoint_id, subnet_v4_id)
+        fake_v6_subnet = self._get_fake_v6_subnet(
+            docker_network_id, docker_endpoint_id, subnet_v6_id)
+        fake_subnet_response = {
+            "subnets": [
+                fake_v4_subnet['subnet'],
+                fake_v6_subnet['subnet']
+            ]
+        }
         app.neutron.create_subnet(
             fake_subnet_request).AndReturn(fake_subnet_response)
 
