@@ -191,14 +191,42 @@ def _create_subnets_and_or_port(interfaces, neutron_network_id, endpoint_id):
                         continue
                     fixed_ip['ip_address'] = str(cidr.ip)
                 fixed_ips.append(fixed_ip)
-            app.neutron.create_port({'port': port})
+            created_port = app.neutron.create_port({'port': port})
+            created_port = created_port['port']
 
-            response_interfaces.append({
+            created_fixed_ips = created_port['fixed_ips']
+            subnets_dict_by_id = {subnet['id']: subnet
+                                  for subnet in all_subnets}
+
+            response_interface = {
                 'ID': interface_id,
-                'Address': interface_cidrv4,
-                'AddressIPv6': interface_cidrv6,
                 'MacAddress': interface_mac
-            })
+            }
+            if interface_cidrv4 or interface_cidrv6:
+                response_interface['Address'] = interface_cidrv4
+                response_interface['AddressIPv6'] = interface_cidrv6
+            else:
+                if 'ip_address' in created_port:
+                    assigned_address = created_port['ip_address']
+                    subnet_id = created_port['subnet_id']
+                    subnet = subnets_dict_by_id[subnet_id]
+                    cidr = netaddr.IPNetwork(subnet['cidr'])
+                    assigned_address += '/' + str(cidr.prefixlen)
+                    if cidr.version == 4:
+                        response_interface['Address'] = assigned_address
+                    else:
+                        response_interface['AddressIPv6'] = assigned_address
+
+                for fixed_ip in created_fixed_ips:
+                    assigned_address = fixed_ip['ip_address']
+                    subnet = subnets_dict_by_id[fixed_ip['subnet_id']]
+                    cidr = netaddr.IPNetwork(subnet['cidr'])
+                    assigned_address += '/' + str(cidr.prefixlen)
+                    if cidr.version == 4:
+                        response_interface['Address'] = assigned_address
+                    else:
+                        response_interface['AddressIPv6'] = assigned_address
+            response_interfaces.append(response_interface)
         except n_exceptions.NeutronClientException as ex:
             app.logger.error("Error happend during creating a "
                              "Neutron port: {0}".format(ex))
