@@ -19,8 +19,10 @@ import jsonschema
 from neutronclient.common import exceptions as n_exceptions
 from neutronclient.neutron import client
 from neutronclient.v2_0 import client as client_v2
+from oslo_concurrency import processutils
 from werkzeug import exceptions as w_exceptions
 
+from kuryr.common import exceptions
 
 DOCKER_NETNS_BASE = '/var/run/docker/netns'
 PORT_POSTFIX = 'port'
@@ -61,19 +63,21 @@ def make_json_app(import_name, **kwargs):
     """
     app = flask.Flask(import_name, **kwargs)
 
+    @app.errorhandler(exceptions.KuryrException)
     @app.errorhandler(n_exceptions.NeutronClientException)
     @app.errorhandler(jsonschema.ValidationError)
+    @app.errorhandler(processutils.ProcessExecutionError)
     def make_json_error(ex):
         app.logger.error("Unexpected error happened: {0}".format(ex))
         traceback.print_exc(file=sys.stderr)
         response = flask.jsonify({"Err": str(ex)})
-        response.status_code = 500
+        response.status_code = w_exceptions.InternalServerError.code
         if isinstance(ex, w_exceptions.HTTPException):
             response.status_code = ex.code
         elif isinstance(ex, n_exceptions.NeutronClientException):
             response.status_code = ex.status_code
         elif isinstance(ex, jsonschema.ValidationError):
-            response.status_code = 400
+            response.status_code = w_exceptions.BadRequest.code
         content_type = 'application/vnd.docker.plugins.v1+json; charset=utf-8'
         response.headers['Content-Type'] = content_type
         return response

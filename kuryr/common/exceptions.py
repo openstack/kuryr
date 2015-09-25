@@ -39,7 +39,7 @@ class NoResourceException(KuryrException):
     """
 
 
-class VethCreatationFailure(KuryrException):
+class VethCreationFailure(KuryrException):
     """Exception represents the veth pair creation is failed.
 
     This exception is thrown when the veth pair is not created appropriately

@@ -67,3 +67,11 @@ CONF = cfg.CONF
 CONF.register_opts(core_opts)
 CONF.register_opts(neutron_opts, group='neutron_client')
 CONF.register_opts(keystone_opts, group='keystone_client')
+
+binding_opts = [
+    cfg.StrOpt('veth_dst_prefix',
+               default='eth',
+               help=('The name prefix of the veth endpoint put inside the '
+                     'container.'))
+]
+CONF.register_opts(binding_opts, 'binding')

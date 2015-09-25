@@ -16,9 +16,13 @@ import flask
 import jsonschema
 import netaddr
 from neutronclient.common import exceptions as n_exceptions
+from oslo_concurrency import processutils
 from oslo_config import cfg
+from oslo_utils import excutils
 
 from kuryr import app
+from kuryr import binding
+from kuryr.common import config
 from kuryr.common import constants
 from kuryr.common import exceptions
 from kuryr import schemata
@@ -551,7 +555,70 @@ def network_driver_join():
                      .format(json_data))
     jsonschema.validate(json_data, schemata.JOIN_SCHEMA)
 
-    return flask.jsonify(constants.SCHEMA['JOIN'])
+    neutron_network_name = json_data['NetworkID']
+    endpoint_id = json_data['EndpointID']
+
+    filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
+
+    if not filtered_networks:
+        return flask.jsonify({
+            'Err': "Neutron network associated with ID {0} doesn't exit."
+            .format(neutron_network_name)
+        })
+    else:
+        neutron_network_id = filtered_networks[0]['id']
+
+        neutron_port_name = utils.get_neutron_port_name(endpoint_id)
+        filtered_ports = _get_ports_by_attrs(name=neutron_port_name)
+        if not filtered_ports:
+            raise exceptions.NoResourceException(
+                "The port doesn't exist for the name {0}"
+                .format(neutron_port_name))
+        neutron_port = filtered_ports[0]
+        all_subnets = _get_subnets_by_attrs(network_id=neutron_network_id)
+
+        try:
+            ifname, peer_name, (stdout, stderr) = binding.port_bind(
+                endpoint_id, neutron_port, all_subnets)
+            app.logger.debug(stdout)
+            if stderr:
+                app.logger.error(stderr)
+        except exceptions.VethCreationFailure as ex:
+            with excutils.save_and_reraise_exception():
+                app.logger.error('Preparing the veth pair was failed: {0}.'
+                                 .format(ex))
+        except processutils.ProcessExecutionError:
+            with excutils.save_and_reraise_exception():
+                app.logger.error(
+                    'Could not bind the Neutron port to the veth endpoint.')
+
+        join_response = {
+            "InterfaceName": {
+                "SrcName": peer_name,
+                "DstPrefix": config.CONF.binding.veth_dst_prefix
+            },
+            "StaticRoutes": []
+        }
+
+        for subnet in all_subnets:
+            if subnet['ip_version'] == 4:
+                join_response['Gateway'] = subnet.get('gateway_ip', '')
+            else:
+                join_response['GatewayIPv6'] = subnet.get('gateway_ip', '')
+            host_routes = subnet.get('host_routes', [])
+
+            for host_route in host_routes:
+                static_route = {
+                    'Destination': host_route['destination']
+                }
+                if host_route.get('nexthop', None):
+                    static_route['RouteType'] = constants.TYPES['NEXTHOP']
+                    static_route['NextHop'] = host_route['nexthop']
+                else:
+                    static_route['RouteType'] = constants.TYPES['CONNECTED']
+                join_response['StaticRoutes'].append(static_route)
+
+        return flask.jsonify(join_response)
 
 
 @app.route('/NetworkDriver.Leave', methods=['POST'])

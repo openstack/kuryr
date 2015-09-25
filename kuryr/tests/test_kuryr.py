@@ -18,6 +18,7 @@ import ddt
 from oslo_serialization import jsonutils
 
 from kuryr import app
+from kuryr.common import config
 from kuryr.common import constants
 from kuryr.tests import base
 from kuryr import utils
@@ -482,7 +483,37 @@ class TestKuryr(base.TestKuryrBase):
         fake_container_id = hashlib.sha256(
             str(random.getrandbits(256))).hexdigest()
 
-        data = {
+        fake_neutron_network_id = str(uuid.uuid4())
+        self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
+        fake_neutron_port_id = str(uuid.uuid4())
+        self.mox.StubOutWithMock(app.neutron, 'list_ports')
+        neutron_port_name = utils.get_neutron_port_name(
+            fake_docker_endpoint_id)
+        fake_neutron_v4_subnet_id = str(uuid.uuid4())
+        fake_neutron_v6_subnet_id = str(uuid.uuid4())
+        fake_neutron_ports_response = self._get_fake_ports(
+            fake_docker_endpoint_id, fake_neutron_network_id,
+            fake_neutron_port_id,
+            fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
+        app.neutron.list_ports(name=neutron_port_name).AndReturn(
+            fake_neutron_ports_response)
+
+        self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+        fake_neutron_subnets_response = self._get_fake_subnets(
+            fake_docker_endpoint_id, fake_neutron_network_id,
+            fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
+        app.neutron.list_subnets(network_id=fake_neutron_network_id).AndReturn(
+            fake_neutron_subnets_response)
+        fake_neutron_port = fake_neutron_ports_response['ports'][0]
+        fake_neutron_subnets = fake_neutron_subnets_response['subnets']
+        _, fake_peer_name, _ = self._mock_out_binding(
+            fake_docker_endpoint_id, fake_neutron_port, fake_neutron_subnets)
+        self.mox.ReplayAll()
+
+        fake_subnets_dict_by_id = {subnet['id']: subnet
+                                   for subnet in fake_neutron_subnets}
+
+        join_request = {
             'NetworkID': fake_docker_network_id,
             'EndpointID': fake_docker_endpoint_id,
             'SandboxKey': utils.get_sandbox_key(fake_container_id),
@@ -490,9 +521,22 @@ class TestKuryr(base.TestKuryrBase):
         }
         response = self.app.post('/NetworkDriver.Join',
                                  content_type='application/json',
-                                 data=jsonutils.dumps(data))
+                                 data=jsonutils.dumps(join_request))
 
         self.assertEqual(200, response.status_code)
+
         decoded_json = jsonutils.loads(response.data)
-        app.logger.info(decoded_json)
-        self.assertEqual(constants.SCHEMA['JOIN'], decoded_json)
+        fake_neutron_v4_subnet = fake_subnets_dict_by_id[
+            fake_neutron_v4_subnet_id]
+        fake_neutron_v6_subnet = fake_subnets_dict_by_id[
+            fake_neutron_v6_subnet_id]
+        expected_response = {
+            'Gateway': fake_neutron_v4_subnet['gateway_ip'],
+            'GatewayIPv6': fake_neutron_v6_subnet['gateway_ip'],
+            'InterfaceName': {
+                'DstPrefix': config.CONF.binding.veth_dst_prefix,
+                'SrcName': fake_peer_name,
+            },
+            'StaticRoutes': []
+        }
+        self.assertEqual(expected_response, decoded_json)

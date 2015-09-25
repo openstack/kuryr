@@ -13,6 +13,7 @@
 from neutronclient.tests.unit import test_cli20
 
 from kuryr import app
+from kuryr import binding
 
 
 class TestCase(test_cli20.CLITestV20Base):
@@ -36,6 +37,15 @@ class TestKuryrBase(TestCase):
         self.addCleanup(self.mox.UnsetStubs)
         if hasattr(app, 'DEFAULT_POOL_IDS'):
             del app.DEFAULT_POOL_IDS
+
+    def _mock_out_binding(self, endpoint_id, neutron_port, neutron_subnets):
+        self.mox.StubOutWithMock(binding, 'port_bind')
+        fake_binding_response = (
+            'fake-veth', 'fake-veth_c', ('fake stdout', ''))
+        binding.port_bind(endpoint_id, neutron_port,
+                          neutron_subnets).AndReturn(fake_binding_response)
+        self.mox.ReplayAll()
+        return fake_binding_response
 
     def _mock_out_network(self, neutron_network_id, docker_network_id):
         fake_list_response = {
