@@ -33,6 +33,10 @@ core_opts = [
     cfg.StrOpt('kuryr_uri',
                default='http://127.0.0.1:2377',
                help=_('Kuryr URL for accessing Kuryr through json rpc.')),
+    cfg.StrOpt('capability_scope',
+               default='local',
+               choices=['local', 'global'],
+               help=_('Kuryr plugin scope reported to libnetwork.')),
 ]
 neutron_opts = [
     cfg.StrOpt('neutron_uri',

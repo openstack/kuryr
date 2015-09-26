@@ -183,6 +183,12 @@ def plugin_activate():
     return flask.jsonify(constants.SCHEMA['PLUGIN_ACTIVATE'])
 
 
+@app.route('/NetworkDriver.GetCapabilities', methods=['POST'])
+def plugin_scope():
+    capabilities = {'Scope': cfg.CONF.capability_scope}
+    return flask.jsonify(capabilities)
+
+
 @app.route('/NetworkDriver.CreateNetwork', methods=['POST'])
 def network_driver_create_network():
     """Creates a new Neutron Network which name is the given NetworkID.
