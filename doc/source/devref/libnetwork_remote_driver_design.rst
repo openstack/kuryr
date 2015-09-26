@@ -83,7 +83,7 @@ Libnetwork User Workflow (with Kuryr as remove driver) - Host Networking
 2. A user creates a service ``bar`` against network ``foo``
    ::
 
-       $ sudo docker network publish service bar.foo
+       $ sudo docker service publish bar.foo
        98953db3f8e6628caf4a7cad3c866cb090654e3dee3e37206ad8c0a81355f1b7
 
    This makes a HTTP POST call on ``/NetworkDriver.CreateEndpoint`` with the
