@@ -16,6 +16,7 @@ import flask
 import jsonschema
 import netaddr
 from neutronclient.common import exceptions as n_exceptions
+from oslo_config import cfg
 
 from kuryr import app
 from kuryr.common import constants
@@ -24,21 +25,26 @@ from kuryr import schemata
 from kuryr import utils
 
 
-# TODO(tfukushima): Retrieve configuration info from a config file.
-OS_URL = os.environ.get('OS_URL', 'http://127.0.0.1:9696/')
-OS_TOKEN = os.environ.get('OS_TOKEN', '9999888877776666')
-OS_AUTH_URL = os.environ.get('OS_AUTH_URL', 'https://127.0.0.1:5000/v2.0/')
-OS_USERNAME = os.environ.get('OS_USERNAME', '')
-OS_PASSWORD = os.environ.get('OS_PASSWORD', '')
-OS_TENANT_NAME = os.environ.get('OS_TENANT_NAME', '')
+cfg.CONF.import_group('neutron_client', 'kuryr.common.config')
+cfg.CONF.import_group('keystone_client', 'kuryr.common.config')
 
-if OS_USERNAME and OS_PASSWORD:
+keystone_conf = cfg.CONF.keystone_client
+username = keystone_conf.admin_user
+tenant_name = keystone_conf.admin_tenant_name
+password = keystone_conf.admin_password
+auth_token = keystone_conf.admin_token
+auth_uri = keystone_conf.auth_uri.rstrip('/')
+
+neutron_uri = cfg.CONF.neutron_client.neutron_uri
+
+if username and password:
     # Authenticate with password crentials
     app.neutron = utils.get_neutron_client(
-        url=OS_URL, username=OS_USERNAME, tenant_name=OS_TENANT_NAME,
-        password=OS_PASSWORD, auth_url=OS_AUTH_URL)
+        url=neutron_uri, username=username, tenant_name=tenant_name,
+        password=password, auth_url=auth_uri)
 else:
-    app.neutron = utils.get_neutron_client_simple(url=OS_URL, token=OS_TOKEN)
+    app.neutron = utils.get_neutron_client_simple(
+        url=neutron_uri, token=auth_token)
 
 # TODO(tfukushima): Retrieve the following subnet names from the config file.
 SUBNET_POOLS_V4 = [
