@@ -10,18 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr.schemata import endpoint_create
 from kuryr.schemata import endpoint_delete
-from kuryr.schemata import join
-from kuryr.schemata import leave
-from kuryr.schemata import network_create
-from kuryr.schemata import network_delete
 
 
-# Aliases for schemata in each module
-ENDPOINT_CREATE_SCHEMA = endpoint_create.ENDPOINT_CREATE_SCHEMA
-ENDPOINT_DELETE_SCHEMA = endpoint_delete.ENDPOINT_DELETE_SCHEMA
-JOIN_SCHEMA = join.JOIN_SCHEMA
-LEAVE_SCHEMA = leave.LEAVE_SCHEMA
-NETWORK_CREATE_SCHEMA = network_create.NETWORK_CREATE_SCHEMA
-NETWORK_DELETE_SCHEMA = network_delete.NETWORK_DELETE_SCHEMA
+LEAVE_SCHEMA = endpoint_delete.ENDPOINT_DELETE_SCHEMA
+LEAVE_SCHEMA[u'title'] = u'Leave endpoint'
+LEAVE_SCHEMA[u'links'] = [{
+    u'method': u'POST',
+    u'href': u'/NetworkDriver.Leave',
+    u'description': u'Unbinds the endpoint from the container.',
+    u'rel': u'self',
+    u'title': u'Leave'
+}]

@@ -623,4 +623,19 @@ def network_driver_join():
 
 @app.route('/NetworkDriver.Leave', methods=['POST'])
 def network_driver_leave():
+    """Unbinds a Neutron Port to a network interface attached to a container.
+
+    This function takes the following JSON data and delete the veth pair
+    corresponding to the given info. ::
+
+        {
+            "NetworkID": string,
+            "EndpointID": string
+        }
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteEndpoint"
+                     .format(json_data))
+    jsonschema.validate(json_data, schemata.LEAVE_SCHEMA)
+
     return flask.jsonify(constants.SCHEMA['SUCCESS'])

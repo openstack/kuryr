@@ -43,9 +43,8 @@ class TestKuryr(base.TestKuryrBase):
     - POST /NetworkDriver.Leave
     """
     @ddt.data(('/Plugin.Activate', constants.SCHEMA['PLUGIN_ACTIVATE']),
-              ('/NetworkDriver.EndpointOperInfo',
-               constants.SCHEMA['ENDPOINT_OPER_INFO']),
-              ('/NetworkDriver.Leave', constants.SCHEMA['SUCCESS']))
+        ('/NetworkDriver.EndpointOperInfo',
+         constants.SCHEMA['ENDPOINT_OPER_INFO']))
     @ddt.unpack
     def test_remote_driver_endpoint(self, endpoint, expected):
         response = self.app.post(endpoint)
