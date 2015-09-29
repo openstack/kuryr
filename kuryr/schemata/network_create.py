@@ -31,7 +31,7 @@ NETWORK_CREATE_SCHEMA = {
             u'$ref': u'#/definitions/commons/definitions/id'
         },
         u'Options':
-        {u'type': u'object',
+        {u'type': [u'object', u'null'],
          u'description': u'Options',
          u'example': {}}
     }
