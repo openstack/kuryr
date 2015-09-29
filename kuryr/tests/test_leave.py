@@ -12,13 +12,21 @@
 
 import hashlib
 import random
+import uuid
 
+import ddt
+from oslo_concurrency import processutils
 from oslo_serialization import jsonutils
 from werkzeug import exceptions as w_exceptions
 
+from kuryr import app
+from kuryr import binding
+from kuryr.common import exceptions
 from kuryr.tests import base
+from kuryr import utils
 
 
+@ddt.ddt
 class TestKuryrLeaveFailures(base.TestKuryrFailures):
     """Unit tests for the failures for unbinding a Neutron port.
     """
@@ -33,6 +41,57 @@ class TestKuryrLeaveFailures(base.TestKuryrFailures):
                                  data=jsonutils.dumps(data))
 
         return response
+
+    def _port_unbind_with_exception(self, docker_endpoint_id,
+                                    neutron_port, ex):
+        fake_unbinding_response = ('fake stdout', '')
+        self.mox.StubOutWithMock(binding, 'port_unbind')
+        if ex:
+            binding.port_unbind(docker_endpoint_id, neutron_port).AndRaise(ex)
+        else:
+            binding.port_unbind(docker_endpoint_id, neutron_port).AndReturn(
+                fake_unbinding_response)
+        self.mox.ReplayAll()
+
+        return fake_unbinding_response
+
+    @ddt.data(exceptions.VethDeletionFailure,
+              processutils.ProcessExecutionError)
+    def test_leave_unbinding_failure(self, GivenException):
+        fake_docker_network_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+        fake_docker_endpoint_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+
+        fake_neutron_network_id = str(uuid.uuid4())
+        self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
+        fake_neutron_port_id = str(uuid.uuid4())
+        self.mox.StubOutWithMock(app.neutron, 'list_ports')
+        neutron_port_name = utils.get_neutron_port_name(
+            fake_docker_endpoint_id)
+        fake_neutron_v4_subnet_id = str(uuid.uuid4())
+        fake_neutron_v6_subnet_id = str(uuid.uuid4())
+        fake_neutron_ports_response = self._get_fake_ports(
+            fake_docker_endpoint_id, fake_neutron_network_id,
+            fake_neutron_port_id,
+            fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
+        app.neutron.list_ports(name=neutron_port_name).AndReturn(
+            fake_neutron_ports_response)
+        fake_neutron_port = fake_neutron_ports_response['ports'][0]
+
+        fake_message = "fake message"
+        fake_exception = GivenException(fake_message)
+        self._port_unbind_with_exception(
+            fake_docker_endpoint_id, fake_neutron_port, fake_exception)
+
+        response = self._invoke_leave_request(
+            fake_docker_network_id, fake_docker_endpoint_id)
+
+        self.assertEqual(
+            w_exceptions.InternalServerError.code, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertTrue('Err' in decoded_json)
+        self.assertTrue(fake_message in decoded_json['Err'])
 
     def test_leave_bad_request(self):
         fake_docker_network_id = hashlib.sha256(

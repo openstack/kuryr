@@ -47,6 +47,14 @@ class TestKuryrBase(TestCase):
         self.mox.ReplayAll()
         return fake_binding_response
 
+    def _mock_out_unbinding(self, endpoint_id, neutron_port):
+        self.mox.StubOutWithMock(binding, 'port_unbind')
+        fake_unbinding_response = ('fake stdout', '')
+        binding.port_unbind(endpoint_id, neutron_port).AndReturn(
+            fake_unbinding_response)
+        self.mox.ReplayAll()
+        return fake_unbinding_response
+
     def _mock_out_network(self, neutron_network_id, docker_network_id):
         fake_list_response = {
             "networks": [{

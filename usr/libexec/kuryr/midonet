@@ -16,10 +16,20 @@ bind_port() {
     mm-ctl --bind-port $1 $2
 }
 
+unbind_port() {
+    echo "Unbinding Neutron port $1..."
+    mm-ctl --unbind-port $1
+}
+
 case $1 in
     "bind")
         shift
         bind_port "$@"
+        exit 0
+        ;;
+    "unbind")
+        shift
+        unbind_port "$@"
         exit 0
         ;;
     *)

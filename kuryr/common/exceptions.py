@@ -45,3 +45,11 @@ class VethCreationFailure(KuryrException):
     This exception is thrown when the veth pair is not created appropriately
     and Kuryr can't proceed the binding further.
     """
+
+
+class VethDeletionFailure(KuryrException):
+    """Exception represents the veth pair deletion is failed.
+
+    This exception is thrown when the veth pair is not deleted appropriately
+    and Kuryr can't proceed the unbinding further.
+    """

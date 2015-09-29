@@ -539,3 +539,39 @@ class TestKuryr(base.TestKuryrBase):
             'StaticRoutes': []
         }
         self.assertEqual(expected_response, decoded_json)
+
+    def test_network_driver_leave(self):
+        fake_docker_network_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+        fake_docker_endpoint_id = hashlib.sha256(
+            str(random.getrandbits(256))).hexdigest()
+
+        fake_neutron_network_id = str(uuid.uuid4())
+        self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
+        fake_neutron_port_id = str(uuid.uuid4())
+        self.mox.StubOutWithMock(app.neutron, 'list_ports')
+        neutron_port_name = utils.get_neutron_port_name(
+            fake_docker_endpoint_id)
+        fake_neutron_v4_subnet_id = str(uuid.uuid4())
+        fake_neutron_v6_subnet_id = str(uuid.uuid4())
+        fake_neutron_ports_response = self._get_fake_ports(
+            fake_docker_endpoint_id, fake_neutron_network_id,
+            fake_neutron_port_id,
+            fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
+        app.neutron.list_ports(name=neutron_port_name).AndReturn(
+            fake_neutron_ports_response)
+
+        fake_neutron_port = fake_neutron_ports_response['ports'][0]
+        self._mock_out_unbinding(fake_docker_endpoint_id, fake_neutron_port)
+
+        leave_request = {
+            'NetworkID': fake_docker_network_id,
+            'EndpointID': fake_docker_endpoint_id,
+        }
+        response = self.app.post('/NetworkDriver.Leave',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(leave_request))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)

@@ -31,6 +31,7 @@ IP_ADDRESS_KEY = 'ip_address'
 KIND_VETH = 'veth'
 MAC_ADDRESS_KEY = 'mac_address'
 SUBNET_ID_KEY = 'subnet_id'
+UNBINDING_SUBCOMMAND = 'unbind'
 VETH_POSTFIX = '-veth'
 VIF_TYPE_KEY = 'binding:vif_type'
 
@@ -122,3 +123,30 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
             cleanup_veth(ifname)
 
     return (ifname, peer_name, (stdout, stderr))
+
+
+def port_unbind(endpoint_id, neutron_port):
+    """Unbinds the Neutorn port from the network interface on the host.
+
+    :param endpoint_id: the ID of the Docker container as string
+    :param neutron_port: a port dictionary returned from python-neutronclient
+    :returns: the tuple of stdout and stderr returned by processutils.execute
+              invoked with the executable script for unbinding
+    :raises: processutils.ProcessExecutionError, pyroute2.netlink.NetlinkError
+    """
+    # NOTE(tfukushima): pyroute2.netlink requires Linux to be imported. So I
+    # don't import it in the module scope but here.
+    import pyroute2.netlink
+
+    vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
+    unbinding_exec_path = os.path.join(config.CONF.bindir, vif_type)
+    port_id = neutron_port['id']
+    stdout, stderr = processutils.execute(
+        unbinding_exec_path, UNBINDING_SUBCOMMAND, port_id, run_as_root=True)
+    ifname = endpoint_id[:8] + VETH_POSTFIX
+    try:
+        cleanup_veth(ifname)
+    except pyroute2.netlink.NetlinkError:
+        raise exceptions.VethDeleteionFailure(
+            'Deleting the veth pair was failed.')
+    return (stdout, stderr)
