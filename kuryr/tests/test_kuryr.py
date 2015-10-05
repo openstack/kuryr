@@ -161,7 +161,7 @@ class TestKuryr(base.TestKuryrBase):
         fake_neutron_port_id = str(uuid.uuid4())
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, '0', 'port']),
+                'name': '-'.join([docker_endpoint_id, 'port']),
                 'admin_state_up': True,
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
@@ -182,10 +182,9 @@ class TestKuryr(base.TestKuryrBase):
             'NetworkID': docker_network_id,
             'EndpointID': docker_endpoint_id,
             'Options': {},
-            'Interfaces': [{
-                'ID': 0,
+            'Interface': {
                 'MacAddress': "fa:16:3e:20:57:c3"
-            }]
+            }
         }
         response = self.app.post('/NetworkDriver.CreateEndpoint',
                                  content_type='application/json',
@@ -193,13 +192,12 @@ class TestKuryr(base.TestKuryrBase):
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        expected = {'Interfaces': request['Interfaces']}
+        expected = {'Interface': request['Interface']}
         # Address and AddressIPv6, allocated by Neutron's IPAM automatically
         # should be contained in the response.
         self.assertNotEqual(expected, decoded_json)
         app.logger.debug(decoded_json)
-        self.assertTrue(
-            any('Address' in i for i in decoded_json['Interfaces']))
+        self.assertTrue('Address' in decoded_json['Interface'])
 
     def test_network_driver_create_endpoint_with_subnetpools(self):
         docker_network_id = hashlib.sha256(
@@ -268,7 +266,7 @@ class TestKuryr(base.TestKuryrBase):
         fake_neutron_port_id = str(uuid.uuid4())
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, '0', 'port']),
+                'name': '-'.join([docker_endpoint_id, 'port']),
                 'admin_state_up': True,
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
@@ -294,10 +292,9 @@ class TestKuryr(base.TestKuryrBase):
             'NetworkID': docker_network_id,
             'EndpointID': docker_endpoint_id,
             'Options': {},
-            'Interfaces': [{
-                'ID': 0,
+            'Interface': {
                 'MacAddress': "fa:16:3e:20:57:c3"
-            }]
+            }
         }
         response = self.app.post('/NetworkDriver.CreateEndpoint',
                                  content_type='application/json',
@@ -305,14 +302,12 @@ class TestKuryr(base.TestKuryrBase):
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        expected = {'Interfaces': request['Interfaces']}
+        expected = {'Interface': request['Interface']}
         # Address and AddressIPv6, allocated by Neutron's IPAM automatically
         # should be contained in the response.
         self.assertNotEqual(expected, decoded_json)
-        self.assertTrue(
-            any('Address' in i for i in decoded_json['Interfaces']))
-        self.assertTrue(
-            any('AddressIPv6' in i for i in decoded_json['Interfaces']))
+        self.assertTrue('Address' in decoded_json['Interface'])
+        self.assertTrue('AddressIPv6' in decoded_json['Interface'])
 
     def test_network_driver_create_endpoint(self):
         docker_network_id = hashlib.sha256(
@@ -377,7 +372,7 @@ class TestKuryr(base.TestKuryrBase):
         self.mox.StubOutWithMock(app.neutron, 'create_port')
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, '0', 'port']),
+                'name': '-'.join([docker_endpoint_id, 'port']),
                 'admin_state_up': True,
                 'mac_address': "fa:16:3e:20:57:c3",
                 'network_id': fake_neutron_network_id,
@@ -402,12 +397,11 @@ class TestKuryr(base.TestKuryrBase):
             'NetworkID': docker_network_id,
             'EndpointID': docker_endpoint_id,
             'Options': {},
-            'Interfaces': [{
-                'ID': 0,
+            'Interface': {
                 'Address': fake_ipv4cidr,
                 'AddressIPv6': fake_ipv6cidr,
                 'MacAddress': "fa:16:3e:20:57:c3"
-            }]
+            }
         }
         response = self.app.post('/NetworkDriver.CreateEndpoint',
                                  content_type='application/json',
@@ -415,7 +409,7 @@ class TestKuryr(base.TestKuryrBase):
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        expected = {'Interfaces': data['Interfaces']}
+        expected = {'Interface': data['Interface']}
         self.assertEqual(expected, decoded_json)
 
     def test_network_driver_delete_endpoint(self):

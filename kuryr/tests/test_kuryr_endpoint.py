@@ -83,7 +83,7 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
         self.mox.StubOutWithMock(app.neutron, 'create_port')
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, '0', 'port']),
+                'name': '-'.join([docker_endpoint_id, 'port']),
                 'admin_state_up': True,
                 'fixed_ips': [{
                     'subnet_id': neutron_subnetv4_id,
@@ -101,7 +101,7 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
         fake_port = {
             "port": {
                 "status": "DOWN",
-                "name": '-'.join([docker_endpoint_id, '0', 'port']),
+                "name": '-'.join([docker_endpoint_id, 'port']),
                 "allowed_address_pairs": [],
                 "admin_state_up": True,
                 "network_id": neutron_network_id,
@@ -148,12 +148,11 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
             'NetworkID': docker_network_id,
             'EndpointID': docker_endpoint_id,
             'Options': {},
-            'Interfaces': [{
-                'ID': 0,
+            'Interface': {
                 'Address': '192.168.1.2/24',
                 'AddressIPv6': 'fe80::f816:3eff:fe20:57c4/64',
                 'MacAddress': "fa:16:3e:20:57:c3"
-            }]
+            }
         }
         response = self.app.post('/NetworkDriver.CreateEndpoint',
                                  content_type='application/json',

@@ -21,7 +21,7 @@ ENDPOINT_CREATE_SCHEMA = {
         u'title': u'Create'
     }],
     u'title': u'Create endpoint',
-    u'required': [u'NetworkID', u'EndpointID', u'Options', u'Interfaces'],
+    u'required': [u'NetworkID', u'EndpointID', u'Options', u'Interface'],
     u'definitions': {u'commons': {}},
     u'$schema': u'http://json-schema.org/draft-04/hyper-schema',
     u'type': u'object',
@@ -30,11 +30,8 @@ ENDPOINT_CREATE_SCHEMA = {
             u'description': u'Network ID',
             u'$ref': u'#/definitions/commons/definitions/id'
         },
-        u'Interfaces': {
-            u'items': {
-                u'$ref': u'#/definitions/commons/definitions/interface'
-            },
-            u'type': u'array',
+        u'Interface': {
+            u'$ref': u'#/definitions/commons/definitions/interface',
             u'description': u'Interface information'
         },
         u'Options': {

@@ -193,104 +193,95 @@ def _handle_explicit_allocation(neutron_network_id, endpoint_id,
     return created_subnets_response
 
 
-def _create_subnets_and_or_port(interfaces, neutron_network_id, endpoint_id):
-    response_interfaces = []
-    if not interfaces:
-        interfaces.append({
-            'ID': 0
-        })
+def _process_interface_address(port_dict, subnets_dict_by_id,
+                               response_interface):
+    assigned_address = port_dict['ip_address']
+    subnet_id = port_dict['subnet_id']
+    subnet = subnets_dict_by_id[subnet_id]
+    cidr = netaddr.IPNetwork(subnet['cidr'])
+    assigned_address += '/' + str(cidr.prefixlen)
+    if cidr.version == 4:
+        response_interface['Address'] = assigned_address
+    else:
+        response_interface['AddressIPv6'] = assigned_address
 
-    for interface in interfaces:
-        existing_subnets = []
-        created_subnets_response = {}
-        # v4 and v6 Subnets for bulk creation.
-        new_subnets = []
 
-        interface_id = interface['ID']
-        interface_cidrv4 = interface.get('Address', '')
-        interface_cidrv6 = interface.get('AddressIPv6', '')
-        interface_mac = interface.get('MacAddress', '')
+def _create_subnets_and_or_port(interface, neutron_network_id, endpoint_id):
+    response_interface = {}
+    existing_subnets = []
+    created_subnets_response = {'subnets': []}
+    # v4 and v6 Subnets for bulk creation.
+    new_subnets = []
+
+    interface_cidrv4 = interface.get('Address', '')
+    interface_cidrv6 = interface.get('AddressIPv6', '')
+    interface_mac = interface.get('MacAddress', '')
+
+    if interface_cidrv4 or interface_cidrv6:
+        created_subnets_response = _handle_explicit_allocation(
+            neutron_network_id, endpoint_id, interface_cidrv4,
+            interface_cidrv6, new_subnets, existing_subnets)
+    else:
+        app.logger.info("Retrieving or creating subnets with the default "
+                        "subnetpool because Address and AddressIPv6 are "
+                        "not given.")
+        created_subnets_response = _handle_allocation_from_pools(
+            neutron_network_id, endpoint_id, new_subnets, existing_subnets)
+
+    try:
+        port = {
+            'name': '-'.join([endpoint_id, 'port']),
+            'admin_state_up': True,
+            'network_id': neutron_network_id,
+        }
+        if interface_mac:
+            port['mac_address'] = interface_mac
+        created_subnets = created_subnets_response.get('subnets', [])
+        all_subnets = created_subnets + existing_subnets
+        fixed_ips = port['fixed_ips'] = []
+        for subnet in all_subnets:
+            fixed_ip = {'subnet_id': subnet['id']}
+            if interface_cidrv4 or interface_cidrv6:
+                if subnet['ip_version'] == 4 and interface_cidrv4:
+                    cidr = netaddr.IPNetwork(interface_cidrv4)
+                elif subnet['ip_version'] == 6 and interface_cidrv6:
+                    cidr = netaddr.IPNetwork(interface_cidrv6)
+                subnet_cidr = '/'.join([str(cidr.network),
+                                        str(cidr.prefixlen)])
+                if subnet['cidr'] != subnet_cidr:
+                    continue
+                fixed_ip['ip_address'] = str(cidr.ip)
+            fixed_ips.append(fixed_ip)
+        created_port = app.neutron.create_port({'port': port})
+        created_port = created_port['port']
+
+        created_fixed_ips = created_port['fixed_ips']
+        subnets_dict_by_id = {subnet['id']: subnet
+                              for subnet in all_subnets}
+
+        response_interface = {
+            'MacAddress': created_port['mac_address']
+        }
 
         if interface_cidrv4 or interface_cidrv6:
-            created_subnets_response = _handle_explicit_allocation(
-                neutron_network_id, endpoint_id, interface_cidrv4,
-                interface_cidrv6, new_subnets, existing_subnets)
+            response_interface['Address'] = interface_cidrv4
+            response_interface['AddressIPv6'] = interface_cidrv6
         else:
-            app.logger.info("Retrieving or creating subnets with the default "
-                            "subnetpool because Address and AddressIPv6 are "
-                            "not given.")
-            created_subnets_response = _handle_allocation_from_pools(
-                neutron_network_id, endpoint_id, new_subnets, existing_subnets)
+            if 'ip_address' in created_port:
+                _process_interface_address(
+                    created_port, subnets_dict_by_id, response_interface)
+            for fixed_ip in created_fixed_ips:
+                _process_interface_address(
+                    fixed_ip, subnets_dict_by_id, response_interface)
+    except n_exceptions.NeutronClientException as ex:
+        app.logger.error("Error happend during creating a "
+                         "Neutron port: {0}".format(ex))
+        # Rollback the subnets creation
+        for subnet in created_subnets:
+            app.neutron.delete_subnet(subnet['id'])
+        raise
 
-        try:
-            port = {
-                'name': '-'.join([endpoint_id, str(interface_id), 'port']),
-                'admin_state_up': True,
-                'network_id': neutron_network_id,
-            }
-            if interface_mac:
-                port['mac_address'] = interface_mac
-            created_subnets = created_subnets_response.get('subnets', [])
-            all_subnets = created_subnets + existing_subnets
-            fixed_ips = port['fixed_ips'] = []
-            for subnet in all_subnets:
-                fixed_ip = {'subnet_id': subnet['id']}
-                if interface_cidrv4 or interface_cidrv6:
-                    if subnet['ip_version'] == 4 and interface_cidrv4:
-                        cidr = netaddr.IPNetwork(interface_cidrv4)
-                    elif subnet['ip_version'] == 6 and interface_cidrv6:
-                        cidr = netaddr.IPNetwork(interface_cidrv6)
-                    subnet_cidr = '/'.join([str(cidr.network),
-                                            str(cidr.prefixlen)])
-                    if subnet['cidr'] != subnet_cidr:
-                        continue
-                    fixed_ip['ip_address'] = str(cidr.ip)
-                fixed_ips.append(fixed_ip)
-            created_port = app.neutron.create_port({'port': port})
-            created_port = created_port['port']
-
-            created_fixed_ips = created_port['fixed_ips']
-            subnets_dict_by_id = {subnet['id']: subnet
-                                  for subnet in all_subnets}
-
-            response_interface = {
-                'ID': interface_id,
-                'MacAddress': interface_mac
-            }
-            if interface_cidrv4 or interface_cidrv6:
-                response_interface['Address'] = interface_cidrv4
-                response_interface['AddressIPv6'] = interface_cidrv6
-            else:
-                if 'ip_address' in created_port:
-                    assigned_address = created_port['ip_address']
-                    subnet_id = created_port['subnet_id']
-                    subnet = subnets_dict_by_id[subnet_id]
-                    cidr = netaddr.IPNetwork(subnet['cidr'])
-                    assigned_address += '/' + str(cidr.prefixlen)
-                    if cidr.version == 4:
-                        response_interface['Address'] = assigned_address
-                    else:
-                        response_interface['AddressIPv6'] = assigned_address
-
-                for fixed_ip in created_fixed_ips:
-                    assigned_address = fixed_ip['ip_address']
-                    subnet = subnets_dict_by_id[fixed_ip['subnet_id']]
-                    cidr = netaddr.IPNetwork(subnet['cidr'])
-                    assigned_address += '/' + str(cidr.prefixlen)
-                    if cidr.version == 4:
-                        response_interface['Address'] = assigned_address
-                    else:
-                        response_interface['AddressIPv6'] = assigned_address
-            response_interfaces.append(response_interface)
-        except n_exceptions.NeutronClientException as ex:
-            app.logger.error("Error happend during creating a "
-                             "Neutron port: {0}".format(ex))
-            # Rollback the subnets creation
-            for subnet in created_subnets:
-                app.neutron.delete_subnet(subnet['id'])
-            raise
-
-    return response_interfaces
+    return response_interface
 
 
 @app.route('/Plugin.Activate', methods=['POST'])
@@ -388,12 +379,21 @@ def network_driver_create_endpoint():
             "Options": {
                 ...
             },
-            "Interfaces": [{
-                "ID": int,
+            "Interface": {
                 "Address": string,
                 "AddressIPv6": string,
                 "MacAddress": string
-            }, ...]
+            }
+        }
+
+    Then the following JSON response is returned. ::
+
+        {
+            "Interface": {
+                "Address": string,
+                "AddressIPv6": string,
+                "MacAddress": string
+            }
         }
 
     See the following link for more details about the spec:
@@ -417,11 +417,11 @@ def network_driver_create_endpoint():
         })
     else:
         neutron_network_id = filtered_networks[0]['id']
-        interfaces = json_data['Interfaces']
-        response_interfaces = _create_subnets_and_or_port(
-            interfaces, neutron_network_id, endpoint_id)
+        interface = json_data.get('Interface', {})
+        response_interface = _create_subnets_and_or_port(
+            interface, neutron_network_id, endpoint_id)
 
-        return flask.jsonify({'Interfaces': response_interfaces})
+        return flask.jsonify({'Interface': response_interface})
 
 
 @app.route('/NetworkDriver.EndpointOperInfo', methods=['POST'])
