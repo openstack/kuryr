@@ -137,14 +137,12 @@ class TestKuryr(base.TestKuryrBase):
                 'name': '-'.join([docker_endpoint_id,
                                   '192.168.1.0']),
                 'network_id': fake_neutron_network_id,
-                'allocation_pools': None,
                 'ip_version': 4,
                 "cidr": '192.168.1.0/24'
             }, {
                 'name': '-'.join([docker_endpoint_id,
                                   'fe80::']),
                 'network_id': fake_neutron_network_id,
-                'allocation_pools': None,
                 'ip_version': 6,
                 "cidr": 'fe80::/64'
             }]

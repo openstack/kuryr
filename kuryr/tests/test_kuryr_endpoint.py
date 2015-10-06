@@ -38,13 +38,11 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
             'subnets': [{
                 'name': '-'.join([docker_endpoint_id, '192.168.1.0']),
                 'network_id': neutron_network_id,
-                'allocation_pools': None,
                 'ip_version': 4,
                 "cidr": '192.168.1.0/24'
             }, {
                 'name': '-'.join([docker_endpoint_id, 'fe80::']),
                 'network_id': neutron_network_id,
-                'allocation_pools': None,
                 'ip_version': 6,
                 "cidr": 'fe80::/64'
             }]

@@ -100,8 +100,6 @@ def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
     else:
         new_subnets.append({
             'name': '-'.join([endpoint_id, subnet_network]),
-            # Allocate all IP addresses in the subnet.
-            'allocation_pools': None,
             'network_id': neutron_network_id,
             'ip_version': cidr.version,
             'cidr': subnet_cidr,
