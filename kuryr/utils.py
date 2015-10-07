@@ -63,7 +63,7 @@ def make_json_app(import_name, **kwargs):
     @app.errorhandler(n_exceptions.NeutronClientException)
     @app.errorhandler(jsonschema.ValidationError)
     def make_json_error(ex):
-        app.logger.error("Unxepected error happened: {0}".format(ex))
+        app.logger.error("Unexpected error happened: {0}".format(ex))
         traceback.print_exc(file=sys.stderr)
         response = flask.jsonify({"Err": str(ex)})
         response.status_code = 500
