@@ -55,9 +55,19 @@ SUBNET_POOLS_V6 = [
 app.neutron.format = 'json'
 
 
+def _get_networks_by_attrs(**attrs):
+    networks = app.neutron.list_networks(**attrs)
+    if len(networks.get('networks', [])) > 1:
+        raise exceptions.DuplicatedResourceException(
+            "Multiple Neutron networks exsit for the params {0}"
+            .format(', '.join(['{0}={1}'.format(k, v)
+                               for k, v in attrs.items()])))
+    return networks['networks']
+
+
 def _get_subnets_by_attrs(**attrs):
     subnets = app.neutron.list_subnets(**attrs)
-    if len(subnets) > 1:
+    if len(subnets.get('subnets', [])) > 1:
         raise exceptions.DuplicatedResourceException(
             "Multiple Neutron subnets exist for the params {0} "
             .format(', '.join(['{0}={1}'.format(k, v)
@@ -245,7 +255,7 @@ def network_driver_delete_network():
 
     neutron_network_name = json_data['NetworkID']
 
-    filtered_networks = app.neutron.list_networks(name=neutron_network_name)
+    filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
 
     # We assume Neutron's Network names are not conflicted in Kuryr because
     # they are Docker IDs, 256 bits hashed values, which are rarely conflicted.
@@ -253,16 +263,11 @@ def network_driver_delete_network():
     # NetworkID, it raises DuplicatedResourceException and stops processes.
     # See the following doc for more details about Docker's IDs:
     #   https://github.com/docker/docker/blob/master/docs/terms/container.md#container-ids  # noqa
-    if len(filtered_networks) > 1:
-        raise exceptions.DuplicatedResourceException(
-            "Multiple Neutron Networks exist for NetworkID {0}"
-            .format(neutron_network_name))
-    else:
-        neutron_network_id = filtered_networks['networks'][0]['id']
-        app.neutron.delete_network(neutron_network_id)
-        app.logger.info("Deleted the network with ID {0} successfully"
-                        .format(neutron_network_id))
-        return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    neutron_network_id = filtered_networks[0]['id']
+    app.neutron.delete_network(neutron_network_id)
+    app.logger.info("Deleted the network with ID {0} successfully"
+                    .format(neutron_network_id))
+    return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.CreateEndpoint', methods=['POST'])
@@ -298,19 +303,15 @@ def network_driver_create_endpoint():
     neutron_network_name = json_data['NetworkID']
     endpoint_id = json_data['EndpointID']
 
-    filtered_networks = app.neutron.list_networks(name=neutron_network_name)
+    filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
 
     if not filtered_networks:
         return flask.jsonify({
-            'Err': "Neutron network associated with ID {0} doesn't exit."
+            'Err': "Neutron network associated with ID {0} doesn't exist."
             .format(neutron_network_name)
         })
-    elif len(filtered_networks) > 1:
-        raise exceptions.DuplicatedResourceException(
-            "Multiple Neutron Networks exist for NetworkID {0}"
-            .format(neutron_network_name))
     else:
-        neutron_network_id = filtered_networks['networks'][0]['id']
+        neutron_network_id = filtered_networks[0]['id']
         interfaces = json_data['Interfaces']
         response_interfaces = _create_subnets_and_or_port(
             interfaces, neutron_network_id, endpoint_id)
@@ -347,19 +348,15 @@ def network_driver_delete_endpoint():
     neutron_network_name = json_data['NetworkID']
     endpoint_id = json_data['EndpointID']
 
-    filtered_networks = app.neutron.list_networks(name=neutron_network_name)
+    filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
 
     if not filtered_networks:
         return flask.jsonify({
-            'Err': "Neutron network associated with ID {0} doesn't exit."
+            'Err': "Neutron network associated with ID {0} doesn't exist."
             .format(neutron_network_name)
         })
-    elif len(filtered_networks) > 1:
-        raise exceptions.DuplicatedResourceException(
-            "Multiple Neutron Networks exist for NetworkID {0}"
-            .format(neutron_network_name))
     else:
-        neutron_network_id = filtered_networks['networks'][0]['id']
+        neutron_network_id = filtered_networks[0]['id']
         filtered_ports = []
         concerned_subnet_ids = []
         try:
