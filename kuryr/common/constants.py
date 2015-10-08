@@ -49,3 +49,5 @@ SCHEMA = {
     },
     "SUCCESS": {}
 }
+
+DEVICE_OWNER = 'kuryr:container'

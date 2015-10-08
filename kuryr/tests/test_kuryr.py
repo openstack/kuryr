@@ -42,9 +42,9 @@ class TestKuryr(base.TestKuryrBase):
     - POST /NetworkDriver.Leave
     """
     @ddt.data(('/Plugin.Activate', constants.SCHEMA['PLUGIN_ACTIVATE']),
-        ('/NetworkDriver.EndpointOperInfo',
-         constants.SCHEMA['ENDPOINT_OPER_INFO']),
-        ('/NetworkDriver.Leave', constants.SCHEMA['SUCCESS']))
+              ('/NetworkDriver.EndpointOperInfo',
+               constants.SCHEMA['ENDPOINT_OPER_INFO']),
+              ('/NetworkDriver.Leave', constants.SCHEMA['SUCCESS']))
     @ddt.unpack
     def test_remote_driver_endpoint(self, endpoint, expected):
         response = self.app.post(endpoint)
@@ -165,6 +165,8 @@ class TestKuryr(base.TestKuryrBase):
                 'admin_state_up': True,
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
+                'device_owner': constants.DEVICE_OWNER,
+                'device_id': docker_endpoint_id,
                 'fixed_ips': [{'subnet_id': subnet_v4_id}]
             }
         }
@@ -270,6 +272,8 @@ class TestKuryr(base.TestKuryrBase):
                 'admin_state_up': True,
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
+                'device_owner': constants.DEVICE_OWNER,
+                'device_id': docker_endpoint_id,
                 'fixed_ips': [
                     {'subnet_id': subnet_v4_id},
                     {'subnet_id': subnet_v6_id},
@@ -374,6 +378,8 @@ class TestKuryr(base.TestKuryrBase):
             'port': {
                 'name': '-'.join([docker_endpoint_id, 'port']),
                 'admin_state_up': True,
+                'device_owner': constants.DEVICE_OWNER,
+                'device_id': docker_endpoint_id,
                 'mac_address': "fa:16:3e:20:57:c3",
                 'network_id': fake_neutron_network_id,
                 'fixed_ips': [{

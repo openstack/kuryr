@@ -85,6 +85,8 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
             'port': {
                 'name': '-'.join([docker_endpoint_id, 'port']),
                 'admin_state_up': True,
+                'device_owner': constants.DEVICE_OWNER,
+                'device_id': docker_endpoint_id,
                 'fixed_ips': [{
                     'subnet_id': neutron_subnetv4_id,
                     'ip_address': '192.168.1.2'
@@ -106,7 +108,8 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
                 "admin_state_up": True,
                 "network_id": neutron_network_id,
                 "tenant_id": "d6700c0c9ffa4f1cb322cd4a1f3906fa",
-                "device_owner": "",
+                "device_owner": constants.DEVICE_OWNER,
+                'device_id': docker_endpoint_id,
                 "mac_address": "fa:16:3e:20:57:c3",
                 'fixed_ips': [{
                     'subnet_id': neutron_subnetv4_id,
@@ -209,8 +212,10 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
          fake_neutron_subnet_v6_id) = self._create_subnet_with_exception(
             fake_neutron_network_id, fake_docker_endpoint_id, None)
         self._create_port_with_exception(fake_neutron_network_id,
-            fake_docker_endpoint_id, fake_neutron_subnet_v4_id,
-            fake_neutron_subnet_v6_id, GivenException())
+                                         fake_docker_endpoint_id,
+                                         fake_neutron_subnet_v4_id,
+                                         fake_neutron_subnet_v6_id,
+                                         GivenException())
         self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
 
         # The port creation is failed and Kuryr rolles the created subnet back.
