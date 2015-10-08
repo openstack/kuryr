@@ -76,7 +76,7 @@ def _get_networks_by_attrs(**attrs):
     networks = app.neutron.list_networks(**attrs)
     if len(networks.get('networks', [])) > 1:
         raise exceptions.DuplicatedResourceException(
-            "Multiple Neutron networks exsit for the params {0}"
+            "Multiple Neutron networks exist for the params {0}"
             .format(', '.join(['{0}={1}'.format(k, v)
                                for k, v in attrs.items()])))
     return networks['networks']
@@ -84,7 +84,7 @@ def _get_networks_by_attrs(**attrs):
 
 def _get_subnets_by_attrs(**attrs):
     subnets = app.neutron.list_subnets(**attrs)
-    if len(subnets.get('subnets', [])) > 1:
+    if len(subnets.get('subnets', [])) > 2:  # subnets for IPv4 and/or IPv6
         raise exceptions.DuplicatedResourceException(
             "Multiple Neutron subnets exist for the params {0} "
             .format(', '.join(['{0}={1}'.format(k, v)
