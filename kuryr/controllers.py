@@ -417,7 +417,7 @@ def network_driver_create_endpoint():
         })
     else:
         neutron_network_id = filtered_networks[0]['id']
-        interface = json_data.get('Interface', {})
+        interface = json_data['Interface'] or {}  # Workaround for null
         response_interface = _create_subnets_and_or_port(
             interface, neutron_network_id, endpoint_id)
 

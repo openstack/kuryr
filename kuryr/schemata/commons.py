@@ -76,7 +76,7 @@ COMMONS = {
                     u'$ref': u'#/definitions/commons/definitions/cidr'
                 }
             },
-            u'type': u'object',
+            u'type': [u'object', u'null'],
             u'description': u'Interface used in requests against Endpoints.',
             u'example': {
                 u'AddressIPv6': u'fe80::f816:3eff:fe20:57c3/64',
