@@ -23,6 +23,7 @@ from werkzeug import exceptions as w_exceptions
 
 
 DOCKER_NETNS_BASE = '/var/run/docker/netns'
+PORT_POSTFIX = 'port'
 
 
 def get_neutron_client_simple(url, token):
@@ -90,3 +91,12 @@ def get_sandbox_key(container_id):
     :returns: the constructed sandbox key as string
     """
     return os.path.join(DOCKER_NETNS_BASE, container_id[:12])
+
+
+def get_neutron_port_name(docker_endpoint_id):
+    """Returns a Neutron port name.
+
+    :param docker_endpoint_id: the EndpointID
+    :returns: the Neutron port name formatted appropriately
+    """
+    return '-'.join([docker_endpoint_id, PORT_POSTFIX])
