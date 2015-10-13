@@ -14,15 +14,6 @@
 class KuryrException(Exception):
     """Default Kuryr exception"""
 
-    def __init__(self, msg):
-        """
-        :param msg: the message for the cause of the exception
-        """
-        self.msg = msg
-
-    def __repr__(self):
-        return repr(self.msg)
-
 
 class DuplicatedResourceException(KuryrException):
     """Exception represents there're multiple resources for the ID.
