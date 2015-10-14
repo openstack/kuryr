@@ -24,6 +24,8 @@ from kuryr.common import exceptions
 from kuryr import schemata
 from kuryr import utils
 
+MANDATORY_NEUTRON_EXTENSION = "subnet_allocation"
+
 cfg.CONF.import_group('neutron_client', 'kuryr.common.config')
 cfg.CONF.import_group('keystone_client', 'kuryr.common.config')
 
@@ -44,6 +46,19 @@ if username and password:
 else:
     app.neutron = utils.get_neutron_client_simple(
         url=neutron_uri, token=auth_token)
+
+
+def check_for_neutron_ext_support():
+    """Validates for mandatory extension support availability in neutron.
+    """
+    try:
+        app.neutron.show_extension(MANDATORY_NEUTRON_EXTENSION)
+    except n_exceptions.NeutronClientException as e:
+        if e.status_code == n_exceptions.NotFound.status_code:
+            raise exceptions.MandatoryApiMissing(
+                            "Neutron extension with alias '{0}' not found"
+                            .format(MANDATORY_NEUTRON_EXTENSION))
+
 
 # TODO(tfukushima): Retrieve the following subnet names from the config file.
 SUBNET_POOLS_V4 = [

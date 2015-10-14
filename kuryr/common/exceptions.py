@@ -26,8 +26,16 @@ class BindingFailure(KuryrException):
 class DuplicatedResourceException(KuryrException):
     """Exception represents there're multiple resources for the ID.
 
-    This exception is thrown when you query the Neutron resouce associated with
-    the ID and you get multiple resources.
+    For example, this exception is thrown when you query the Neutron resource
+    associated with the ID and you get multiple resources.
+    """
+
+
+class MandatoryApiMissing(KuryrException):
+    """Exception represents that mandatory api is not found.
+
+    For example, this exception is thrown when expected neutron
+    extension(subnetpools) APIs are not found.
     """
 
 
