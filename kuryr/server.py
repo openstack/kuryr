@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr import server
+from kuryr import app
 
-server.start()
+
+def start():
+    app.debug = True
+    app.run("0.0.0.0", port=2377)
