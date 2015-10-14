@@ -118,6 +118,11 @@ Libnetwork User Workflow (with Kuryr as remove driver) - Host Networking
    4) Kuryr creates a port assigning the IP address to it and associating the port with
       the subnet based on it's already allocated in 2.
 
+   On the subnet creation described in (2) and (3) above, Kuryr tries to grab
+   the allocation pool greedily by not specifying ``allocation_pool``. Without
+   ``allocation_pool``, Neutron allocates all IP addresses in the range of the
+   subnet CIDR as described in `Neutron's API reference`_.
+
    When the Neutron port has been created, the Kuryr remote driver will generate a response to the
    docker daemon indicating the port's IPv4, IPv6, and Mac addresses as follows.
    ::
@@ -268,3 +273,4 @@ automatically.
 .. _APIs: https://github.com/docker/libnetwork/blob/master/docs/design.md#api
 .. _libkv: https://github.com/docker/libkv
 .. _IPAM blueprint: https://blueprints.launchpad.net/kuryr/+spec/ipam
+.. _Neutron's API reference: http://developer.openstack.org/api-ref-networking-v2.html#createSubnet
