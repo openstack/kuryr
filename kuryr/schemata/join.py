@@ -17,7 +17,7 @@ JOIN_SCHEMA = {
     u'links': [{
         u'method': u'POST',
         u'href': u'/NetworkDriver.Join',
-        u'description': u'Join the service',
+        u'description': u'Join the network',
         u'rel': u'self',
         u'title': u'Create'
     }],
