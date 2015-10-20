@@ -259,15 +259,10 @@ def _create_subnets_and_or_port(interface, neutron_network_id, endpoint_id):
         created_fixed_ips = created_port['fixed_ips']
         subnets_dict_by_id = {subnet['id']: subnet
                               for subnet in all_subnets}
+        if not interface_mac:
+            response_interface['MacAddress'] = created_port['mac_address']
 
-        response_interface = {
-            'MacAddress': created_port['mac_address']
-        }
-
-        if interface_cidrv4 or interface_cidrv6:
-            response_interface['Address'] = interface_cidrv4
-            response_interface['AddressIPv6'] = interface_cidrv6
-        else:
+        if not (interface_cidrv4 or interface_cidrv6):
             if 'ip_address' in created_port:
                 _process_interface_address(
                     created_port, subnets_dict_by_id, response_interface)
@@ -281,7 +276,6 @@ def _create_subnets_and_or_port(interface, neutron_network_id, endpoint_id):
         for subnet in created_subnets:
             app.neutron.delete_subnet(subnet['id'])
         raise
-
     return response_interface
 
 
