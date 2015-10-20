@@ -24,7 +24,7 @@ COMMONS = {
     },
     u'definitions': {
         u'options': {
-            u'type': u'object',
+            u'type': [u'object', u'null'],
             u'description': u'Options.',
             u'example': {}
         },
