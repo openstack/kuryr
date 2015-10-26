@@ -57,7 +57,7 @@ class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
 
         self.assertEqual(401, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         self.assertEqual(
             {'Err': exceptions.Unauthorized.message}, decoded_json)
 
@@ -67,10 +67,10 @@ class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
 
         self.assertEqual(400, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         # TODO(tfukushima): Add the better error message validation.
-        self.assertTrue(invalid_docker_network_id in decoded_json['Err'])
-        self.assertTrue('NetworkID' in decoded_json['Err'])
+        self.assertIn(invalid_docker_network_id, decoded_json['Err'])
+        self.assertIn('NetworkID', decoded_json['Err'])
 
 
 @ddt
@@ -120,7 +120,7 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
 
         self.assertEqual(GivenException.status_code, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         self.assertEqual({'Err': GivenException.message}, decoded_json)
 
     def test_delete_network_bad_request(self):
@@ -130,6 +130,6 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
 
         self.assertEqual(400, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
-        self.assertTrue(invalid_docker_network_id in decoded_json['Err'])
-        self.assertTrue('NetworkID' in decoded_json['Err'])
+        self.assertIn('Err', decoded_json)
+        self.assertIn(invalid_docker_network_id, decoded_json['Err'])
+        self.assertIn('NetworkID', decoded_json['Err'])

@@ -199,7 +199,7 @@ class TestKuryr(base.TestKuryrBase):
         # should be contained in the response.
         self.assertNotEqual(expected, decoded_json)
         app.logger.debug(decoded_json)
-        self.assertTrue('Address' in decoded_json['Interface'])
+        self.assertIn('Address', decoded_json['Interface'])
 
     def test_network_driver_create_endpoint_with_subnetpools(self):
         docker_network_id = hashlib.sha256(
@@ -310,8 +310,8 @@ class TestKuryr(base.TestKuryrBase):
         # Address and AddressIPv6, allocated by Neutron's IPAM automatically
         # should be contained in the response.
         self.assertNotEqual(expected, decoded_json)
-        self.assertTrue('Address' in decoded_json['Interface'])
-        self.assertTrue('AddressIPv6' in decoded_json['Interface'])
+        self.assertIn('Address', decoded_json['Interface'])
+        self.assertIn('AddressIPv6', decoded_json['Interface'])
 
     def test_network_driver_create_endpoint(self):
         docker_network_id = hashlib.sha256(
