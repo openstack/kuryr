@@ -180,7 +180,7 @@ Libnetwork User Workflow (with Kuryr as remove driver) - Host Networking
    3) Perform a neutron-port-type-dependent VIF-binding to the corresponding Neutron port
       using the VIF binding layer and depending on the specific port type.
 
-   After the VIF-binding is completed, the Neutron remote driver generate a response to the Docker
+   After the VIF-binding is completed, the Kuryr remote driver generate a response to the Docker
    daemon as specified in the libnetwork documentation for a join request.
    (https://github.com/docker/libnetwork/blob/master/docs/remote.md#join)
 
