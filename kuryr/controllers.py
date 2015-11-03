@@ -35,6 +35,7 @@ auth_token = keystone_conf.admin_token
 auth_uri = keystone_conf.auth_uri.rstrip('/')
 
 neutron_uri = cfg.CONF.neutron_client.neutron_uri
+enable_dhcp = cfg.CONF.neutron_client.enable_dhcp
 
 if username and password:
     # Authenticate with password crentials
@@ -132,6 +133,7 @@ def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
             'network_id': neutron_network_id,
             'ip_version': cidr.version,
             'cidr': subnet_cidr,
+            'enable_dhcp': enable_dhcp,
         }
         if pool_id:
             del new_subnet['cidr']

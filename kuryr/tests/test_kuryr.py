@@ -141,7 +141,8 @@ class TestKuryr(base.TestKuryrBase):
                                   '192.168.1.0']),
                 'network_id': fake_neutron_network_id,
                 'ip_version': 4,
-                'subnetpool_id': fake_kuryr_subnetpool_id
+                'subnetpool_id': fake_kuryr_subnetpool_id,
+                'enable_dhcp': 'False'
             }]
         }
         subnet_v4_id = str(uuid.uuid4())
@@ -243,13 +244,15 @@ class TestKuryr(base.TestKuryrBase):
                                   '192.168.1.0']),
                 'network_id': fake_neutron_network_id,
                 'ip_version': 4,
-                'subnetpool_id': fake_kuryr_subnetpool_id
+                'subnetpool_id': fake_kuryr_subnetpool_id,
+                'enable_dhcp': 'False'
             }, {
                 'name': '-'.join([docker_endpoint_id,
                                   'fe80::']),
                 'network_id': fake_neutron_network_id,
                 'ip_version': 6,
-                'subnetpool_id': fake_kuryr6_subnetpool_id
+                'subnetpool_id': fake_kuryr6_subnetpool_id,
+                'enable_dhcp': 'False'
             }]
         }
         # The following fake response is retrieved from the Neutron doc:
@@ -343,13 +346,15 @@ class TestKuryr(base.TestKuryrBase):
                                   '192.168.1.0']),
                 'network_id': fake_neutron_network_id,
                 'ip_version': 4,
-                "cidr": '192.168.1.0/24'
+                "cidr": '192.168.1.0/24',
+                'enable_dhcp': 'False'
             }, {
                 'name': '-'.join([docker_endpoint_id,
                                   'fe80::']),
                 'network_id': fake_neutron_network_id,
                 'ip_version': 6,
-                "cidr": 'fe80::/64'
+                "cidr": 'fe80::/64',
+                'enable_dhcp': 'False'
             }]
         }
         # The following fake response is retrieved from the Neutron doc:
