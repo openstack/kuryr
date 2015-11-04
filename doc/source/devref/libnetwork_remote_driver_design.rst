@@ -2,7 +2,6 @@
 Libnetwork Remote Network Driver Design
 =======================================
 
-
 What is Kuryr
 --------------
 
@@ -13,11 +12,10 @@ Kuryr implements a `libnetwork remote network driver`_ and maps its calls to Ope
 Goal
 ~~~~~
 
-Through Kuryr any Neutron plugin can be used as libnetwork backend with no additional
-effort.
-Neutron APIs are vendor agnostic and thus all Neutron plugins will have the capability of
-providing the networking backend of Docker for a similar small plugging snippet
-as they have in nova.
+Through Kuryr any Neutron plugin can be used as libnetwork backend with no
+additional effort. Neutron APIs are vendor agnostic and thus all Neutron
+plugins will have the capability of providing the networking backend of Docker
+for a similar small plugging snippet as they have in nova.
 
 Kuryr also takes care of binding one of a veth pair to a network interface on
 the host, e.g., Linux bridge, Open vSwitch datapath and so on.
@@ -26,9 +24,9 @@ the host, e.g., Linux bridge, Open vSwitch datapath and so on.
 Kuryr Workflow - Host Networking
 ---------------------------------
 Kuryr resides in each host that runs Docker containers and serves `APIs`_
-required for the libnetwork remote network driver.
-It is planned to use the `Adding tags to resources`_ new Neutron feature by Kuryr,
-to map between Neutron resource Id's and Docker Id's (UUID's)
+required for the libnetwork remote network driver. It is planned to use the
+`Adding tags to resources`_ new Neutron feature by Kuryr, to map between
+Neutron resource Id's and Docker Id's (UUID's)
 
 1. libnetwork discovers Kuryr via `plugin discovery mechanism`_
 
@@ -79,10 +77,11 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
             "Options": { "com.docker.network.generic": {}}
         }
 
-   The Kuryr remote network driver will then generate a Neutron API request to create an underlying Neutron network.
-   When the Neutron network has been created, the Kuryr remote network driver will generate an empty success response
-   to the docker daemon.
-   Kuryr tags the Neutron network with the NetworkID from docker.
+   The Kuryr remote network driver will then generate a Neutron API request to
+   create an underlying Neutron network. When the Neutron network has been
+   created, the Kuryr remote network driver will generate an empty success
+   response to the docker daemon. Kuryr tags the Neutron network with the
+   NetworkID from docker.
 
 2. A user launches a container against network ``foo``
    ::
@@ -108,19 +107,19 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
             "EndpointID": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd"
         }
 
-   The Kuryr remote network driver then generate a Neutron API request to create a Neutron
-   subnet and a port with the matching fields for interface in the request.
-   Kuryr needs to create the subnet dynamically as it has no information on
-   the interface IP.
+   The Kuryr remote network driver then generate a Neutron API request to
+   create a Neutron subnet and a port with the matching fields for interface
+   in the request. Kuryr needs to create the subnet dynamically as it has no
+   information on the interface IP.
 
    Following steps are taken:
 
-   1) On the endpoint creation Kuryr examine if there's a subnet which CIDR corresponds to
-      Address or AddressIPv6 requested.
-   2) If there's a subnet, Kuryr tries to reuse it without creating a new subnet.
-      otherwise it create a new one with the given CIDR
-   3) Kuryr creates a port assigning the IP address to it and associating the port with
-      the subnet based on what it has already allocated in 2.
+   1) On the endpoint creation Kuryr examine if there's a subnet which CIDR
+      corresponds to Address or AddressIPv6 requested.
+   2) If there's a subnet, Kuryr tries to reuse it without creating a new
+      subnet. Otherwise it create a new one with the given CIDR.
+   3) Kuryr creates a port assigning the IP address to it and associating the
+      port with the subnet based on what it has already allocated in 2.
    4) Kuryr tags the Neutron subnet and port with EndpointID.
 
    On the subnet creation described in (2) and (3) above, Kuryr tries to grab
@@ -128,8 +127,8 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    ``allocation_pool``, Neutron allocates all IP addresses in the range of the
    subnet CIDR as described in `Neutron's API reference`_.
 
-   When the Neutron port has been created, the Kuryr remote driver will generate an empty response to the
-   docker daemon indicating the SUCCESS. {}
+   When the Neutron port has been created, the Kuryr remote driver will
+   generate an empty response to the docker daemon indicating the SUCCESS. {}
    (https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-endpoint)
    ::
 
@@ -149,16 +148,19 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
             "EndpointID": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd"
         }
 
-   Kuryr connects the container to the corresponding neutron network by doing the following steps:
+   Kuryr connects the container to the corresponding neutron network by doing
+   the following steps:
 
-   1) Generate a veth pair
-   2) Connect one end of the veth pair to the container (which is running in a namespace
-      that was created by Docker)
-   3) Perform a neutron-port-type-dependent VIF-binding to the corresponding Neutron port
-      using the VIF binding layer and depending on the specific port type.
+   1) Generate a veth pair.
+   2) Connect one end of the veth pair to the container (which is running in a
+      namespace that was created by Docker).
+   3) Perform a neutron-port-type-dependent VIF-binding to the corresponding
+      Neutron port using the VIF binding layer and depending on the specific
+      port type.
 
-   After the VIF-binding is completed, the Kuryr remote network driver generates a response to the Docker
-   daemon as specified in the libnetwork documentation for a join request.
+   After the VIF-binding is completed, the Kuryr remote network driver
+   generates a response to the Docker daemon as specified in the libnetwork
+   documentation for a join request.
    (https://github.com/docker/libnetwork/blob/master/docs/remote.md#join)
 
 3. A user requests information about the network
@@ -237,8 +239,9 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
            "EndpointID": "a55976bafaad19f2d455c4516fd3450d3c52d9996a98beb4696dc435a63417fc"
        }
 
-   Kuryr remote network driver will remove the VIF binding between the container and the Neutron port,
-   and generate an empty response to the Docker daemon.
+   Kuryr remote network driver will remove the VIF binding between the
+   container and the Neutron port, and generate an empty response to the
+   Docker daemon.
 
    Then libnetwork makes a HTTP POST call on ``/NetworkDriver.DeleteEndpoint`` with the
    following JSON data.
@@ -249,9 +252,10 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
            "EndpointID": "a55976bafaad19f2d455c4516fd3450d3c52d9996a98beb4696dc435a63417fc"
        }
 
-   Kuryr remote network driver generates a Neutron API request to delete the associated Neutron port,
-   in case the relevant port subnet is empty, Kuryr also deletes the subnet object using Neutron API
-   and generate an empty response to the Docker daemon: {}
+   Kuryr remote network driver generates a Neutron API request to delete the
+   associated Neutron port, in case the relevant port subnet is empty, Kuryr
+   also deletes the subnet object using Neutron API and generate an empty
+   response to the Docker daemon: {}
 
 7. A user deletes the network
    ::
@@ -266,9 +270,10 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
            "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364"
        }
 
-    Kuryr remote network driver generates a Neutron API request to delete the corresponding Neutron network.
-    When the Neutron network has been deleted, the Kuryr remote network driver  generate an empty response
-    to the docker daemon: {}
+    Kuryr remote network driver generates a Neutron API request to delete the
+    corresponding Neutron network. When the Neutron network has been deleted,
+    the Kuryr remote network driver  generate an empty response to the docker
+    daemon: {}
 
 
 Mapping between the CNM and the Neutron's Networking Model
