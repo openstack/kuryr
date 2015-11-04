@@ -188,7 +188,7 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
 
         self.assertEqual(GivenException.status_code, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         self.assertEqual({'Err': GivenException.message}, decoded_json)
 
     @ddt.data(exceptions.Unauthorized, exceptions.Forbidden,
@@ -227,7 +227,7 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
 
         self.assertEqual(GivenException.status_code, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         self.assertEqual({'Err': GivenException.message}, decoded_json)
 
     def test_create_endpoint_bad_request(self):
@@ -240,10 +240,10 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
 
         self.assertEqual(400, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         # TODO(tfukushima): Add the better error message validation.
-        self.assertTrue(invalid_docker_endpoint_id in decoded_json['Err'])
-        self.assertTrue('EndpointID' in decoded_json['Err'])
+        self.assertIn(invalid_docker_endpoint_id, decoded_json['Err'])
+        self.assertIn('EndpointID', decoded_json['Err'])
 
 
 @ddt.ddt
@@ -329,7 +329,7 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
         else:
             self.assertEqual(GivenException.status_code, response.status_code)
             decoded_json = jsonutils.loads(response.data)
-            self.assertTrue('Err' in decoded_json)
+            self.assertIn('Err', decoded_json)
             self.assertEqual({'Err': GivenException.message}, decoded_json)
 
     @ddt.data(exceptions.Unauthorized, exceptions.NotFound,
@@ -359,7 +359,7 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
 
         self.assertEqual(GivenException.status_code, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         self.assertEqual({'Err': GivenException.message}, decoded_json)
 
     def test_delete_endpoint_bad_request(self):
@@ -372,7 +372,7 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
 
         self.assertEqual(400, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         # TODO(tfukushima): Add the better error message validation.
-        self.assertTrue(invalid_docker_endpoint_id in decoded_json['Err'])
-        self.assertTrue('EndpointID' in decoded_json['Err'])
+        self.assertIn(invalid_docker_endpoint_id, decoded_json['Err'])
+        self.assertIn('EndpointID', decoded_json['Err'])

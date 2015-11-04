@@ -128,7 +128,7 @@ class TestKuryrJoinFailures(base.TestKuryrFailures):
         self.assertEqual(
             w_exceptions.BadRequest.code, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
+        self.assertIn('Err', decoded_json)
         # TODO(tfukushima): Add the better error message validation.
-        self.assertTrue(invalid_docker_endpoint_id in decoded_json['Err'])
-        self.assertTrue('EndpointID' in decoded_json['Err'])
+        self.assertIn(invalid_docker_endpoint_id, decoded_json['Err'])
+        self.assertIn('EndpointID', decoded_json['Err'])

@@ -35,5 +35,5 @@ class TestKuryrUtils(base.TestKuryrBase):
             str(random.getrandbits(256))).hexdigest()
         generated_neutron_port_name = utils.get_neutron_port_name(
             fake_docker_endpoint_id)
-        self.assertTrue(utils.PORT_POSTFIX in generated_neutron_port_name)
-        self.assertTrue(fake_docker_endpoint_id in generated_neutron_port_name)
+        self.assertIn(utils.PORT_POSTFIX, generated_neutron_port_name)
+        self.assertIn(fake_docker_endpoint_id, generated_neutron_port_name)
