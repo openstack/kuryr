@@ -138,7 +138,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
 
    On receiving success response, libnetwork makes a HTTP POST call on ``/NetworkDriver.Join`` with
-   the following JOSN data.
+   the following JSON data.
    ::
 
         {
