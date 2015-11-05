@@ -25,6 +25,14 @@ Design and Developer Docs
 
    devref/index
 
+Kuryr Specs
+===========
+
+.. toctree::
+   :maxdepth: 1
+
+   specs/index
+
 Indices and tables
 ==================
 
