@@ -415,7 +415,7 @@ class TestKuryr(base.TestKuryrBase):
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        expected = {'Interface': data['Interface']}
+        expected = {'Interface': {}}
         self.assertEqual(expected, decoded_json)
 
     def test_network_driver_delete_endpoint(self):
