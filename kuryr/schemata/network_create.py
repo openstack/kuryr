@@ -21,7 +21,7 @@ NETWORK_CREATE_SCHEMA = {
         u'title': u'Create'
     }],
     u'title': u'Create network',
-    u'required': [u'NetworkID'],
+    u'required': [u'NetworkID', u'IPv4Data', u'IPv6Data'],
     u'definitions': {u'commons': {}},
     u'$schema': u'http://json-schema.org/draft-04/hyper-schema',
     u'type': u'object',
@@ -30,10 +30,25 @@ NETWORK_CREATE_SCHEMA = {
             u'description': u'ID of a Network to be created',
             u'$ref': u'#/definitions/commons/definitions/id'
         },
-        u'Options':
-        {u'type': [u'object', u'null'],
-         u'description': u'Options',
-         u'example': {}}
+        u'IPv4Data': {
+            u'description': u'IPv4 data for the network',
+            u'type': u'array',
+            u'items': {
+                u'$ref': u'#/definitions/commons/definitions/ipv4datum'
+            }
+        },
+        u'IPv6Data': {
+            u'description': u'IPv6 data for the network',
+            u'type': u'array',
+            u'items': {
+                u'$ref': u'#/definitions/commons/definitions/ipv6datum'
+            }
+        },
+        u'Options': {
+            u'type': [u'object', u'null'],
+            u'description': u'Options',
+            u'example': {}
+        }
     }
 }
 

@@ -80,10 +80,25 @@ class TestKuryr(base.TestKuryrBase):
 
         self.mox.ReplayAll()
 
-        data = {'NetworkID': docker_network_id, 'Options': {}}
+        network_request = {
+            'NetworkID': docker_network_id,
+            'IPv4Data': [{
+                'AddressSpace': 'foo',
+                'Pool': '192.168.42.0/24',
+                'Gateway': '192.168.42.1/24',
+                'AuxAddresses': {}
+            }],
+            'IPv6Data': [{
+                'AddressSpace': 'bar',
+                'Pool': 'fe80::/64',
+                'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
+                'AuxAddresses': {}
+            }],
+            'Options': {}
+        }
         response = self.app.post('/NetworkDriver.CreateNetwork',
                                  content_type='application/json',
-                                 data=jsonutils.dumps(data))
+                                 data=jsonutils.dumps(network_request))
 
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)

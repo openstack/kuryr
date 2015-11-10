@@ -41,10 +41,25 @@ class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
         self.mox.ReplayAll()
 
     def _invoke_create_request(self, network_name):
-        data = {'NetworkID': network_name, 'Options': {}}
+        network_request = {
+            'NetworkID': network_name,
+            'IPv4Data': [{
+                'AddressSpace': 'foo',
+                'Pool': '192.168.42.0/24',
+                'Gateway': '192.168.42.1/24',
+                'AuxAddresses': {}
+            }],
+            'IPv6Data': [{
+                'AddressSpace': 'bar',
+                'Pool': 'fe80::/64',
+                'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
+                'AuxAddresses': {}
+            }],
+            'Options': {}
+        }
         response = self.app.post('/NetworkDriver.CreateNetwork',
                                  content_type='application/json',
-                                 data=jsonutils.dumps(data))
+                                 data=jsonutils.dumps(network_request))
         return response
 
     def test_create_network_unauthorized(self):

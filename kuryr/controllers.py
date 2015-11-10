@@ -312,12 +312,32 @@ def network_driver_create_network():
     network creation to the Neutron client. libnetwork's NetworkID is used as
     the name of Network in Neutron. ::
 
-        {
-            "NetworkID": string,
-            "Options": {
+    {
+        "NetworkID": string,
+        "IPv4Data" : [{
+            "AddressSpace": string,
+            "Pool": ipv4-cidr-string,
+            "Gateway" : ipv4-address,
+            "AuxAddresses": {
+                "<identifier1>" : "<ipv4-address1>",
+                "<identifier2>" : "<ipv4-address2>",
                 ...
             }
+        }, ...],
+        "IPv6Data" : [{
+            "AddressSpace": string,
+            "Pool": ipv6-cidr-string,
+            "Gateway" : ipv6-address,
+            "AuxAddresses": {
+                "<identifier1>" : "<ipv6-address1>",
+                "<identifier2>" : "<ipv6-address2>",
+                ...
+            }
+        }, ...],
+        "Options": {
+            ...
         }
+    }
 
     See the following link for more details about the spec:
 
