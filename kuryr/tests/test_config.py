@@ -12,11 +12,15 @@
 
 import os
 
+from neutronclient.common import exceptions as n_exceptions
+
 from kuryr.common import config
+from kuryr.common import exceptions
+from kuryr import controllers
 from kuryr.tests import base
 
 
-class ConfigurationTest(base.TestCase):
+class ConfigurationTest(base.TestKuryrBase):
 
     def test_defaults(self):
         basepath = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -33,3 +37,15 @@ class ConfigurationTest(base.TestCase):
 
         self.assertEqual('http://127.0.0.1:35357',
                          config.CONF.keystone_client.auth_uri)
+
+    def test_check_for_neutron_ext_support_with_ex(self):
+        ext_alias = "subnet_allocation"
+        self.mox.StubOutWithMock(controllers.app.neutron, "show_extension")
+        err = n_exceptions.NotFound.status_code
+        ext_not_found_ex = n_exceptions.NeutronClientException(status_code=err,
+                                                               message="")
+        neutron = controllers.app.neutron
+        neutron.show_extension(ext_alias).AndRaise(ext_not_found_ex)
+        self.mox.ReplayAll()
+        ex = exceptions.MandatoryApiMissing
+        self.assertRaises(ex, controllers.check_for_neutron_ext_support)
