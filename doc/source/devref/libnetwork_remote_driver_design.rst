@@ -297,6 +297,19 @@ visible and editable resource entity attachable to containers from users'
 perspective. Sandbox manages information exposed by Endpoint behind the scene
 automatically.
 
+
+Notes on implementing the libnetwork remote driver API in Kuryr
+---------------------------------------------------------------
+
+1. DiscoverNew Notification:
+   Neutron does not use the informaton related to discovery of new resources such
+   as new nodes and therefore the implementation of this API method does nothing.
+
+2. DiscoverDelete Notification:
+   Neutron does not use the informaton related to discovery of resources such as
+   nodes being deleted and therefore the implementation of this API method does
+   nothing.
+
 .. _libnetwork remote network driver: https://github.com/docker/libnetwork/blob/master/docs/remote.md
 .. _libnetwork IPAM driver: https://github.com/docker/libnetwork/blob/master/docs/ipam.md
 .. _Neutron: https://wiki.openstack.org/wiki/Neutron

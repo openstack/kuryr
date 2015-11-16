@@ -306,6 +306,36 @@ def plugin_scope():
     return flask.jsonify(capabilities)
 
 
+@app.route('/NetworkDriver.DiscoverNew', methods=['POST'])
+def network_driver_discover_new():
+    """The callback function for the DiscoverNew notification.
+
+    The DiscoverNew notification includes the type of the
+    resource that has been newly discovered and possibly other
+    information associated with the resource.
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#discovernew-notification  # noqa
+    """
+    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+
+
+@app.route('/NetworkDriver.DiscoverDelete', methods=['POST'])
+def network_driver_discover_delete():
+    """The callback function for the DiscoverDelete notification.
+
+    The DiscoverDelete notification includes the type of the
+    resource that has been deleted and possibly other
+    information associated with the resource.
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#discoverdelete-notification  # noqa
+    """
+    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+
+
 @app.route('/NetworkDriver.CreateNetwork', methods=['POST'])
 def network_driver_create_network():
     """Creates a new Neutron Network which name is the given NetworkID.

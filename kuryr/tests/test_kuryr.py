@@ -43,6 +43,8 @@ class TestKuryr(base.TestKuryrBase):
     - POST /NetworkDriver.Leave
     """
     @ddt.data(('/Plugin.Activate', constants.SCHEMA['PLUGIN_ACTIVATE']),
+        ('/NetworkDriver.DiscoverNew', constants.SCHEMA['SUCCESS']),
+        ('/NetworkDriver.DiscoverDelete', constants.SCHEMA['SUCCESS']),
         ('/NetworkDriver.EndpointOperInfo',
          constants.SCHEMA['ENDPOINT_OPER_INFO']))
     @ddt.unpack
