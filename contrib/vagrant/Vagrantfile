@@ -1,15 +1,23 @@
 VAGRANTFILE_API_VERSION = "2"
+VM_MEMORY = 4096
+VM_CPUS = 2
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box = "trusty"
-
-  config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
-
   config.vm.hostname = "devstack"
 
-  config.vm.provider "virtualbox" do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "4096"]
+  config.vm.provider "virtualbox" do |vb, override|
+    override.vm.box = "trusty"
+    override.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+    vb.memory = VM_MEMORY
+    vb.cpus = VM_CPUS
+  end
+
+  config.vm.provider "parallels" do |v, override|
+    override.vm.box = "boxcutter/ubuntu1404"
+    v.memory = VM_MEMORY
+    v.cpus = VM_CPUS
+    v.customize ["set", :id, "--nested-virt", "on"]
   end
 
   config.vm.provision :shell, :path => "vagrant.sh"
