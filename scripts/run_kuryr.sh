@@ -27,7 +27,7 @@ if [[ ! -d "${KURYR_JSON_DIR}" ]]; then
 fi
 
 if [[ ! -f "${KURYR_JSON}" ]]; then
-    echo -n "${KURYR_JSON} is missing. Copyting the default one... "
+    echo -n "${KURYR_JSON} is missing. Copying the default one... "
     sudo cp ${KURYR_DEFAULT_JSON} ${KURYR_JSON}
     echo "Done"
 fi
