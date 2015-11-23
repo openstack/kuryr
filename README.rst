@@ -4,8 +4,8 @@ kuryr
 
 .. image:: https://raw.githubusercontent.com/openstack/kuryr/master/doc/images/kuryr_logo.png
     :alt: Kuryr
-    :width: 200
-    :height: 450
+    :width: 67
+    :height: 112
     :align: center
 
 
