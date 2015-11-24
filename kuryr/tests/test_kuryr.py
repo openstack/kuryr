@@ -86,13 +86,11 @@ class TestKuryr(base.TestKuryrBase):
                 'AddressSpace': 'foo',
                 'Pool': '192.168.42.0/24',
                 'Gateway': '192.168.42.1/24',
-                'AuxAddresses': {}
             }],
             'IPv6Data': [{
                 'AddressSpace': 'bar',
                 'Pool': 'fe80::/64',
                 'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
-                'AuxAddresses': {}
             }],
             'Options': {}
         }
