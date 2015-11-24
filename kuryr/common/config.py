@@ -42,6 +42,9 @@ neutron_opts = [
     cfg.StrOpt('neutron_uri',
                default=os.environ.get('OS_URL', 'http://127.0.0.1:9696'),
                help=_('Neutron URL for accessing the network service.')),
+    cfg.StrOpt('enable_dhcp',
+               default='False',
+               help=_('Enable or Disable dhcp for neutron subnets.')),
 ]
 keystone_opts = [
     cfg.StrOpt('auth_uri',
