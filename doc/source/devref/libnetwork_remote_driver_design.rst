@@ -170,7 +170,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         {
             "name": "foo",
             "id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "scope": "local",
+            "scope": "global",
             "driver": "kuryr",
             "ipam": {
                 "driver": "default",
@@ -199,7 +199,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         {
             "name": "foo",
             "id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "scope": "local",
+            "scope": "global",
             "driver": "kuryr",
             "ipam": {
                 "driver": "default",
