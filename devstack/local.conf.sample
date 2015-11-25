@@ -1,5 +1,8 @@
 [[local|localrc]]
 
+LOGFILE=stack.sh.log
+LOG_COLOR=False
+
 DATABASE_PASSWORD=pass
 RABBIT_PASSWORD=pass
 SERVICE_PASSWORD=pass

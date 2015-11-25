@@ -22,13 +22,11 @@ then
 
   echo "Copy configuration"
 
-  # copy localrc settings (source: devstack/samples/localrc)
-  echo "copy config from $BASHPATH/config/localrc to $DEVSTACK/localrc"
-  cp "$BASHPATH"/config/localrc "$DEVSTACK"/localrc
-  chown "$OS_USER":"$OS_USER" "$DEVSTACK"/localrc
+  # copy local.conf.sample settings (source: kuryr/devstack/local.conf.sample)
+  cp /vagrant/devstack/local.conf.sample $DEVSTACK/local.conf
+  chown "$OS_USER":"$OS_USER" "$DEVSTACK"/local.conf
 
 fi
-
 
 # start devstack
 echo "Start Devstack"

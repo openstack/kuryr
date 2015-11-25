@@ -11,6 +11,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+# Save trace setting
+XTRACE=$(set +o | grep xtrace)
+set +o xtrace
 
 function install_etcd_data_store {
 

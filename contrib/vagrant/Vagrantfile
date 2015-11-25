@@ -20,6 +20,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["set", :id, "--nested-virt", "on"]
   end
 
+  config.vm.synced_folder "../../devstack/", "/vagrant/devstack"
+
   config.vm.provision :shell, :path => "vagrant.sh"
 
   if Vagrant.has_plugin?("vagrant-cachier")
