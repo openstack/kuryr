@@ -17,11 +17,11 @@ set +o xtrace
 
 function install_etcd_data_store {
 
-    if [ ! -f "/opt/stack/etcd/etcd-v2.1.1-linux-amd64/etcd" ]; then
+    if [ ! -f "$DEST/etcd/etcd-v2.1.1-linux-amd64/etcd" ]; then
         echo "Installing etcd server"
-        mkdir /opt/stack/etcd
-        curl -L  https://github.com/coreos/etcd/releases/download/v2.1.1/etcd-v2.1.1-linux-amd64.tar.gz -o $DEST/etcd/etcd-v2.1.1-linux-amd64.tar.gz
-        tar xzvf $DEST/etcd/etcd-v2.1.1-linux-amd64.tar.gz -C /opt/stack/etcd
+        mkdir $DEST/etcd
+        wget https://github.com/coreos/etcd/releases/download/v2.1.1/etcd-v2.1.1-linux-amd64.tar.gz -O $DEST/etcd/etcd-v2.1.1-linux-amd64.tar.gz
+        tar xzvf $DEST/etcd/etcd-v2.1.1-linux-amd64.tar.gz -C $DEST/etcd
     fi
 }
 
