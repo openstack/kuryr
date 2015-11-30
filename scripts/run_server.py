@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr import controllers
 from kuryr import server
 
-controllers.check_for_neutron_ext_support()
 server.start()

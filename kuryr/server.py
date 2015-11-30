@@ -10,9 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr import app
+import sys
 
 
 def start():
+    from kuryr.common import config
+    config.init(sys.argv[1:])
+
+    from kuryr import app
+    from kuryr import controllers
+    controllers.check_for_neutron_ext_support()
     app.debug = True
     app.run("0.0.0.0", port=2377)

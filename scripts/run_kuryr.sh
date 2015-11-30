@@ -20,6 +20,12 @@ KURYR_DEFAULT_JSON=${KURYR_HOME}/etc/${KURYR_JSON_FILENAME}
 KURYR_JSON_DIR=${KURYR_JSON_DIR:-/usr/lib/docker/plugins/kuryr}
 KURYR_JSON=${KURYR_JSON_DIR}/${KURYR_JSON_FILENAME}
 
+KURYR_CONFIG_FILENAME=kuryr.conf
+KURYR_DEFAULT_CONFIG=${KURYR_HOME}/etc/${KURYR_CONFIG_FILENAME}
+KURYR_CONFIG_DIR=${KURYR_CONFIG_DIR:-/etc/kuryr}
+KURYR_CONFIG=${KURYR_CONFIG_DIR}/${KURYR_CONFIG_FILENAME}
+
+
 if [[ ! -d "${KURYR_JSON_DIR}" ]]; then
     echo -n "${KURYR_JSON_DIR} directory is missing. Creating it... "
     sudo mkdir -p ${KURYR_JSON_DIR}
@@ -32,4 +38,24 @@ if [[ ! -f "${KURYR_JSON}" ]]; then
     echo "Done"
 fi
 
-PYTHONPATH=${KURYR_HOME} python ${KURYR_HOME}/scripts/run_server.py
+if [[ ! -d "${KURYR_CONFIG_DIR}" ]]; then
+    echo -n "${KURYR_CONFIG_DIR} directory is missing. Creating it... "
+    sudo mkdir -p ${KURYR_CONFIG_DIR}
+    echo "Done"
+fi
+
+if [[ ! -f "${KURYR_CONFIG}" ]]; then
+    if [[ -f "${KURYR_DEFAULT_CONFIG}" ]]; then
+        echo -n "${KURYR_CONFIG} is missing. Copying the default one... "
+        sudo cp ${KURYR_DEFAULT_CONFIG} ${KURYR_CONFIG}
+        echo "Done"
+    else
+        echo -n "${KURYR_CONFIG} and the  default config missing. Auto generating and copying one... "
+        cd ${KURYR_HOME}
+        tox -egenconfig
+        sudo cp ${KURYR_DEFAULT_CONFIG}.sample ${KURYR_DEFAULT_CONFIG}
+        sudo cp ${KURYR_DEFAULT_CONFIG} ${KURYR_CONFIG}
+    fi
+fi
+
+PYTHONPATH=${KURYR_HOME} python ${KURYR_HOME}/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf
