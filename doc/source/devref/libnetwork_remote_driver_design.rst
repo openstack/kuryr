@@ -168,17 +168,17 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
        $ sudo docker network inspect foo
         {
-            "name": "foo",
-            "id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "scope": "global",
-            "driver": "kuryr",
-            "ipam": {
-                "driver": "default",
-                "config": [
+            "Name": "foo",
+            "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
+            "Scope": "global",
+            "Driver": "kuryr",
+            "IPAM": {
+                "Driver": "default",
+                "Config": [
                     {}
                 ]
             },
-            "containers": {
+            "Containers": {
                 "78c0458ba00f836f609113dd369b5769527f55bb62b5680d03aa1329eb416703": {
                     "endpoint": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd",
                     "mac_address": "02:42:c0:a8:7b:cb",
@@ -197,17 +197,17 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
        $ sudo docker network inspect foo
         {
-            "name": "foo",
-            "id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "scope": "global",
-            "driver": "kuryr",
-            "ipam": {
-                "driver": "default",
-                "config": [
+            "Name": "foo",
+            "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
+            "Scope": "global",
+            "Driver": "kuryr",
+            "IPAM": {
+                "Driver": "default",
+                "Config": [
                     {}
                 ]
             },
-            "containers": {
+            "Containers": {
                 "78c0458ba00f836f609113dd369b5769527f55bb62b5680d03aa1329eb416703": {
                     "endpoint": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd",
                     "mac_address": "02:42:c0:a8:7b:cb",
