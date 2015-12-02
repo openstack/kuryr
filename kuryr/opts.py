@@ -25,6 +25,7 @@ _kuryr_opts = [
         kuryr.common.config.core_opts))),
     ('neutron_client', kuryr.common.config.neutron_opts),
     ('keystone_client', kuryr.common.config.keystone_opts),
+    ('binding', kuryr.common.config.binding_opts),
 ]
 
 
