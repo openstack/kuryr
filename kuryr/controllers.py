@@ -297,6 +297,16 @@ def _create_subnets_and_or_port(interface, neutron_network_id, endpoint_id):
 
 @app.route('/Plugin.Activate', methods=['POST'])
 def plugin_activate():
+    """Returns the list of the implemented drivers.
+
+    This function returns the list of the implemented drivers defaults to
+    ``[NetworkDriver]`` in the handshake of the remote driver, which happens
+    right before the first request against Kuryr.
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#handshake  # noqa
+    """
     return flask.jsonify(constants.SCHEMA['PLUGIN_ACTIVATE'])
 
 
