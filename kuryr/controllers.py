@@ -312,6 +312,17 @@ def plugin_activate():
 
 @app.route('/NetworkDriver.GetCapabilities', methods=['POST'])
 def plugin_scope():
+    """Returns the capability as the remote network driver.
+
+    This function returns the capability of the remote network driver, which is
+    ``global`` or ``local`` and defaults to ``global``. With ``global``
+    capability, the network information is shared among multipe Docker daemons
+    if the distributed store is appropriately configured.
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/remote.md#set-capability  # noqa
+    """
     capabilities = {'Scope': cfg.CONF.capability_scope}
     return flask.jsonify(capabilities)
 
