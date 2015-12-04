@@ -3,4 +3,4 @@ command from the top level of the kuryr directory:
 
 tox -egenconfig
 
-The sample file will be generated at /etc/kuryr.conf.sample
+The sample file will be generated at etc/kuryr.conf.sample
