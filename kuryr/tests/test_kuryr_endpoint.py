@@ -88,6 +88,7 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
             'port': {
                 'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
+                "binding:host_id": utils.get_hostname(),
                 'device_owner': constants.DEVICE_OWNER,
                 'device_id': docker_endpoint_id,
                 'fixed_ips': [{
@@ -109,6 +110,7 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
                 "name": utils.get_neutron_port_name(docker_endpoint_id),
                 "allowed_address_pairs": [],
                 "admin_state_up": True,
+                "binding:host_id": utils.get_hostname(),
                 "network_id": neutron_network_id,
                 "tenant_id": "d6700c0c9ffa4f1cb322cd4a1f3906fa",
                 "device_owner": constants.DEVICE_OWNER,

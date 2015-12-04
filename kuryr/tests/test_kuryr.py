@@ -179,6 +179,7 @@ class TestKuryr(base.TestKuryrBase):
             'port': {
                 'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
+                "binding:host_id": utils.get_hostname(),
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
                 'device_owner': constants.DEVICE_OWNER,
@@ -288,6 +289,7 @@ class TestKuryr(base.TestKuryrBase):
             'port': {
                 'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
+                "binding:host_id": utils.get_hostname(),
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
                 'device_owner': constants.DEVICE_OWNER,
@@ -398,6 +400,7 @@ class TestKuryr(base.TestKuryrBase):
             'port': {
                 'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
+                "binding:host_id": utils.get_hostname(),
                 'device_owner': constants.DEVICE_OWNER,
                 'device_id': docker_endpoint_id,
                 'mac_address': "fa:16:3e:20:57:c3",

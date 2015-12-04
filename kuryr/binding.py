@@ -117,7 +117,7 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     try:
         stdout, stderr = processutils.execute(
             binding_exec_path, BINDING_SUBCOMMAND, port_id, ifname,
-            run_as_root=True)
+            endpoint_id, run_as_root=True)
     except processutils.ProcessExecutionError:
         with excutils.save_and_reraise_exception():
             cleanup_veth(ifname)

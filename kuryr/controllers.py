@@ -246,6 +246,7 @@ def _create_subnets_and_or_port(interface, neutron_network_id, endpoint_id):
         port = {
             'name': utils.get_neutron_port_name(endpoint_id),
             'admin_state_up': True,
+            "binding:host_id": utils.get_hostname(),
             'network_id': neutron_network_id,
             'device_owner': constants.DEVICE_OWNER,
             'device_id': endpoint_id,
