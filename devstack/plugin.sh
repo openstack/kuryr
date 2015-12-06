@@ -15,13 +15,15 @@
 XTRACE=$(set +o | grep xtrace)
 set +o xtrace
 
+ETCD_VERSION=v2.2.2
+
 function install_etcd_data_store {
 
-    if [ ! -f "$DEST/etcd/etcd-v2.1.1-linux-amd64/etcd" ]; then
+    if [ ! -f "$DEST/etcd/etcd-$ETCD_VERSION-linux-amd64/etcd" ]; then
         echo "Installing etcd server"
         mkdir $DEST/etcd
-        wget https://github.com/coreos/etcd/releases/download/v2.1.1/etcd-v2.1.1-linux-amd64.tar.gz -O $DEST/etcd/etcd-v2.1.1-linux-amd64.tar.gz
-        tar xzvf $DEST/etcd/etcd-v2.1.1-linux-amd64.tar.gz -C $DEST/etcd
+        wget https://github.com/coreos/etcd/releases/download/$ETCD_VERSION/etcd-$ETCD_VERSION-linux-amd64.tar.gz -O $DEST/etcd/etcd-$ETCD_VERSION-linux-amd64.tar.gz
+        tar xzvf $DEST/etcd/etcd-$ETCD_VERSION-linux-amd64.tar.gz -C $DEST/etcd
     fi
 }
 
@@ -45,7 +47,7 @@ if is_service_enabled kuryr; then
              echo "Done"
         fi
 
-        run_process etcd-server "$DEST/etcd/etcd-v2.1.1-linux-amd64/etcd"
+        run_process etcd-server "$DEST/etcd/etcd-$ETCD_VERSION-linux-amd64/etcd"
 
         wget http://get.docker.com -O install_docker.sh
         sudo chmod 777 install_docker.sh
