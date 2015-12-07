@@ -34,16 +34,10 @@ def get_neutron_client_simple(url, token):
 
 def get_neutron_client(url, username, tenant_name, password,
                        auth_url, timeout=30):
-    params = {
-        'endpoint_url': url,
-        'timeout': timeout,
-    }
 
-    params['username'] = username
-    params['tenant_name'] = tenant_name
-    params['password'] = password
-    params['auth_url'] = auth_url
-    return client_v2.Client(**params)
+    return client_v2.Client(endpoint_url=url, timeout=timeout,
+                           username=username, tenant_name=tenant_name,
+                           password=password, auth_url=auth_url)
 
 
 # Return all errors as JSON. From http://flask.pocoo.org/snippets/83/
