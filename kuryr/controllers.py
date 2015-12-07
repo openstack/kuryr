@@ -245,7 +245,7 @@ def _create_subnets_and_or_port(interface, neutron_network_id, endpoint_id):
 
     try:
         port = {
-            'name': '-'.join([endpoint_id, 'port']),
+            'name': utils.get_neutron_port_name(endpoint_id),
             'admin_state_up': True,
             'network_id': neutron_network_id,
             'device_owner': constants.DEVICE_OWNER,
@@ -724,7 +724,7 @@ def network_driver_leave():
             .format(neutron_network_name)
         })
     else:
-        neutron_port_name = '-'.join([endpoint_id, 'port'])
+        neutron_port_name = utils.get_neutron_port_name(endpoint_id)
         filtered_ports = _get_ports_by_attrs(name=neutron_port_name)
         if not filtered_ports:
             raise exceptions.NoResourceException(

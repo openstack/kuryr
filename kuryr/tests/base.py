@@ -14,6 +14,7 @@ from neutronclient.tests.unit import test_cli20
 
 from kuryr import app
 from kuryr import binding
+from kuryr import utils
 
 
 class TestCase(test_cli20.CLITestV20Base):
@@ -165,7 +166,7 @@ class TestKuryrBase(TestCase):
         fake_port = {
             'port': {
                 "status": "DOWN",
-                "name": '-'.join([docker_endpoint_id, '0', 'port']),
+                "name": utils.get_neutron_port_name(docker_endpoint_id),
                 "allowed_address_pairs": [],
                 "admin_state_up": True,
                 "network_id": neutron_network_id,

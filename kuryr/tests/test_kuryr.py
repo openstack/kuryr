@@ -177,7 +177,7 @@ class TestKuryr(base.TestKuryrBase):
         fake_neutron_port_id = str(uuid.uuid4())
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, 'port']),
+                'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
@@ -286,7 +286,7 @@ class TestKuryr(base.TestKuryrBase):
         fake_neutron_port_id = str(uuid.uuid4())
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, 'port']),
+                'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
                 'mac_address': fake_mac_address,
                 'network_id': fake_neutron_network_id,
@@ -396,7 +396,7 @@ class TestKuryr(base.TestKuryrBase):
         self.mox.StubOutWithMock(app.neutron, 'create_port')
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, 'port']),
+                'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
                 'device_owner': constants.DEVICE_OWNER,
                 'device_id': docker_endpoint_id,
