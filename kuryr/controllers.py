@@ -28,29 +28,35 @@ from kuryr.common import exceptions
 from kuryr import schemata
 from kuryr import utils
 
+
 MANDATORY_NEUTRON_EXTENSION = "subnet_allocation"
 
-cfg.CONF.import_group('neutron_client', 'kuryr.common.config')
-cfg.CONF.import_group('keystone_client', 'kuryr.common.config')
 
-keystone_conf = cfg.CONF.keystone_client
-username = keystone_conf.admin_user
-tenant_name = keystone_conf.admin_tenant_name
-password = keystone_conf.admin_password
-auth_token = keystone_conf.admin_token
-auth_uri = keystone_conf.auth_uri.rstrip('/')
+def neutron_client():
+    """Creates the Neutron client for communicating with Neutron."""
+    if not hasattr(app, 'neutron'):
+        cfg.CONF.import_group('neutron_client', 'kuryr.common.config')
+        cfg.CONF.import_group('keystone_client', 'kuryr.common.config')
 
-neutron_uri = cfg.CONF.neutron_client.neutron_uri
-enable_dhcp = cfg.CONF.neutron_client.enable_dhcp
+        keystone_conf = cfg.CONF.keystone_client
+        username = keystone_conf.admin_user
+        tenant_name = keystone_conf.admin_tenant_name
+        password = keystone_conf.admin_password
+        auth_token = keystone_conf.admin_token
+        auth_uri = keystone_conf.auth_uri.rstrip('/')
 
-if username and password:
-    # Authenticate with password crentials
-    app.neutron = utils.get_neutron_client(
-        url=neutron_uri, username=username, tenant_name=tenant_name,
-        password=password, auth_url=auth_uri)
-else:
-    app.neutron = utils.get_neutron_client_simple(
-        url=neutron_uri, token=auth_token)
+        neutron_uri = cfg.CONF.neutron_client.neutron_uri
+        if username and password:
+            # Authenticate with password crentials
+            app.neutron = utils.get_neutron_client(
+                url=neutron_uri, username=username, tenant_name=tenant_name,
+                password=password, auth_url=auth_uri)
+        else:
+            app.neutron = utils.get_neutron_client_simple(
+                url=neutron_uri, token=auth_token)
+
+        app.enable_dhcp = cfg.CONF.neutron_client.enable_dhcp
+        app.neutron.format = 'json'
 
 
 def check_for_neutron_ext_support():
@@ -69,8 +75,6 @@ SUBNET_POOLS_V4 = [
     p.strip() for p in os.environ.get('SUBNET_POOLS_V4', 'kuryr').split(',')]
 SUBNET_POOLS_V6 = [
     p.strip() for p in os.environ.get('SUBNET_POOLS_V6', 'kuryr6').split(',')]
-
-app.neutron.format = 'json'
 
 
 def _cache_default_subnetpool_ids(app):
@@ -146,7 +150,7 @@ def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
             'network_id': neutron_network_id,
             'ip_version': cidr.version,
             'cidr': subnet_cidr,
-            'enable_dhcp': enable_dhcp,
+            'enable_dhcp': app.enable_dhcp,
         }
         if pool_id:
             del new_subnet['cidr']
@@ -745,3 +749,6 @@ def network_driver_leave():
                 app.logger.error('Cleaning the veth pair up was failed.')
 
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
+
+
+neutron_client()

@@ -18,5 +18,3 @@ from kuryr import utils
 app = utils.make_json_app(__name__)
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.INFO)
-
-from kuryr.controllers import app  # noqa

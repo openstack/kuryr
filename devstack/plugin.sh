@@ -47,6 +47,27 @@ if is_service_enabled kuryr; then
              echo "Done"
         fi
 
+        if [[ ! -d "${KURYR_CONFIG_DIR}" ]]; then
+            echo -n "${KURYR_CONFIG_DIR} directory is missing. Creating it... "
+            sudo mkdir -p ${KURYR_CONFIG_DIR}
+            echo "Done"
+        fi
+
+        if [[ ! -f "${KURYR_CONFIG}" ]]; then
+            if [[ -f "${KURYR_DEFAULT_CONFIG}" ]]; then
+                echo -n "${KURYR_CONFIG} is missing. Copying the default one... "
+                sudo cp ${KURYR_DEFAULT_CONFIG} ${KURYR_CONFIG}
+                echo "Done"
+            else
+                echo -n "${KURYR_CONFIG} and the  default config missing. Auto generating and copying one... "
+                cd ${KURYR_HOME}
+                tox -egenconfig
+                sudo cp ${KURYR_DEFAULT_CONFIG}.sample ${KURYR_DEFAULT_CONFIG}
+                sudo cp ${KURYR_DEFAULT_CONFIG} ${KURYR_CONFIG}
+                cd -
+            fi
+        fi
+
         run_process etcd-server "$DEST/etcd/etcd-$ETCD_VERSION-linux-amd64/etcd"
 
         wget http://get.docker.com -O install_docker.sh
@@ -56,7 +77,7 @@ if is_service_enabled kuryr; then
 
         sudo killall docker
         run_process docker-engine "sudo /usr/bin/docker daemon --cluster-store etcd://localhost:4001"
-        run_process kuryr "sudo PYTHONPATH=$PYTHONPATH:$DEST/kuryr SERVICE_USER=admin SERVICE_PASSWORD=$SERVICE_PASSWORD SERVICE_TENANT_NAME=admin SERVICE_TOKEN=$SERVICE_TOKEN IDENTITY_URL=http://127.0.0.1:5000/v2.0 python $DEST/kuryr/scripts/run_server.py"
+        run_process kuryr "sudo PYTHONPATH=$PYTHONPATH:$DEST/kuryr SERVICE_USER=admin SERVICE_PASSWORD=$SERVICE_PASSWORD SERVICE_TENANT_NAME=admin SERVICE_TOKEN=$SERVICE_TOKEN IDENTITY_URL=http://127.0.0.1:5000/v2.0 python $DEST/kuryr/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf"
     fi
 
     if [[ "$1" == "unstack" ]]; then
