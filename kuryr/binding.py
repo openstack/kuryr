@@ -62,7 +62,7 @@ def cleanup_veth(ifname):
 
 
 def port_bind(endpoint_id, neutron_port, neutron_subnets):
-    """Binds the Neutorn port to the network interface on the host.
+    """Binds the Neutron port to the network interface on the host.
 
     :param endpoint_id:     the ID of the endpoint as string
     :param neutron_port:    a port dictionary returned from
@@ -126,7 +126,7 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
 
 
 def port_unbind(endpoint_id, neutron_port):
-    """Unbinds the Neutorn port from the network interface on the host.
+    """Unbinds the Neutron port from the network interface on the host.
 
     :param endpoint_id: the ID of the Docker container as string
     :param neutron_port: a port dictionary returned from python-neutronclient
