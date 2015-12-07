@@ -111,8 +111,8 @@ class TestKuryrJoinFailures(base.TestKuryrFailures):
         self.assertEqual(
             w_exceptions.InternalServerError.code, response.status_code)
         decoded_json = jsonutils.loads(response.data)
-        self.assertTrue('Err' in decoded_json)
-        self.assertTrue(fake_message in decoded_json['Err'])
+        self.assertIn('Err', decoded_json)
+        self.assertIn(fake_message, decoded_json['Err'])
 
     def test_join_bad_request(self):
         fake_docker_network_id = hashlib.sha256(
