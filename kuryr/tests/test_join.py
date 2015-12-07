@@ -28,8 +28,7 @@ from kuryr import utils
 
 @ddt.ddt
 class TestKuryrJoinFailures(base.TestKuryrFailures):
-    """Unit tests for the failures for binding a Neutron port to an interface.
-    """
+    """Unit tests for the failures for binding a Neutron port."""
     def _invoke_join_request(self, docker_network_id,
                              docker_endpoint_id, container_id):
         data = {

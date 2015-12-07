@@ -54,8 +54,7 @@ else:
 
 
 def check_for_neutron_ext_support():
-    """Validates for mandatory extension support availability in neutron.
-    """
+    """Validates for mandatory extension support availability in neutron."""
     try:
         app.neutron.show_extension(MANDATORY_NEUTRON_EXTENSION)
     except n_exceptions.NeutronClientException as e:
