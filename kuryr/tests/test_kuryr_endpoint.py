@@ -21,6 +21,7 @@ from oslo_serialization import jsonutils
 from kuryr import app
 from kuryr.common import constants
 from kuryr.tests import base
+from kuryr import utils
 
 
 class TestKuryrEndpointFailures(base.TestKuryrFailures):
@@ -85,7 +86,7 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
         self.mox.StubOutWithMock(app.neutron, 'create_port')
         fake_port_request = {
             'port': {
-                'name': '-'.join([docker_endpoint_id, 'port']),
+                'name': utils.get_neutron_port_name(docker_endpoint_id),
                 'admin_state_up': True,
                 'device_owner': constants.DEVICE_OWNER,
                 'device_id': docker_endpoint_id,
@@ -105,7 +106,7 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
         fake_port = {
             "port": {
                 "status": "DOWN",
-                "name": '-'.join([docker_endpoint_id, 'port']),
+                "name": utils.get_neutron_port_name(docker_endpoint_id),
                 "allowed_address_pairs": [],
                 "admin_state_up": True,
                 "network_id": neutron_network_id,
