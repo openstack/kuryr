@@ -11,6 +11,7 @@
 # under the License.
 
 import os
+import socket
 import sys
 import traceback
 
@@ -104,3 +105,8 @@ def get_neutron_port_name(docker_endpoint_id):
     :returns: the Neutron port name formatted appropriately
     """
     return '-'.join([docker_endpoint_id, PORT_POSTFIX])
+
+
+def get_hostname():
+    """Returns the host name."""
+    return socket.gethostname()
