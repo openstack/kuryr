@@ -286,7 +286,7 @@ def _create_subnets_and_or_port(interface, neutron_network_id, endpoint_id):
                 _process_interface_address(
                     fixed_ip, subnets_dict_by_id, response_interface)
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happend during creating a "
+        app.logger.error("Error happened during creating a "
                          "Neutron port: {0}".format(ex))
         # Rollback the subnets creation
         for subnet in created_subnets:
@@ -557,7 +557,7 @@ def network_driver_delete_endpoint():
                     concerned_subnet_ids.append(fixed_ip['subnet_id'])
                 app.neutron.delete_port(port['id'])
         except n_exceptions.NeutronClientException as ex:
-            app.logger.error("Error happend during deleting a "
+            app.logger.error("Error happened during deleting a "
                              "Neutron ports: {0}".format(ex))
             raise
 
@@ -583,7 +583,7 @@ def network_driver_delete_endpoint():
                                 "from other ports and it can't be deleted for "
                                 "now.".format(subnet_id))
             except n_exceptions.NeutronClientException as ex:
-                app.logger.error("Error happend during deleting a "
+                app.logger.error("Error happened during deleting a "
                                  "Neutron subnets: {0}".format(ex))
                 raise
 
