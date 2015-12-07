@@ -28,8 +28,7 @@ from kuryr import utils
 
 @ddt.ddt
 class TestKuryrLeaveFailures(base.TestKuryrFailures):
-    """Unit tests for the failures for unbinding a Neutron port.
-    """
+    """Unit tests for the failures for unbinding a Neutron port."""
     def _invoke_leave_request(self, docker_network_id,
                               docker_endpoint_id):
         data = {
