@@ -544,7 +544,6 @@ def network_driver_delete_endpoint():
         })
     else:
         neutron_network_id = filtered_networks[0]['id']
-        filtered_ports = []
         concerned_subnet_ids = []
         try:
             filtered_ports = app.neutron.list_ports(
