@@ -20,7 +20,7 @@ from oslo_serialization import jsonutils
 from kuryr import app
 from kuryr.common import config
 from kuryr.common import constants
-from kuryr.tests import base
+from kuryr.tests.unit import base
 from kuryr import utils
 
 

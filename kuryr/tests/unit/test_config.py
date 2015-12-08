@@ -17,14 +17,14 @@ from neutronclient.common import exceptions as n_exceptions
 from kuryr.common import config
 from kuryr.common import exceptions
 from kuryr import controllers
-from kuryr.tests import base
+from kuryr.tests.unit import base
 
 
 class ConfigurationTest(base.TestKuryrBase):
 
     def test_defaults(self):
         basepath = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                '../../'))
+                                                '../../../'))
         self.assertEqual(basepath,
                          config.CONF.pybasedir)
         self.assertEqual(basepath + '/usr/libexec/kuryr',
