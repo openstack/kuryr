@@ -19,7 +19,7 @@ from neutronclient.common import exceptions
 from oslo_serialization import jsonutils
 
 from kuryr import app
-from kuryr.tests import base
+from kuryr.tests.unit import base
 
 
 class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):

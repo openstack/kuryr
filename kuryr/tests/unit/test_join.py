@@ -22,7 +22,7 @@ from werkzeug import exceptions as w_exceptions
 from kuryr import app
 from kuryr import binding
 from kuryr.common import exceptions
-from kuryr.tests import base
+from kuryr.tests.unit import base
 from kuryr import utils
 
 

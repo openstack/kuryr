@@ -15,7 +15,7 @@ import random
 
 import ddt
 
-from kuryr.tests import base
+from kuryr.tests.unit import base
 from kuryr import utils
 
 
