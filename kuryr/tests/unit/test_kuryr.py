@@ -41,6 +41,8 @@ class TestKuryr(base.TestKuryrBase):
     - POST /NetworkDriver.DeleteEndpoint
     - POST /NetworkDriver.Join
     - POST /NetworkDriver.Leave
+    - POST /NetworkDriver.DiscoverNew
+    - POST /NetworkDriver.DiscoverDelete
     """
     @ddt.data(('/Plugin.Activate', constants.SCHEMA['PLUGIN_ACTIVATE']),
         ('/NetworkDriver.DiscoverNew', constants.SCHEMA['SUCCESS']),
