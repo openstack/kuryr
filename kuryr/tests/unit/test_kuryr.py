@@ -34,6 +34,7 @@ class TestKuryr(base.TestKuryrBase):
       https://github.com/docker/libnetwork/blob/3c8e06bc0580a2a1b2440fe0792fbfcd43a9feca/docs/remote.md  # noqa
 
     - POST /Plugin.Activate
+    - POST /NetworkDriver.GetCapabilities
     - POST /NetworkDriver.CreateNetwork
     - POST /NetworkDriver.DeleteNetwork
     - POST /NetworkDriver.CreateEndpoint
@@ -45,6 +46,8 @@ class TestKuryr(base.TestKuryrBase):
     - POST /NetworkDriver.DiscoverDelete
     """
     @ddt.data(('/Plugin.Activate', constants.SCHEMA['PLUGIN_ACTIVATE']),
+        ('/NetworkDriver.GetCapabilities',
+         {'Scope': config.CONF.capability_scope}),
         ('/NetworkDriver.DiscoverNew', constants.SCHEMA['SUCCESS']),
         ('/NetworkDriver.DiscoverDelete', constants.SCHEMA['SUCCESS']),
         ('/NetworkDriver.EndpointOperInfo',
