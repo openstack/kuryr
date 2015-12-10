@@ -49,7 +49,7 @@ neutron_opts = [
 keystone_opts = [
     cfg.StrOpt('auth_uri',
                default=os.environ.get('IDENTITY_URL',
-                                      'http://127.0.0.1:35357'),
+                                      'http://127.0.0.1:35357/v2.0'),
                help=_('The URL for accessing the identity service.')),
     cfg.StrOpt('admin_user',
                default=os.environ.get('SERVICE_USER'),
