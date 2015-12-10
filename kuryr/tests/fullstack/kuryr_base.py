@@ -11,7 +11,30 @@
 # under the License.
 
 import docker
+import os_client_config
+
 from oslotest import base
+
+from neutronclient.neutron import client
+
+
+def get_cloud_config(cloud='devstack-admin'):
+    return os_client_config.OpenStackConfig().get_one_cloud(cloud=cloud)
+
+
+def credentials(cloud='devstack-admin'):
+    """Retrieves credentials to run functional tests
+
+    Credentials are either read via os-client-config from the environment
+    or from a config file ('clouds.yaml'). Environment variables override
+    those from the config file.
+
+    devstack produces a clouds.yaml with two named clouds - one named
+    'devstack' which has user privs and one named 'devstack-admin' which
+    has admin privs. This function will default to getting the devstack-admin
+    cloud as that is the current expected behavior.
+    """
+    return get_cloud_config(cloud=cloud).get_auth_args()
 
 
 class KuryrBaseTest(base.BaseTestCase):
@@ -25,3 +48,13 @@ class KuryrBaseTest(base.BaseTestCase):
         super(KuryrBaseTest, self).setUp()
         self.docker_client = docker.Client(
             base_url='unix://var/run/docker.sock')
+
+        self.creds = credentials()
+        username = self.creds['username']
+        tenant_name = self.creds['project_name']
+        password = self.creds['password']
+        auth_url = self.creds['auth_url']
+        self.neutron_client = client.Client('2.0', username=username,
+                                            tenant_name=tenant_name,
+                                            password=password,
+                                            auth_url=auth_url)
