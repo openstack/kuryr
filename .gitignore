@@ -51,3 +51,7 @@ ChangeLog
 !/.testr.conf
 
 contrib/vagrant/.vagrant
+
+# Configuration files
+etc/kuryr.conf
+etc/kuryr.conf.sample
