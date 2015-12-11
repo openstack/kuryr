@@ -14,6 +14,7 @@ import hashlib
 import random
 
 import ddt
+from oslo_config import cfg
 
 from kuryr.tests.unit import base
 from kuryr import utils
@@ -37,3 +38,11 @@ class TestKuryrUtils(base.TestKuryrBase):
             fake_docker_endpoint_id)
         self.assertIn(utils.PORT_POSTFIX, generated_neutron_port_name)
         self.assertIn(fake_docker_endpoint_id, generated_neutron_port_name)
+
+    def test_get_subnetpool_name(self):
+        fake_subnet_cidr = "10.0.0.0/16"
+        generated_neutron_subnetpool_name = utils.get_neutron_subnetpool_name(
+            fake_subnet_cidr)
+        name_prefix = cfg.CONF.subnetpool_name_prefix
+        self.assertIn(name_prefix, generated_neutron_subnetpool_name)
+        self.assertIn(fake_subnet_cidr, generated_neutron_subnetpool_name)

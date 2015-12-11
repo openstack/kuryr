@@ -16,6 +16,10 @@ from kuryr.schemata import join
 from kuryr.schemata import leave
 from kuryr.schemata import network_create
 from kuryr.schemata import network_delete
+from kuryr.schemata import release_address
+from kuryr.schemata import release_pool
+from kuryr.schemata import request_address
+from kuryr.schemata import request_pool
 
 
 # Aliases for schemata in each module
@@ -25,3 +29,7 @@ JOIN_SCHEMA = join.JOIN_SCHEMA
 LEAVE_SCHEMA = leave.LEAVE_SCHEMA
 NETWORK_CREATE_SCHEMA = network_create.NETWORK_CREATE_SCHEMA
 NETWORK_DELETE_SCHEMA = network_delete.NETWORK_DELETE_SCHEMA
+RELEASE_ADDRESS_SCHEMA = release_address.RELEASE_ADDRESS_SCHEMA
+RELEASE_POOL_SCHEMA = release_pool.RELEASE_POOL_SCHEMA
+REQUEST_ADDRESS_SCHEMA = request_address.REQUEST_ADDRESS_SCHEMA
+REQUEST_POOL_SCHEMA = request_pool.REQUEST_POOL_SCHEMA

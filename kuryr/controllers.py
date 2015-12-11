@@ -134,6 +134,13 @@ def _get_subnetpools_by_attrs(**attrs):
     return subnetpools['subnetpools']
 
 
+def _get_subnet_cidr_using_cidr(cidr):
+    subnet_network = str(cidr.network)
+    subnet_cidr = '/'.join([subnet_network,
+                            str(cidr.prefixlen)])
+    return subnet_cidr
+
+
 def _process_subnet(neutron_network_id, endpoint_id, interface_cidr,
                     new_subnets, existing_subnets, pool_id=None):
     cidr = netaddr.IPNetwork(interface_cidr)
@@ -304,8 +311,8 @@ def plugin_activate():
     """Returns the list of the implemented drivers.
 
     This function returns the list of the implemented drivers defaults to
-    ``[NetworkDriver]`` in the handshake of the remote driver, which happens
-    right before the first request against Kuryr.
+    ``[NetworkDriver, IpamDriver]`` in the handshake of the remote driver,
+     which happens right before the first request against Kuryr.
 
     See the following link for more details about the spec:
 
@@ -751,5 +758,295 @@ def network_driver_leave():
 
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
+
+@app.route('/IpamDriver.GetDefaultAddressSpaces', methods=['POST'])
+def ipam_get_default_address_spaces():
+    """Provides the default address spaces for the IPAM.
+
+    This function is called after the registration of the IPAM driver and
+    the plugin set the returned values as the default address spaces for the
+    IPAM. The address spaces can be configured in the config file.
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/ipam.md#getdefaultaddressspaces  # noqa
+    """
+    app.logger.debug("Received /IpamDriver.GetDefaultAddressSpaces")
+    address_spaces = {
+        'LocalDefaultAddressSpace': cfg.CONF.local_default_address_space,
+        'GlobalDefaultAddressSpace': cfg.CONF.global_default_address_space}
+    return flask.jsonify(address_spaces)
+
+
+@app.route('/IpamDriver.RequestPool', methods=['POST'])
+def ipam_request_pool():
+    """Creates a new Neutron subnetpool from the given request.
+
+    This funciton takes the following JSON data and delegates the subnetpool
+    creation to the Neutron client. ::
+
+        {
+            "AddressSpace": string
+            "Pool":         string
+            "SubPool":      string
+            "Options":      map[string]string
+            "V6":           bool
+        }
+
+    Then the following JSON response is returned. ::
+
+        {
+            "PoolID": string
+            "Pool":   string
+            "Data":   map[string]string
+        }
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/ipam.md#requestpool  # noqa
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for /IpamDriver.RequestPool"
+                     .format(json_data))
+    jsonschema.validate(json_data, schemata.REQUEST_POOL_SCHEMA)
+    requested_pool = json_data['Pool']
+    requested_subpool = json_data['SubPool']
+    v6 = json_data['V6']
+    pool_id = ''
+    subnet_cidr = ''
+    if requested_pool:
+        app.logger.info("Creating subnetpool with the given pool CIDR")
+        if requested_subpool:
+            cidr = netaddr.IPNetwork(requested_subpool)
+        else:
+            cidr = netaddr.IPNetwork(requested_pool)
+        subnet_cidr = _get_subnet_cidr_using_cidr(cidr)
+        pool_name = utils.get_neutron_subnetpool_name(subnet_cidr)
+        # Check if requested pool already exist
+        pools = _get_subnetpools_by_attrs(name=pool_name)
+        if pools:
+            pool_id = pools[0]['id']
+        if not pools:
+            new_subnetpool = {
+                'name': pool_name,
+                'default_prefixlen': cidr.prefixlen,
+                'prefixes': [subnet_cidr]}
+            created_subnetpool_response = app.neutron.create_subnetpool(
+                {'subnetpool': new_subnetpool})
+            pool = created_subnetpool_response['subnetpool']
+            pool_id = pool['id']
+    else:
+        if v6:
+            default_pool_list = SUBNET_POOLS_V6
+        else:
+            default_pool_list = SUBNET_POOLS_V4
+        pool_name = default_pool_list[0]
+        pools = _get_subnetpools_by_attrs(name=pool_name)
+        if pools:
+            pool = pools[0]
+            pool_id = pool['id']
+            prefixes = pool['prefixes']
+            if len(prefixes) > 1:
+                app.logger.warning("More than one prefixes present. "
+                                   "Picking first one.")
+            cidr = netaddr.IPNetwork(prefixes[0])
+            subnet_cidr = _get_subnet_cidr_using_cidr(cidr)
+        else:
+            app.logger.error("Default neutron pools not found")
+    req_pool_res = {'PoolID': pool_id,
+                    'Pool': subnet_cidr}
+    return flask.jsonify(req_pool_res)
+
+
+@app.route('/IpamDriver.RequestAddress', methods=['POST'])
+def ipam_request_address():
+    """Allocates the IP address in the given request.
+
+    This function takes the following JSON data and add the given IP address in
+    the allocation_pools attribute of the subnet. ::
+
+        {
+            "PoolID":  string
+            "Address": string
+            "Options": map[string]string
+        }
+
+    Then the following response is returned. ::
+
+        {
+            "Address": string
+            "Data":    map[string]string
+        }
+
+    See the following link for more details about the spec:
+
+    https://github.com/docker/libnetwork/blob/master/docs/ipam.md#requestaddress  # noqa
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for /IpamDriver.RequestAddress"
+                     .format(json_data))
+    jsonschema.validate(json_data, schemata.REQUEST_ADDRESS_SCHEMA)
+    pool_id = json_data['PoolID']
+    req_address = json_data['Address']
+    allocated_address = ''
+    subnet_cidr = ''
+    pool_prefix_len = ''
+    pools = _get_subnetpools_by_attrs(id=pool_id)
+    if pools:
+        pool = pools[0]
+        prefixes = pool['prefixes']
+        if len(prefixes) > 1:
+            app.logger.warning("More than one prefixes present. Picking "
+                               "first one.")
+
+        for prefix in prefixes:
+            cidr = netaddr.IPNetwork(prefix)
+            pool_prefix_len = str(cidr.prefixlen)
+            subnet_network = str(cidr.network)
+            subnet_cidr = '/'.join([subnet_network, pool_prefix_len])
+            break
+    else:
+        raise exceptions.NoResourceException(
+            "No subnetpools with id {0} is found."
+            .format(pool_id))
+    # check if any subnet with matching cidr is present
+    subnets = _get_subnets_by_attrs(cidr=subnet_cidr)
+    if subnets:
+        subnet = subnets[0]
+        # allocating address for container port
+        neutron_network_id = subnet['network_id']
+        try:
+            port = {
+                'name': 'kuryr-unbound-port',
+                'admin_state_up': True,
+                'network_id': neutron_network_id,
+            }
+            fixed_ips = port['fixed_ips'] = []
+            fixed_ip = {'subnet_id': subnet['id']}
+            if req_address:
+                fixed_ip['ip_address'] = req_address
+            fixed_ips.append(fixed_ip)
+            created_port_resp = app.neutron.create_port({'port': port})
+            created_port = created_port_resp['port']
+            allocated_address = created_port['fixed_ips'][0]['ip_address']
+            allocated_address = '/'.join(
+                [allocated_address, str(cidr.prefixlen)])
+        except n_exceptions.NeutronClientException as ex:
+            app.logger.error("Error happend during ip allocation on"
+                             "Neutron side: {0}".format(ex))
+            raise
+    else:
+        # Auxiliary address or gw_address is received at network creation time.
+        # This address cannot be reserved with neutron at this time as subnet
+        # is not created yet. In /NetworkDriver.CreateNetwork this address will
+        # be reserved with neutron.
+        allocated_address = '/'.join([req_address, pool_prefix_len])
+
+    return flask.jsonify({'Address': allocated_address})
+
+
+@app.route('/IpamDriver.ReleasePool', methods=['POST'])
+def ipam_release_pool():
+    """Deletes a new Neutron subnetpool from the given reuest.
+
+    This function takes the following JSON data and delegates the subnetpool
+    deletion to the Neutron client. ::
+
+       {
+           "PoolID": string
+       }
+
+    Then the following JSON response is returned. ::
+
+       {}
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/ipam.md#releasepool  # noqa
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for /IpamDriver.ReleasePool"
+                     .format(json_data))
+    jsonschema.validate(json_data, schemata.RELEASE_POOL_SCHEMA)
+    pool_id = json_data['PoolID']
+    try:
+        app.neutron.delete_subnetpool(pool_id)
+    except n_exceptions.Conflict as ex:
+        app.logger.info("The subnetpool with ID {0} is still in use."
+                        " It can't be deleted for now.".format(pool_id))
+    except n_exceptions.NeutronClientException as ex:
+        app.logger.error("Error happend during deleting a "
+                         "Neutron subnetpool: {0}".format(ex))
+        raise
+
+    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+
+
+@app.route('/IpamDriver.ReleaseAddress', methods=['POST'])
+def ipam_release_address():
+    """Deallocates the IP address in the given request.
+
+    This function takes the following JSON data and remove the given IP address
+    from the allocation_pool attribute of the subnet. ::
+
+        {
+            "PoolID": string
+            "Address": string
+        }
+
+    Then the following response is returned. ::
+
+        {}
+
+    See the following link for more details about the spec:
+
+      https://github.com/docker/libnetwork/blob/master/docs/ipam.md#releaseaddress  # noqa
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for /IpamDriver.ReleaseAddress"
+                     .format(json_data))
+    jsonschema.validate(json_data, schemata.RELEASE_ADDRESS_SCHEMA)
+    pool_id = json_data['PoolID']
+    rel_address = json_data['Address']
+    filtered_ports = []
+    pools = _get_subnetpools_by_attrs(id=pool_id)
+    if pools:
+        pool = pools[0]
+        prefixes = pool['prefixes']
+        for prefix in prefixes:
+            cidr = netaddr.IPNetwork(prefix)
+            subnet_network = str(cidr.network)
+            subnet_cidr = '/'.join([subnet_network, str(cidr.prefixlen)])
+    else:
+        raise exceptions.NoResourceException(
+            "No subnetpools with id {0} is found."
+            .format(pool_id))
+    # check if any subnet with matching cidr is present
+    subnets = _get_subnets_by_attrs(cidr=subnet_cidr)
+    if not len(subnets):
+        raise exceptions.NoResourceException(
+            "No subnet is found using pool {0} "
+            "and pool_cidr {1}".format(pool_id, cidr))
+    subnet = subnets[0]
+    cidr_address = netaddr.IPNetwork(rel_address)
+    rcvd_fixed_ips = []
+    fixed_ip = {'subnet_id': subnet['id']}
+    fixed_ip['ip_address'] = str(cidr_address.ip)
+    rcvd_fixed_ips.append(fixed_ip)
+
+    try:
+        filtered_ports = []
+        all_ports = app.neutron.list_ports()
+        for port in all_ports['ports']:
+            if port['fixed_ips'] == rcvd_fixed_ips:
+                filtered_ports.append(port)
+        for port in filtered_ports:
+            app.neutron.delete_port(port['id'])
+    except n_exceptions.NeutronClientException as ex:
+        app.logger.error("Error happend while fetching and deleting port, "
+                         "{0}".format(ex))
+        raise
+
+    return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
 neutron_client()

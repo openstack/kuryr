@@ -37,6 +37,9 @@ IPV6_PATTERN_BASE = (u'('
 IPV6_PATTERN = EPSILON_PATTERN + u'|^' + IPV6_PATTERN_BASE + u'$'
 CIDRV6_PATTERN = EPSILON_PATTERN + u'|^(' + IPV6_PATTERN_BASE + \
                  u'(/(1[0-2][0-8]|[1-9]?[0-9]))' + u')$'
+IPV4_OR_IPV6_PATTERN = IPV4_PATTERN + u'|^' + IPV6_PATTERN_BASE + u'$'
+UUID_BASE = u'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+UUID_PATTERN = EPSILON_PATTERN + u'|' + UUID_BASE
 
 COMMONS = {
     u'description': u'Common data schemata shared among other schemata.',
@@ -48,7 +51,11 @@ COMMONS = {
         u'cidrv6': {u'$ref': u'/schemata/commons#/definitions/cidrv6'},
         u'interface': {u'$ref': u'/schemata/commons#/definitions/interface'},
         u'cidr': {u'$ref': u'/schemata/commons#/definitions/cidr'},
-        u'id': {u'$ref': u'/schemata/commons#/definitions/id'}
+        u'id': {u'$ref': u'/schemata/commons#/definitions/id'},
+        u'uuid': {u'$ref': u'/schemata/commons#/definitions/uuid'},
+        u'ipv4': {u'$ref': u'/schemata/commons#/definitions/ipv4'},
+        u'ipv4_or_ipv6': {
+            u'$ref': u'/schemata/commons#/definitions/ipv4_or_ipv6'}
     },
     u'definitions': {
         u'options': {
@@ -217,11 +224,23 @@ COMMONS = {
                 }
             }
         },
+        u'ipv4_or_ipv6': {
+            u'pattern': IPV4_OR_IPV6_PATTERN,
+            u'type': u'string',
+            u'description': u'An IPv4 or IPv6 address.',
+            u'example': u'fe80::f816:3eff:fe20:57c4'
+        },
         u'sandbox_key': {
             u'pattern': u'^(/var/run/docker/netns/[0-9a-f]{12})$',
             u'type': u'string',
             u'description': u'Sandbox information of netns.',
             u'example': '/var/run/docker/netns/12bbda391ed0'
+        },
+        u'uuid': {
+            u'pattern': UUID_PATTERN,
+            u'type': u'string',
+            u'description': u'uuid of neutron resources.',
+            u'example': 'dfe39822-ad5e-40bd-babd-3954113b3687'
         }
     },
     u'$schema': u'http://json-schema.org/draft-04/hyper-schema',
