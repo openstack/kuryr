@@ -70,6 +70,7 @@ class TestKuryr(base.TestKuryrBase):
         }
         # The following fake response is retrieved from the Neutron doc:
         #   http://developer.openstack.org/api-ref-networking-v2.html#createNetwork  # noqa
+        fake_neutron_network_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
         fake_response = {
             "network": {
                 "status": "ACTIVE",
@@ -80,10 +81,40 @@ class TestKuryr(base.TestKuryrBase):
                 "router:external": False,
                 "segments": [],
                 "shared": False,
-                "id": "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+                "id": fake_neutron_network_id
             }
         }
         app.neutron.create_network(fake_request).AndReturn(fake_response)
+
+        self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+        fake_existing_subnets_response = {
+            "subnets": []
+        }
+        fake_cidr_v4 = '192.168.42.0/24'
+        app.neutron.list_subnets(
+            network_id=fake_neutron_network_id,
+            cidr=fake_cidr_v4).AndReturn(fake_existing_subnets_response)
+
+        self.mox.StubOutWithMock(app.neutron, 'create_subnet')
+        fake_subnet_request = {
+            "subnets": [{
+                'name': fake_cidr_v4,
+                'network_id': fake_neutron_network_id,
+                'ip_version': 4,
+                'cidr': fake_cidr_v4
+            }]
+        }
+        subnet_v4_id = str(uuid.uuid4())
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            fake_neutron_network_id, subnet_v4_id,
+            name=fake_cidr_v4, cidr=fake_cidr_v4)
+        fake_subnet_response = {
+            'subnets': [
+                fake_v4_subnet['subnet']
+            ]
+        }
+        app.neutron.create_subnet(
+            fake_subnet_request).AndReturn(fake_subnet_response)
 
         self.mox.ReplayAll()
 

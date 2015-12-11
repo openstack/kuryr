@@ -413,12 +413,27 @@ def network_driver_create_network():
     jsonschema.validate(json_data, schemata.NETWORK_CREATE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
-
+    pool_cidr = json_data['IPv4Data'][0]['Pool']
     network = app.neutron.create_network(
         {'network': {'name': neutron_network_name, "admin_state_up": True}})
 
     app.logger.info("Created a new network with name {0} successfully: {1}"
                     .format(neutron_network_name, network))
+
+    cidr = netaddr.IPNetwork(pool_cidr)
+    subnet_network = str(cidr.network)
+    subnet_cidr = '/'.join([subnet_network, str(cidr.prefixlen)])
+    subnets = _get_subnets_by_attrs(
+        network_id=network['network']['id'], cidr=subnet_cidr)
+    if not subnets:
+        new_subnets = [{
+            'name': pool_cidr,
+            'network_id': network['network']['id'],
+            'ip_version': cidr.version,
+            'cidr': subnet_cidr,
+        }]
+        app.neutron.create_subnet({'subnets': new_subnets})
+
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
 
