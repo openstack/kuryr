@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import logging
 import os
 
 from neutronclient.common import exceptions as n_exceptions
@@ -51,3 +52,10 @@ class ConfigurationTest(base.TestKuryrBase):
         self.mox.ReplayAll()
         ex = exceptions.MandatoryApiMissing
         self.assertRaises(ex, controllers.check_for_neutron_ext_support)
+
+    def test_log_level(self):
+        controllers.app.logger.setLevel(
+            getattr(logging, config.CONF.log_level))
+        log_level = logging.getLevelName(
+            controllers.app.logger.getEffectiveLevel())
+        self.assertEqual(log_level, config.CONF.log_level)

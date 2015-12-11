@@ -10,11 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
-import sys
-
 from kuryr import utils
 
+
 app = utils.make_json_app(__name__)
-app.logger.addHandler(logging.StreamHandler(sys.stdout))
-app.logger.setLevel(logging.INFO)
