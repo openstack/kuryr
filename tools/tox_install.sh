@@ -26,6 +26,7 @@ if [ $neutron_installed -eq 0 ]; then
 elif [ -x "$ZUUL_CLONER" ]; then
     echo "ZUUL CLONER" > /tmp/tox_install.txt
     cd /tmp
+    export ZUUL_BRANCH=${ZUUL_BRANCH-$BRANCH}
     $ZUUL_CLONER --cache-dir \
         /opt/git \
         git://git.openstack.org \
