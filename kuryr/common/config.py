@@ -19,6 +19,7 @@ import os
 from oslo_config import cfg
 
 from kuryr import i18n
+from kuryr import version
 
 _ = i18n._
 
@@ -81,4 +82,4 @@ CONF.register_opts(binding_opts, 'binding')
 
 def init(args, **kwargs):
     cfg.CONF(args=args, project='kuryr',
-             version='0.1', **kwargs)
+             version=version.version_info.release_string(), **kwargs)
