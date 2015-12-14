@@ -10,10 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslotest import base
+from kuryr.tests.fullstack import kuryr_base
 
 
-class TestNetwork(base.BaseTestCase):
+class NetworkTest(kuryr_base.KuryrBaseTest):
+    """Test Networks operation
 
-    def test_something(self):
-        pass
+    Test networks creation/deletion from docker to Neutron
+    """
+    def test_create_delete_network(self):
+        # This is just a temp check, in future patches this will be replaced
+        # to check if the networks were configured in Neutron
+        # At this point if these methods fail they will raise exception
+        # failing this test
+        # TODO(gsagie) refactor this method
+        self.docker_client.create_network(name='fakenet', driver='kuryr')
+        self.docker_client.remove_network('fakenet')
