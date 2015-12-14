@@ -16,6 +16,7 @@ Contents:
    installation
    usage
    contributing
+   releasenotes
 
 Design and Developer Docs
 ==========================
