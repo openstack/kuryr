@@ -231,11 +231,7 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
 
 @ddt.ddt
 class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
-    """Unit tests for the failures for deleting endpoints.
-
-    This test covers error responses listed in the spec:
-      http://developer.openstack.org/api-ref-networking-v2-ext.html#deleteProviderNetwork  # noqa
-    """
+    """Unit tests for the failures for deleting endpoints."""
     def _invoke_delete_request(self, docker_network_id, docker_endpoint_id):
         data = {'NetworkID': docker_network_id,
                 'EndpointID': docker_endpoint_id}
@@ -243,107 +239,6 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
                                  content_type='application/json',
                                  data=jsonutils.dumps(data))
         return response
-
-    @ddt.data(exceptions.Unauthorized, exceptions.NotFound,
-              exceptions.Conflict)
-    def test_delete_endpoint_subnet_failures(self, GivenException):
-        fake_docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
-        fake_docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
-        fake_neutron_network_id = str(uuid.uuid4())
-        fake_neutron_port_id = str(uuid.uuid4())
-        fake_neutron_subnet_v4_id = str(uuid.uuid4())
-        fake_neutron_subnet_v6_id = str(uuid.uuid4())
-
-        self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
-
-        self.mox.StubOutWithMock(app.neutron, 'list_subnetpools')
-        fake_default_v4_subnetpool_id = str(uuid.uuid4())
-        app.neutron.list_subnetpools(name='kuryr').AndReturn(
-            self._get_fake_v4_subnetpools(
-                fake_default_v4_subnetpool_id))
-        fake_default_v6_subnetpool_id = str(uuid.uuid4())
-        app.neutron.list_subnetpools(name='kuryr6').AndReturn(
-            self._get_fake_v6_subnetpools(
-                fake_default_v6_subnetpool_id))
-
-        fake_ports = self._get_fake_ports(
-            fake_docker_endpoint_id, fake_neutron_network_id,
-            fake_neutron_port_id,
-            fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id)
-        self.mox.StubOutWithMock(app.neutron, 'list_ports')
-        app.neutron.list_ports(
-            network_id=fake_neutron_network_id).AndReturn(fake_ports)
-        self.mox.StubOutWithMock(app.neutron, 'delete_port')
-        app.neutron.delete_port(fake_neutron_port_id).AndReturn(None)
-
-        self.mox.StubOutWithMock(app.neutron, 'show_subnet')
-        fake_v4_subnet = self._get_fake_v4_subnet(
-            fake_docker_network_id, fake_docker_endpoint_id,
-            fake_neutron_subnet_v4_id)
-        app.neutron.show_subnet(
-            fake_neutron_subnet_v4_id).AndReturn(fake_v4_subnet)
-
-        if GivenException is exceptions.Conflict:
-            fake_v6_subnet = self._get_fake_v6_subnet(
-                fake_docker_network_id, fake_docker_endpoint_id,
-                fake_neutron_subnet_v6_id)
-            app.neutron.show_subnet(
-                fake_neutron_subnet_v6_id).AndReturn(fake_v6_subnet)
-
-        self.mox.ReplayAll()
-
-        if GivenException is exceptions.Conflict:
-            self._delete_subnets_with_exception(
-                [fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id],
-                GivenException())
-        else:
-            self._delete_subnet_with_exception(
-                fake_neutron_subnet_v4_id, GivenException())
-
-        response = self._invoke_delete_request(
-            fake_docker_network_id, fake_docker_endpoint_id)
-
-        if GivenException is exceptions.Conflict:
-            self.assertEqual(200, response.status_code)
-            decoded_json = jsonutils.loads(response.data)
-            self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
-        else:
-            self.assertEqual(GivenException.status_code, response.status_code)
-            decoded_json = jsonutils.loads(response.data)
-            self.assertIn('Err', decoded_json)
-            self.assertEqual({'Err': GivenException.message}, decoded_json)
-
-    @ddt.data(exceptions.Unauthorized, exceptions.NotFound,
-              exceptions.Conflict)
-    def test_delete_endpiont_port_failures(self, GivenException):
-        fake_docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
-        fake_docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
-        fake_neutron_network_id = str(uuid.uuid4())
-        fake_neutron_subnet_v4_id = str(uuid.uuid4())
-        fake_neutron_subnet_v6_id = str(uuid.uuid4())
-        fake_neutron_port_id = str(uuid.uuid4())
-
-        self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
-        self.mox.StubOutWithMock(app.neutron, 'list_ports')
-        fake_ports = self._get_fake_ports(
-            fake_docker_endpoint_id, fake_neutron_network_id,
-            fake_neutron_port_id,
-            fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id)
-        app.neutron.list_ports(
-            network_id=fake_neutron_network_id).AndReturn(fake_ports)
-        self._delete_port_with_exception(fake_neutron_port_id, GivenException)
-
-        response = self._invoke_delete_request(
-            fake_docker_network_id, fake_docker_endpoint_id)
-
-        self.assertEqual(GivenException.status_code, response.status_code)
-        decoded_json = jsonutils.loads(response.data)
-        self.assertIn('Err', decoded_json)
-        self.assertEqual({'Err': GivenException.message}, decoded_json)
 
     def test_delete_endpoint_bad_request(self):
         fake_docker_network_id = hashlib.sha256(
