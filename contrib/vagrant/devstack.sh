@@ -23,7 +23,7 @@ then
   echo "Copy configuration"
 
   # copy local.conf.sample settings (source: kuryr/devstack/local.conf.sample)
-  cp /vagrant/devstack/local.conf.sample $DEVSTACK/local.conf
+  cp /devstack/local.conf.sample $DEVSTACK/local.conf
   chown "$OS_USER":"$OS_USER" "$DEVSTACK"/local.conf
 
 fi

@@ -20,7 +20,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["set", :id, "--nested-virt", "on"]
   end
 
-  config.vm.synced_folder "../../devstack/", "/vagrant/devstack"
+  config.vm.provider "libvirt" do |v, override|
+    override.vm.box = "celebdor/trusty64"
+    v.memory = VM_MEMORY
+    v.cpus = VM_CPUS
+    v.nested = true
+    v.graphics_type = 'spice'
+    v.video_type = 'qxl'
+  end
+
+  config.vm.synced_folder "../../devstack/", "/devstack"
 
   config.vm.provision :shell, :path => "vagrant.sh"
 
