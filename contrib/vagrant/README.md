@@ -37,6 +37,11 @@ You can set the following environment variables before running `vagrant up` to m
 the definition of the Virtual Machine spawned:
 
  * **VAGRANT\_KURYR\_VM\_BOX**: To change the Vagrant Box used. Should be available in
-   [atlas](atlas.hashicorp.com)
+   [atlas](atlas.hashicorp.com).
+
+       export VAGRANT_KURYR_VM_BOX=centos/7
+
+   Could be an example of a rpm-based option.
+
  * **VAGRANT\_KURYR\_VM\_MEMORY**: To modify the RAM of the VM. Defaulted to: 4096
  * **VAGRANT\_KURYR\_VM\_CPU**: To modify the cpus of the VM. Defaulted to: 2
