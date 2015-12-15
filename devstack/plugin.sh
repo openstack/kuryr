@@ -25,6 +25,9 @@ function install_etcd_data_store {
         wget https://github.com/coreos/etcd/releases/download/$ETCD_VERSION/etcd-$ETCD_VERSION-linux-amd64.tar.gz -O $DEST/etcd/etcd-$ETCD_VERSION-linux-amd64.tar.gz
         tar xzvf $DEST/etcd/etcd-$ETCD_VERSION-linux-amd64.tar.gz -C $DEST/etcd
     fi
+
+    # Clean previous DB data
+    rm -rf $DEST/etcd/db.etcd
 }
 
 # main loop
@@ -68,7 +71,8 @@ if is_service_enabled kuryr; then
             fi
         fi
 
-        run_process etcd-server "$DEST/etcd/etcd-$ETCD_VERSION-linux-amd64/etcd"
+        # Delete previous etcd data first
+        run_process etcd-server "$DEST/etcd/etcd-$ETCD_VERSION-linux-amd64/etcd --data-dir $DEST/etcd/db.etcd"
 
         wget http://get.docker.com -O install_docker.sh
         sudo chmod 777 install_docker.sh
