@@ -45,3 +45,6 @@ the definition of the Virtual Machine spawned:
 
  * **VAGRANT\_KURYR\_VM\_MEMORY**: To modify the RAM of the VM. Defaulted to: 4096
  * **VAGRANT\_KURYR\_VM\_CPU**: To modify the cpus of the VM. Defaulted to: 2
+ * **VAGRANT\_KURYR\_RUN\_DEVSTACK**: Whether `vagrant up` should run devstack to
+   have an environment ready to use. Set it to 'false' if you want to edit
+   `local.conf` before run ./stack.sh manually in the VM. Defaulted to: true
