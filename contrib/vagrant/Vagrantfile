@@ -1,39 +1,38 @@
 VAGRANTFILE_API_VERSION = "2"
-VM_MEMORY = 4096
-VM_CPUS = 2
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.hostname = "devstack"
+  VM_MEMORY = ENV.fetch('VAGRANT_KURYR_VM_MEMORY', 4096)
+  VM_CPUS   = ENV.fetch('VAGRANT_KURYR_VM_CPUS', 2)
 
-  config.vm.provider "virtualbox" do |vb, override|
-    override.vm.box = "trusty"
-    override.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
-    vb.memory = VM_MEMORY
-    vb.cpus = VM_CPUS
+  config.vm.hostname = 'devstack'
+
+  config.vm.provider 'virtualbox' do |v, override|
+    override.vm.box = ENV.fetch('VAGRANT_KURYR_VM_BOX', 'trusty')
+    v.memory        = VM_MEMORY
+    v.cpus          = VM_CPUS
   end
 
-  config.vm.provider "parallels" do |v, override|
-    override.vm.box = "boxcutter/ubuntu1404"
-    v.memory = VM_MEMORY
-    v.cpus = VM_CPUS
-    v.customize ["set", :id, "--nested-virt", "on"]
+  config.vm.provider 'parallels' do |v, override|
+    override.vm.box = ENV.fetch('VAGRANT_KURYR_VM_BOX', 'boxcutter/ubuntu1404')
+    v.memory        = VM_MEMORY
+    v.cpus          = VM_CPUS
+    v.customize ['set', :id, '--nested-virt', 'on']
   end
 
-  config.vm.provider "libvirt" do |v, override|
-    override.vm.box = "celebdor/trusty64"
-    v.memory = VM_MEMORY
-    v.cpus = VM_CPUS
-    v.nested = true
+  config.vm.provider 'libvirt' do |v, override|
+    override.vm.box = ENV.fetch('VAGRANT_KURYR_VM_BOX', 'celebdor/trusty64')
+    v.memory        = VM_MEMORY
+    v.cpus          = VM_CPUS
+    v.nested        = true
     v.graphics_type = 'spice'
-    v.video_type = 'qxl'
+    v.video_type    = 'qxl'
   end
 
-  config.vm.synced_folder "../../devstack/", "/devstack"
+  config.vm.synced_folder '../../devstack/', '/devstack'
+  config.vm.provision :shell, :path => 'vagrant.sh'
 
-  config.vm.provision :shell, :path => "vagrant.sh"
-
-  if Vagrant.has_plugin?("vagrant-cachier")
+  if Vagrant.has_plugin?('vagrant-cachier')
     config.cache.scope = :box
   end
 
