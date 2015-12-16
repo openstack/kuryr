@@ -29,8 +29,10 @@ DOCKER_NETNS_BASE = '/var/run/docker/netns'
 PORT_POSTFIX = 'port'
 
 
-def get_neutron_client_simple(url, token):
-    return client.Client('2.0', endpoint_url=url, token=token)
+def get_neutron_client_simple(url, auth_url, token):
+    auths = auth_url.rsplit('/', 1)
+    version = auths[1][1:]
+    return client.Client(version, endpoint_url=url, token=token)
 
 
 def get_neutron_client(url, username, tenant_name, password,

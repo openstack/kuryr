@@ -53,7 +53,7 @@ def neutron_client():
                 password=password, auth_url=auth_uri)
         else:
             app.neutron = utils.get_neutron_client_simple(
-                url=neutron_uri, token=auth_token)
+                url=neutron_uri, auth_url=auth_uri, token=auth_token)
 
         app.enable_dhcp = cfg.CONF.neutron_client.enable_dhcp
         app.neutron.format = 'json'

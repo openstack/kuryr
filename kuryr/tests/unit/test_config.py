@@ -35,7 +35,7 @@ class ConfigurationTest(base.TestKuryrBase):
         self.assertEqual('http://127.0.0.1:9696',
                          config.CONF.neutron_client.neutron_uri)
 
-        self.assertEqual('http://127.0.0.1:35357',
+        self.assertEqual('http://127.0.0.1:35357/v2.0',
                          config.CONF.keystone_client.auth_uri)
 
     def test_check_for_neutron_ext_support_with_ex(self):
