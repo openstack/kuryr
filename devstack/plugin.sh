@@ -82,6 +82,13 @@ if is_service_enabled kuryr; then
         sudo killall docker
         run_process docker-engine "sudo /usr/bin/docker daemon --cluster-store etcd://localhost:4001"
         run_process kuryr "sudo PYTHONPATH=$PYTHONPATH:$DEST/kuryr SERVICE_USER=admin SERVICE_PASSWORD=$SERVICE_PASSWORD SERVICE_TENANT_NAME=admin SERVICE_TOKEN=$SERVICE_TOKEN IDENTITY_URL=http://127.0.0.1:5000/v2.0 python $DEST/kuryr/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf"
+
+    fi
+
+    if [[ "$1" == "stack" && "$2" == "extra" ]]; then
+
+        neutron subnetpool-create --default-prefixlen $KURYR_POOL_PREFIX_LEN --pool-prefix $KURYR_POOL_PREFIX kuryr
+
     fi
 
     if [[ "$1" == "unstack" ]]; then
