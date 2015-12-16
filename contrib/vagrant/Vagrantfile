@@ -30,6 +30,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.synced_folder '../../devstack/', '/devstack'
+  # For CentOS machines it needs to be specified
+  config.vm.synced_folder '.', '/vagrant'
+
   config.vm.provision :shell, :path => 'vagrant.sh'
 
   if Vagrant.has_plugin?('vagrant-cachier')
