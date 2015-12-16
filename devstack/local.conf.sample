@@ -9,7 +9,7 @@ SERVICE_PASSWORD=pass
 SERVICE_TOKEN=pass
 ADMIN_PASSWORD=pass
 
-enable_plugin kuryr http://git.openstack.org/openstack/kuryr
+enable_plugin kuryr https://git.openstack.org/openstack/kuryr
 enable_service kuryr
 enable_service etcd-server
 enable_service docker-engine
