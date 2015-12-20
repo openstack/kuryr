@@ -15,17 +15,17 @@ function generate_test_logs {
     # suffix changed to .txt (so browsers will know to open the compressed
     # files and not download them).
     if [[ -d "$path" ]] ; then
-        sudo find $path -iname "*.log" -type f -exec mv {} {}.txt \; -exec gzip -9 {}.txt \;
-        sudo mv $path/* /opt/stack/logs/
+        sudo find "$path" -iname "*.log" -type f -exec mv {} {}.txt \; -exec gzip -9 {}.txt \;
+        sudo mv "$path/*" /opt/stack/logs/
     fi
 }
 
 function generate_testr_results {
     # Give job user rights to access tox logs
-    sudo -H -u $owner chmod o+rw .
-    sudo -H -u $owner chmod o+rw -R .testrepository
+    sudo -H -u "$owner" chmod o+rw .
+    sudo -H -u "$owner" chmod o+rw -R .testrepository
     if [[ -f ".testrepository/0" ]] ; then
-        .tox/$venv/bin/subunit-1to2 < .testrepository/0 > ./testrepository.subunit
+        ".tox/$venv/bin/subunit-1to2" < .testrepository/0 > ./testrepository.subunit
         $SCRIPTS_DIR/subunit2html ./testrepository.subunit testr_results.html
         gzip -9 ./testrepository.subunit
         gzip -9 ./testr_results.html
@@ -37,19 +37,21 @@ function generate_testr_results {
     fi
 }
 
-owner=tempest
+#owner=tempest
 # Configure the api tests to use the tempest.conf set by devstack.
-sudo_env="TEMPEST_CONFIG_DIR=$TEMPEST_DIR/etc"
+#sudo_env="TEMPEST_CONFIG_DIR=$TEMPEST_DIR/etc"
 
+owner=stack
+sudo_env=
 
 # Set owner permissions according to job's requirements.
-cd $KURYR_DIR
-sudo chown -R $owner:stack $KURYR_DIR
+cd "$KURYR_DIR"
+sudo chown -R $owner:stack "$KURYR_DIR"
 
 # Run tests
-echo "Running Kuryr $venv fullstack tests"
+echo "Running Kuryr $venv tests"
 set +e
-sudo -H -u $owner $sudo_env tox -e $venv
+sudo -H -u "$owner" tox -e "$venv"
 testr_exit_code=$?
 set -e
 
