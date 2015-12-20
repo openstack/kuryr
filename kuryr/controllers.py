@@ -11,11 +11,14 @@
 # under the License.
 
 import os
+import os_client_config
 
 import flask
 import jsonschema
 import netaddr
+
 from neutronclient.common import exceptions as n_exceptions
+from neutronclient.neutron import client
 from oslo_concurrency import processutils
 from oslo_config import cfg
 from oslo_utils import excutils
@@ -32,29 +35,74 @@ from kuryr import utils
 MANDATORY_NEUTRON_EXTENSION = "subnet_allocation"
 
 
-def neutron_client():
+def _get_cloud_config(cloud='devstack-admin'):
+    return os_client_config.OpenStackConfig().get_one_cloud(cloud=cloud)
+
+
+def _credentials(cloud='devstack-admin'):
+    """Retrieves credentials to run functional tests
+
+    Credentials are either read via os-client-config from the environment
+    or from a config file ('clouds.yaml'). Environment variables override
+    those from the config file.
+
+    devstack produces a clouds.yaml with two named clouds - one named
+    'devstack' which has user privs and one named 'devstack-admin' which
+    has admin privs. This function will default to getting the devstack-admin
+    cloud as that is the current expected behavior.
+    """
+    return _get_cloud_config(cloud=cloud).get_auth_args()
+
+
+def _get_neutron_client_from_creds():
+    creds = _credentials()
+    username = creds['username']
+    tenant_name = creds['project_name']
+    password = creds['password']
+    auth_url = creds['auth_url'] + "/v2.0"
+    neutron_client = client.Client('2.0', username=username,
+                                   tenant_name=tenant_name,
+                                   password=password,
+                                   auth_url=auth_url)
+    return neutron_client
+
+
+def get_neutron_client():
     """Creates the Neutron client for communicating with Neutron."""
+    try:
+        # First try to retrieve neutron client from a working OS deployment
+        # This is used for gate testing.
+        # Since this always use admin credentials, next patch will introduce
+        # a config parameter that disable this for production environments
+        neutron_client = _get_neutron_client_from_creds()
+        return neutron_client
+    except Exception:
+            pass
+    cfg.CONF.import_group('neutron_client', 'kuryr.common.config')
+    cfg.CONF.import_group('keystone_client', 'kuryr.common.config')
+
+    keystone_conf = cfg.CONF.keystone_client
+    username = keystone_conf.admin_user
+    tenant_name = keystone_conf.admin_tenant_name
+    password = keystone_conf.admin_password
+    auth_token = keystone_conf.admin_token
+    auth_uri = keystone_conf.auth_uri.rstrip('/')
+
+    neutron_uri = cfg.CONF.neutron_client.neutron_uri
+    if username and password:
+        # Authenticate with password crentials
+        neutron_client = utils.get_neutron_client(
+            url=neutron_uri, username=username, tenant_name=tenant_name,
+            password=password, auth_url=auth_uri)
+    else:
+        neutron_client = utils.get_neutron_client_simple(
+            url=neutron_uri, auth_url=auth_uri, token=auth_token)
+    return neutron_client
+
+
+def neutron_client():
     if not hasattr(app, 'neutron'):
-        cfg.CONF.import_group('neutron_client', 'kuryr.common.config')
-        cfg.CONF.import_group('keystone_client', 'kuryr.common.config')
-
-        keystone_conf = cfg.CONF.keystone_client
-        username = keystone_conf.admin_user
-        tenant_name = keystone_conf.admin_tenant_name
-        password = keystone_conf.admin_password
-        auth_token = keystone_conf.admin_token
-        auth_uri = keystone_conf.auth_uri.rstrip('/')
-
-        neutron_uri = cfg.CONF.neutron_client.neutron_uri
-        if username and password:
-            # Authenticate with password crentials
-            app.neutron = utils.get_neutron_client(
-                url=neutron_uri, username=username, tenant_name=tenant_name,
-                password=password, auth_url=auth_uri)
-        else:
-            app.neutron = utils.get_neutron_client_simple(
-                url=neutron_uri, auth_url=auth_uri, token=auth_token)
-
+        app.neutron = get_neutron_client()
         app.enable_dhcp = cfg.CONF.neutron_client.enable_dhcp
         app.neutron.format = 'json'
 
