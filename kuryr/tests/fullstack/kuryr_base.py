@@ -47,7 +47,7 @@ class KuryrBaseTest(base.BaseTestCase):
     def setUp(self):
         super(KuryrBaseTest, self).setUp()
         self.docker_client = docker.Client(
-            base_url='unix://var/run/docker.sock')
+            base_url='tcp://0.0.0.0:2375')
 
         self.creds = credentials()
         username = self.creds['username']
