@@ -19,11 +19,19 @@ bind_port() {
     sudo ovs-vsctl add-port $INT_BRIDGE $2
     sudo ovs-vsctl set interface $2 external_ids:attached-mac=$mac \
         external_ids:iface-id=$1 external_ids:vm-id=$3 \
-        external_ids:iface-status=active
+        external_ids:iface-status=active external_ids:owner=kuryr
 }
 
 unbind_port() {
     echo "unplugging veth $1..."
+    PORT=`sudo ovs-vsctl --data=bare --no-heading --columns=name \
+          find interface external_ids:iface-id=$1 \
+          external_ids:owner=kuryr`
+    if [ -z "$PORT" ]; then
+        echo >&2 "Failed to find port $1."
+        exit 1
+    fi
+    sudo ovs-vsctl del-port $INT_BRIDGE $PORT
 }
 
 case $1 in
