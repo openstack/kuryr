@@ -3,6 +3,7 @@
 set -e
 
 BASHPATH=$(dirname "$0"\")
+RUN_DEVSTACK="$1"
 echo "Run script from $BASHPATH"
 
 # Copied shamelessly from Devstack
@@ -47,6 +48,9 @@ then
 
 fi
 
-# start devstack
-echo "Start Devstack"
-su "$OS_USER" -c "cd $DEVSTACK && ./stack.sh"
+if $RUN_DEVSTACK; then
+  echo "Start Devstack"
+  su "$OS_USER" -c "cd $DEVSTACK && ./stack.sh"
+else
+  echo "Virtual Machine ready. You can run devstack by executing '/home/vagrant/devstack/stack.sh'"
+fi
