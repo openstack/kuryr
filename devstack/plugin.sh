@@ -64,8 +64,7 @@ if is_service_enabled kuryr; then
             else
                 echo -n "${KURYR_CONFIG} and the  default config missing. Auto generating and copying one... "
                 cd ${KURYR_HOME}
-                pip_install tox
-                tox -egenconfig
+                oslo-config-generator --config-file=${KURYR_CONFIG_GENERATOR}
                 sudo cp ${KURYR_DEFAULT_CONFIG}.sample ${KURYR_DEFAULT_CONFIG}
                 sudo cp ${KURYR_DEFAULT_CONFIG} ${KURYR_CONFIG}
                 cd -

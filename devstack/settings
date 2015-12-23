@@ -2,6 +2,8 @@
 KURYR_HOME=${KURYR_HOME:-$DEST/kuryr}
 KURYR_JSON_FILENAME=kuryr.json
 KURYR_DEFAULT_JSON=${KURYR_HOME}/etc/${KURYR_JSON_FILENAME}
+KURYR_CONFIG_GENERATOR_FILENAME=kuryr-config-generator.conf
+KURYR_CONFIG_GENERATOR=${KURYR_HOME}/etc/${KURYR_CONFIG_GENERATOR_FILENAME}
 
 # See libnetwork's plugin discovery mechanism:
 #   https://github.com/docker/docker/blob/c4d45b6a29a91f2fb5d7a51ac36572f2a9b295c6/docs/extend/plugin_api.md#plugin-discovery
