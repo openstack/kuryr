@@ -78,7 +78,8 @@ class TestKuryrBase(TestCase):
         return neutron_network_id
 
     @staticmethod
-    def _get_fake_v4_subnetpools(subnetpool_id, prefixes=["192.168.1.0/24"]):
+    def _get_fake_v4_subnetpools(subnetpool_id, prefixes=["192.168.1.0/24"],
+                                 name="kuryr"):
         # The following fake response is retrieved from the Neutron doc:
         #   http://developer.openstack.org/api-ref-networking-v2-ext.html#listSubnetPools  # noqa
         v4_subnetpools = {
@@ -88,7 +89,7 @@ class TestKuryrBase(TestCase):
                 "default_prefixlen": "24",
                 "id": subnetpool_id,
                 "max_prefixlen": "24",
-                "name": "kuryr",
+                "name": name,
                 "default_quota": None,
                 "tenant_id": "9fadcee8aa7c40cdb2114fff7d569c08",
                 "prefixes": prefixes,
@@ -210,13 +211,17 @@ class TestKuryrBase(TestCase):
         return fake_ports
 
     @staticmethod
-    def _get_fake_v4_subnet(docker_network_id, docker_endpoint_id,
-                            subnet_v4_id, subnetpool_id=None):
+    def _get_fake_v4_subnet(neutron_network_id, docker_endpoint_id=None,
+                            subnet_v4_id=None, subnetpool_id=None,
+                            cidr='192.168.1.0/24',
+                            name=None):
+        if not name:
+            name = str('-'.join([docker_endpoint_id,
+                                '192.168.1.0']))
         fake_v4_subnet = {
             'subnet': {
-                "name": '-'.join([docker_endpoint_id,
-                                  '192.168.1.0']),
-                "network_id": docker_network_id,
+                "name": name,
+                "network_id": neutron_network_id,
                 "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
                 "allocation_pools": [{
                     "start": "192.168.1.2",

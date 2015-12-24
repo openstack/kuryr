@@ -21,6 +21,7 @@ from neutronclient.common import exceptions as n_exceptions
 from neutronclient.neutron import client
 from neutronclient.v2_0 import client as client_v2
 from oslo_concurrency import processutils
+from oslo_config import cfg
 from werkzeug import exceptions as w_exceptions
 
 from kuryr.common import exceptions
@@ -106,3 +107,13 @@ def get_neutron_port_name(docker_endpoint_id):
 def get_hostname():
     """Returns the host name."""
     return socket.gethostname()
+
+
+def get_neutron_subnetpool_name(subnet_cidr):
+    """Returns a Neutron subnetpool name.
+
+    :param subnet_cidr: The subnetpool allocation cidr
+    :returns: the Neutron subnetpool_name name formatted appropriately
+    """
+    name_prefix = cfg.CONF.subnetpool_name_prefix
+    return '-'.join([name_prefix, subnet_cidr])

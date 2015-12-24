@@ -38,6 +38,15 @@ core_opts = [
                default='global',
                choices=['local', 'global'],
                help=_('Kuryr plugin scope reported to libnetwork.')),
+    cfg.StrOpt('subnetpool_name_prefix',
+               default='kuryrPool',
+               help=_('Neutron subnetpool name will be prefixed by this.')),
+    cfg.StrOpt('local_default_address_space',
+               default='local_scope',
+               help=_('The default neutron local address-scope name')),
+    cfg.StrOpt('global_default_address_space',
+               default='global_scope',
+               help=_('The default neutron global address-scope name.'))
 ]
 neutron_opts = [
     cfg.StrOpt('neutron_uri',
