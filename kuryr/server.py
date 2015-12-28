@@ -16,9 +16,10 @@ import sys
 def start():
     from kuryr.common import config
     config.init(sys.argv[1:])
+    port = int(config.CONF.kuryr_uri.split(':')[-1])
 
     from kuryr import app
     from kuryr import controllers
     controllers.check_for_neutron_ext_support()
     app.debug = True
-    app.run("0.0.0.0", port=2377)
+    app.run("0.0.0.0", port)
