@@ -44,6 +44,10 @@ then
 
   # copy local.conf.sample settings (source: kuryr/devstack/local.conf.sample)
   cp /devstack/local.conf.sample $DEVSTACK/local.conf
+  # If local settings are present, append them
+  if [ -f "/vagrant/user_local.conf" ]; then
+    cat /vagrant/user_local.conf >> $DEVSTACK/local.conf
+  fi
   chown "$OS_USER":"$OS_USER" "$DEVSTACK"/local.conf
 
 fi
