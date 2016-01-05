@@ -21,5 +21,5 @@ def start():
     from kuryr import app
     from kuryr import controllers
     controllers.check_for_neutron_ext_support()
-    app.debug = True
+    app.debug = config.CONF.debug
     app.run("0.0.0.0", port)
