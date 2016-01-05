@@ -47,4 +47,21 @@ the definition of the Virtual Machine spawned:
  * **VAGRANT\_KURYR\_VM\_CPU**: To modify the cpus of the VM. Defaulted to: 2
  * **VAGRANT\_KURYR\_RUN\_DEVSTACK**: Whether `vagrant up` should run devstack to
    have an environment ready to use. Set it to 'false' if you want to edit
-   `local.conf` before run ./stack.sh manually in the VM. Defaulted to: true
+   `local.conf` before run ./stack.sh manually in the VM. Defaulted to: true.
+   See below for additional options for editing local.conf.
+
+Additional devstack configuration
+---------------------------------
+
+To add additional configuration to local.conf before the VM is provisioned, you can
+create a file called "user_local.conf" in the contrib/vagrant directory of
+networking-kuryr. This file will be appended to the "local.conf" created during the
+Vagrant provisioning.
+
+For example, to use OVN as the Neutron plugin with Kuryr, you can create a
+"user_local.conf" with the following configuration:
+
+    enable_plugin networking-ovn http://git.openstack.org/openstack/networking-ovn
+    enable_service ovn-northd
+    enable_service ovn-controller
+    disable_service q-agt
