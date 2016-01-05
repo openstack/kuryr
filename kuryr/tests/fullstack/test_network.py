@@ -26,3 +26,4 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
         # TODO(gsagie) refactor this method
         self.docker_client.create_network(name='fakenet', driver='kuryr')
         self.docker_client.remove_network('fakenet')
+        self.neutron_client.list_networks()
