@@ -46,7 +46,9 @@ core_opts = [
                help=_('The default neutron local address-scope name')),
     cfg.StrOpt('global_default_address_space',
                default='global_scope',
-               help=_('The default neutron global address-scope name.'))
+               help=_('The default neutron global address-scope name.')),
+    cfg.BoolOpt('debug', default=True,
+               help=_('Enable or Disable debug mode for kuryr server.'))
 ]
 neutron_opts = [
     cfg.StrOpt('neutron_uri',
