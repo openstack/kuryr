@@ -443,6 +443,7 @@ def network_driver_create_network():
             'network_id': network['network']['id'],
             'ip_version': cidr.version,
             'cidr': subnet_cidr,
+            'enable_dhcp': app.enable_dhcp,
         }]
         app.neutron.create_subnet({'subnets': new_subnets})
 
