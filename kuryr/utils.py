@@ -188,3 +188,9 @@ def string_mappings(mapping_list):
     if mapping_list:
         details = '"' + str(mapping_list) + '"'
         return details
+
+
+def get_random_string(length):
+    """Get a random hex string of the specified length."""
+
+    return "{0:0{1}x}".format(random.getrandbits(length * 4), length)
