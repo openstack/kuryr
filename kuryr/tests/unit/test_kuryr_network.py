@@ -97,19 +97,24 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
     """
     def _delete_network_with_exception(self, network_id, ex):
         fake_neutron_network_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
-        fake_networks_response = {
-            "networks": [{
-                "status": "ACTIVE",
-                "subnets": [],
-                "name": network_id,
-                "admin_state_up": True,
-                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
-                "router:external": False,
-                "segments": [],
-                "shared": False,
-                "id": fake_neutron_network_id
-            }]
-        }
+        if ex == exceptions.NotFound:
+            fake_networks_response = {
+                "networks": []
+            }
+        else:
+            fake_networks_response = {
+                "networks": [{
+                    "status": "ACTIVE",
+                    "subnets": [],
+                    "name": network_id,
+                    "admin_state_up": True,
+                    "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
+                    "router:external": False,
+                    "segments": [],
+                    "shared": False,
+                    "id": fake_neutron_network_id
+                }]
+            }
         self.mox.StubOutWithMock(app.neutron, 'list_networks')
         app.neutron.list_networks(
             name=network_id).AndReturn(fake_networks_response)

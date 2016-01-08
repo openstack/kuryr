@@ -494,41 +494,46 @@ def network_driver_delete_network():
     # NetworkID, it raises DuplicatedResourceException and stops processes.
     # See the following doc for more details about Docker's IDs:
     #   https://github.com/docker/docker/blob/master/docs/terms/container.md#container-ids  # noqa
-    neutron_network_id = filtered_networks[0]['id']
-    filtered_subnets = _get_subnets_by_attrs(
-        network_id=neutron_network_id)
-    for subnet in filtered_subnets:
+    if not filtered_networks:
+        app.logger.warn("Network with name {0} cannot be found"
+                        .format(neutron_network_name))
+    else:
+        neutron_network_id = filtered_networks[0]['id']
+        filtered_subnets = _get_subnets_by_attrs(
+            network_id=neutron_network_id)
+        for subnet in filtered_subnets:
+            try:
+                subnetpool_id = subnet.get('subnetpool_id', None)
+
+                _cache_default_subnetpool_ids(app)
+
+                if subnetpool_id not in app.DEFAULT_POOL_IDS:
+                    # If the subnet to be deleted has any port, when some ports
+                    # are referring to the subnets in other words,
+                    # delete_subnet throws an exception, SubnetInUse that
+                    # extends Conflict. This can happen when the multiple
+                    # Docker endpoints are created with the same subnet CIDR
+                    # and it's totally the normal case. So we'd just log that
+                    # and continue to proceed.
+                    app.neutron.delete_subnet(subnet['id'])
+            except n_exceptions.Conflict as ex:
+                app.logger.error("Subnet, {0}, is in use. "
+                                 "Network cant be deleted."
+                                 .format(subnet['id']))
+                raise
+            except n_exceptions.NeutronClientException as ex:
+                app.logger.error("Error happened during deleting a "
+                                 "Neutron subnets: {0}".format(ex))
+                raise
+
         try:
-            subnetpool_id = subnet.get('subnetpool_id', None)
-
-            _cache_default_subnetpool_ids(app)
-
-            if subnetpool_id not in app.DEFAULT_POOL_IDS:
-                # If the subnet to be deleted has any port, when some ports
-                # are referring to the subnets in other words,
-                # delete_subnet throws an exception, SubnetInUse that
-                # extends Conflict. This can happen when the multiple
-                # Docker endpoints are created with the same subnet CIDR
-                # and it's totally the normal case. So we'd just log that
-                # and continue to proceed.
-                app.neutron.delete_subnet(subnet['id'])
-        except n_exceptions.Conflict as ex:
-            app.logger.error("Subnet, {0}, is in use. "
-                             "Network cant be deleted.".format(subnet['id']))
-            raise
+            app.neutron.delete_network(neutron_network_id)
         except n_exceptions.NeutronClientException as ex:
             app.logger.error("Error happened during deleting a "
-                             "Neutron subnets: {0}".format(ex))
+                             "Neutron network: {0}".format(ex))
             raise
-
-    try:
-        app.neutron.delete_network(neutron_network_id)
-    except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happened during deleting a "
-                         "Neutron network: {0}".format(ex))
-        raise
-    app.logger.info("Deleted the network with ID {0} successfully"
-                    .format(neutron_network_id))
+        app.logger.info("Deleted the network with ID {0} successfully"
+                        .format(neutron_network_id))
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
 
