@@ -955,7 +955,8 @@ def ipam_request_address():
         # This address cannot be reserved with neutron at this time as subnet
         # is not created yet. In /NetworkDriver.CreateNetwork this address will
         # be reserved with neutron.
-        allocated_address = '/'.join([req_address, pool_prefix_len])
+        if req_address:
+            allocated_address = '/'.join([req_address, pool_prefix_len])
 
     return flask.jsonify({'Address': allocated_address})
 
