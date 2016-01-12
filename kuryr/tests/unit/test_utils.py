@@ -46,3 +46,18 @@ class TestKuryrUtils(base.TestKuryrBase):
         name_prefix = cfg.CONF.subnetpool_name_prefix
         self.assertIn(name_prefix, generated_neutron_subnetpool_name)
         self.assertIn(fake_subnet_cidr, generated_neutron_subnetpool_name)
+
+    def test_get_dict_format_fixed_ips_from_kv_format(self):
+        fake_fixed_ips_kv_format = \
+            ['subnet_id=5083bda8-1b7c-4625-97f3-1d4c33bfeea8',
+             'ip_address=192.168.1.2',
+             'subnet_id=6607a230-f3eb-4937-b09f-9dd659211139',
+             'ip_address=fdfa:8456:1afa:0:f816:3eff:fe67:885e']
+        expected_dict_form = \
+            [{'subnet_id': '5083bda8-1b7c-4625-97f3-1d4c33bfeea8',
+              'ip_address': '192.168.1.2'},
+             {'subnet_id': '6607a230-f3eb-4937-b09f-9dd659211139',
+              'ip_address': 'fdfa:8456:1afa:0:f816:3eff:fe67:885e'}]
+        fixed_ips = utils.get_dict_format_fixed_ips_from_kv_format(
+                        fake_fixed_ips_kv_format)
+        self.assertEqual(expected_dict_form, fixed_ips)

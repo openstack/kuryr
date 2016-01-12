@@ -181,10 +181,10 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
             fake_docker_endpoint_id, fake_neutron_network_id,
             fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id)
 
-        fake_fixed_ips = [{'subnet_id': fake_neutron_subnet_v4_id,
-                           'ip_address': '192.168.1.2'},
-                          {'subnet_id': fake_neutron_subnet_v6_id,
-                           'ip_address': 'fe80::f816:3eff:fe20:57c4'}]
+        fake_fixed_ips = ['subnet_id=%s' % fake_neutron_subnet_v4_id,
+                          'ip_address=192.168.1.2',
+                          'subnet_id=%s' % fake_neutron_subnet_v6_id,
+                          'ip_address=fe80::f816:3eff:fe20:57c4']
         fake_port_response = {"ports": []}
 
         self.mox.StubOutWithMock(app.neutron, 'list_ports')

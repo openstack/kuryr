@@ -235,20 +235,21 @@ def _create_port(endpoint_id, neutron_network_id, interface_mac, fixed_ips):
 
 
 def _update_port(port, endpoint_id):
-    port['name'] = '-'.join([endpoint_id, 'port'])
+    port['name'] = utils.get_neutron_port_name(endpoint_id)
     try:
-        response_port = app.neutron.update_port({'port': port})
+        response_port = app.neutron.update_port(
+                port['id'], {'port': {'name': port['name']}})
     except n_exceptions.NeutronClientException as ex:
         app.logger.error("Error happend during creating a "
                          "Neutron port: {0}".format(ex))
         raise
-    return response_port
+    return response_port['port']
 
 
 def _get_fixed_ips_by_interface_cidr(subnets, interface_cidrv4,
                                      interface_cidrv6, fixed_ips):
     for subnet in subnets:
-        fixed_ip = {'subnet_id': subnet['id']}
+        fixed_ip = [('subnet_id=%s' % subnet['id'])]
         if interface_cidrv4 or interface_cidrv6:
             if subnet['ip_version'] == 4 and interface_cidrv4:
                 cidr = netaddr.IPNetwork(interface_cidrv4)
@@ -258,8 +259,8 @@ def _get_fixed_ips_by_interface_cidr(subnets, interface_cidrv4,
                                    str(cidr.prefixlen)])
             if subnet['cidr'] != subnet_cidr:
                 continue
-            fixed_ip['ip_address'] = str(cidr.ip)
-        fixed_ips.append(fixed_ip)
+            fixed_ip.append('ip_address=%s' % str(cidr.ip))
+        fixed_ips.extend(fixed_ip)
 
 
 def _create_or_update_port(neutron_network_id, endpoint_id,
@@ -288,9 +289,9 @@ def _create_or_update_port(neutron_network_id, endpoint_id,
     _get_fixed_ips_by_interface_cidr(subnets, interface_cidrv4,
         interface_cidrv6, fixed_ips)
     filtered_ports = app.neutron.list_ports(fixed_ips=fixed_ips)
-
     num_port = len(filtered_ports.get('ports', []))
     if not num_port:
+        fixed_ips = utils.get_dict_format_fixed_ips_from_kv_format(fixed_ips)
         response_port = _create_port(endpoint_id, neutron_network_id,
             interface_mac, fixed_ips)
     elif num_port == 1:
