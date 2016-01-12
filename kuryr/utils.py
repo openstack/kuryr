@@ -18,6 +18,7 @@ import traceback
 
 import flask
 import jsonschema
+
 from neutronclient.common import exceptions as n_exceptions
 from neutronclient.neutron import client
 from neutronclient.v2_0 import client as client_v2
@@ -25,6 +26,7 @@ from oslo_concurrency import processutils
 from oslo_config import cfg
 from werkzeug import exceptions as w_exceptions
 
+from kuryr._i18n import _LE
 from kuryr.common import exceptions
 
 DOCKER_NETNS_BASE = '/var/run/docker/netns'
@@ -67,7 +69,7 @@ def make_json_app(import_name, **kwargs):
     @app.errorhandler(jsonschema.ValidationError)
     @app.errorhandler(processutils.ProcessExecutionError)
     def make_json_error(ex):
-        app.logger.error("Unexpected error happened: {0}".format(ex))
+        app.logger.error(_LE("Unexpected error happened: {0}").format(ex))
         traceback.print_exc(file=sys.stderr)
         response = flask.jsonify({"Err": str(ex)})
         response.status_code = w_exceptions.InternalServerError.code

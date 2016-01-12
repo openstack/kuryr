@@ -28,6 +28,7 @@ from kuryr import binding
 from kuryr.common import config
 from kuryr.common import constants
 from kuryr.common import exceptions
+from kuryr._i18n import _LE, _LI, _LW
 from kuryr import schemata
 from kuryr import utils
 
@@ -137,8 +138,8 @@ def _cache_default_subnetpool_ids(app):
                 for subnetpool in subnetpools['subnetpools']:
                     default_subnetpool_id_set.add(subnetpool['id'])
         except n_exceptions.NeutronClientException as ex:
-            app.logger.error("Error happened during retrieving the default "
-                             "subnet pools.".format(ex))
+            app.logger.error(_LE("Error happened during retrieving the default"
+                                 " subnet pools.").format(ex))
         app.DEFAULT_POOL_IDS = frozenset(default_subnetpool_id_set)
 
 
@@ -228,8 +229,8 @@ def _create_port(endpoint_id, neutron_network_id, interface_mac, fixed_ips):
     try:
         rcvd_port = app.neutron.create_port({'port': port})
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happened during creating a "
-                         "Neutron port: {0}".format(ex))
+        app.logger.error(_LE("Error happend during creating a"
+                             " Neutron port: {0}").format(ex))
         raise
     return rcvd_port['port']
 
@@ -244,8 +245,8 @@ def _update_port(port, endpoint_id):
                     'device_owner': constants.DEVICE_OWNER,
                     'device_id': endpoint_id}})
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happened during creating a "
-                         "Neutron port: {0}".format(ex))
+        app.logger.error(_LE("Error happend during creating a "
+                             "Neutron port: {0}").format(ex))
         raise
     return response_port['port']
 
@@ -425,8 +426,8 @@ def network_driver_create_network():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-network  # noqa
     """
     json_data = flask.request.get_json(force=True)
-    app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateNetwork"
-                     .format(json_data))
+    app.logger.debug("Received JSON data {0} for"
+                     " /NetworkDriver.CreateNetwork".format(json_data))
     jsonschema.validate(json_data, schemata.NETWORK_CREATE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
@@ -441,7 +442,8 @@ def network_driver_create_network():
     network = app.neutron.create_network(
         {'network': {'name': neutron_network_name, "admin_state_up": True}})
 
-    app.logger.info("Created a new network with name {0} successfully: {1}"
+    app.logger.info(_LI("Created a new network with name {0}"
+                      " successfully: {1}")
                     .format(neutron_network_name, network))
 
     cidr = netaddr.IPNetwork(pool_cidr)
@@ -481,16 +483,16 @@ def network_driver_delete_network():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-network  # noqa
     """
     json_data = flask.request.get_json(force=True)
-    app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteNetwork"
-                     .format(json_data))
+    app.logger.debug("Received JSON data {0} for"
+                     " /NetworkDriver.DeleteNetwork".format(json_data))
     jsonschema.validate(json_data, schemata.NETWORK_DELETE_SCHEMA)
 
     neutron_network_name = json_data['NetworkID']
     try:
         filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happened during listing "
-                         "Neutron networks: {0}".format(ex))
+        app.logger.error(_LE("Error happened during listing "
+                             "Neutron networks: {0}").format(ex))
         raise
     # We assume Neutron's Network names are not conflicted in Kuryr because
     # they are Docker IDs, 256 bits hashed values, which are rarely conflicted.
@@ -521,22 +523,22 @@ def network_driver_delete_network():
                     # and continue to proceed.
                     app.neutron.delete_subnet(subnet['id'])
             except n_exceptions.Conflict as ex:
-                app.logger.error("Subnet, {0}, is in use. "
-                                 "Network cant be deleted."
-                                 .format(subnet['id']))
+                app.logger.error(_LE(
+                    "Subnet, {0}, is in use. Network cant be deleted.").format(
+                        subnet['id']))
                 raise
             except n_exceptions.NeutronClientException as ex:
-                app.logger.error("Error happened during deleting a "
-                                 "Neutron subnets: {0}".format(ex))
+                app.logger.error(_LE("Error happened during deleting a "
+                                     "Neutron subnets: {0}").format(ex))
                 raise
 
         try:
             app.neutron.delete_network(neutron_network_id)
         except n_exceptions.NeutronClientException as ex:
-            app.logger.error("Error happened during deleting a "
-                             "Neutron network: {0}".format(ex))
+            app.logger.error(_LE("Error happened during deleting a "
+                                 "Neutron network: {0}").format(ex))
             raise
-        app.logger.info("Deleted the network with ID {0} successfully"
+        app.logger.info(_LI("Deleted the network with ID {0} successfully")
                         .format(neutron_network_id))
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
@@ -576,7 +578,8 @@ def network_driver_create_endpoint():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-endpoint  # noqa
     """
     json_data = flask.request.get_json(force=True)
-    app.logger.debug("Received JSON data {0} for /NetworkDriver.CreateEndpoint"
+    app.logger.debug("Received JSON data {0} for "
+                     "/NetworkDriver.CreateEndpoint"
                      .format(json_data))
     jsonschema.validate(json_data, schemata.ENDPOINT_CREATE_SCHEMA)
 
@@ -629,8 +632,8 @@ def network_driver_delete_endpoint():
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#delete-endpoint  # noqa
     """
     json_data = flask.request.get_json(force=True)
-    app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteEndpoint"
-                     .format(json_data))
+    app.logger.debug("Received JSON data {0} for"
+                     " /NetworkDriver.DeleteEndpoint".format(json_data))
     jsonschema.validate(json_data, schemata.ENDPOINT_DELETE_SCHEMA)
 
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
@@ -708,12 +711,13 @@ def network_driver_join():
                 app.logger.error(stderr)
         except exceptions.VethCreationFailure as ex:
             with excutils.save_and_reraise_exception():
-                app.logger.error('Preparing the veth pair was failed: {0}.'
+                app.logger.error(_LE('Preparing the veth '
+                                     'pair was failed: {0}.')
                                  .format(ex))
         except processutils.ProcessExecutionError:
             with excutils.save_and_reraise_exception():
-                app.logger.error(
-                    'Could not bind the Neutron port to the veth endpoint.')
+                app.logger.error(_LE(
+                    'Could not bind the Neutron port to the veth endpoint.'))
 
         join_response = {
             "InterfaceName": {
@@ -757,7 +761,8 @@ def network_driver_leave():
         }
     """
     json_data = flask.request.get_json(force=True)
-    app.logger.debug("Received JSON data {0} for /NetworkDriver.DeleteEndpoint"
+    app.logger.debug("Received JSON data {0} for"
+                     " /NetworkDriver.DeleteEndpoint"
                      .format(json_data))
     jsonschema.validate(json_data, schemata.LEAVE_SCHEMA)
     neutron_network_name = json_data['NetworkID']
@@ -785,12 +790,12 @@ def network_driver_leave():
                 app.logger.error(stderr)
         except processutils.ProcessExecutionError:
             with excutils.save_and_reraise_exception():
-                app.logger.error(
+                app.logger.error(_LE(
                     'Could not unbind the Neutron port from the veth '
-                    'endpoint.')
+                    'endpoint.'))
         except exceptions.VethDeletionFailure:
             with excutils.save_and_reraise_exception():
-                app.logger.error('Cleaning the veth pair up was failed.')
+                app.logger.error(_LE('Cleaning the veth pair up was failed.'))
 
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
 
@@ -851,7 +856,7 @@ def ipam_request_pool():
     pool_id = ''
     subnet_cidr = ''
     if requested_pool:
-        app.logger.info("Creating subnetpool with the given pool CIDR")
+        app.logger.info(_LI("Creating subnetpool with the given pool CIDR"))
         if requested_subpool:
             cidr = netaddr.IPNetwork(requested_subpool)
         else:
@@ -883,12 +888,12 @@ def ipam_request_pool():
             pool_id = pool['id']
             prefixes = pool['prefixes']
             if len(prefixes) > 1:
-                app.logger.warning("More than one prefixes present. "
-                                   "Picking first one.")
+                app.logger.warning(_LW("More than one prefixes present. "
+                                     "Picking first one."))
             cidr = netaddr.IPNetwork(prefixes[0])
             subnet_cidr = _get_subnet_cidr_using_cidr(cidr)
         else:
-            app.logger.error("Default neutron pools not found")
+            app.logger.error(_LE("Default neutron pools not found."))
     req_pool_res = {'PoolID': pool_id,
                     'Pool': subnet_cidr}
     return flask.jsonify(req_pool_res)
@@ -932,8 +937,8 @@ def ipam_request_address():
         pool = pools[0]
         prefixes = pool['prefixes']
         if len(prefixes) > 1:
-            app.logger.warning("More than one prefixes present. Picking "
-                               "first one.")
+            app.logger.warning(_LW("More than one prefixes present. Picking "
+                               "first one."))
 
         for prefix in prefixes:
             cidr = netaddr.IPNetwork(prefix)
@@ -969,8 +974,8 @@ def ipam_request_address():
             allocated_address = '/'.join(
                 [allocated_address, str(cidr.prefixlen)])
         except n_exceptions.NeutronClientException as ex:
-            app.logger.error("Error happened during ip allocation on"
-                             "Neutron side: {0}".format(ex))
+            app.logger.error(_LE("Error happend during ip allocation on"
+                                 "Neutron side: {0}").format(ex))
             raise
     else:
         # Auxiliary address or gw_address is received at network creation time.
@@ -1010,11 +1015,11 @@ def ipam_release_pool():
     try:
         app.neutron.delete_subnetpool(pool_id)
     except n_exceptions.Conflict as ex:
-        app.logger.info("The subnetpool with ID {0} is still in use."
-                        " It can't be deleted for now.".format(pool_id))
+        app.logger.info(_LI("The subnetpool with ID {0} is still in use."
+                        " It can't be deleted for now.").format(pool_id))
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happened during deleting a "
-                         "Neutron subnetpool: {0}".format(ex))
+        app.logger.error(_LE("Error happend during deleting a "
+                             "Neutron subnetpool: {0}").format(ex))
         raise
 
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
@@ -1080,8 +1085,8 @@ def ipam_release_address():
         for port in filtered_ports:
             app.neutron.delete_port(port['id'])
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happened while fetching and deleting port, "
-                         "{0}".format(ex))
+        app.logger.error(_LE("Error happend while fetching and deleting port, "
+                             "{0}").format(ex))
         raise
 
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
