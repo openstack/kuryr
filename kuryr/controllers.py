@@ -935,6 +935,7 @@ def ipam_request_address():
                 'name': 'kuryr-unbound-port',
                 'admin_state_up': True,
                 'network_id': neutron_network_id,
+                'binding:host_id': utils.get_hostname(),
             }
             fixed_ips = port['fixed_ips'] = []
             fixed_ip = {'subnet_id': subnet['id']}

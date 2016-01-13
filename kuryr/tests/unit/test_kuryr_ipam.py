@@ -203,6 +203,7 @@ class TestKuryrIpam(base.TestKuryrBase):
             'name': 'kuryr-unbound-port',
             'admin_state_up': True,
             'network_id': neutron_network_id,
+            'binding:host_id': utils.get_hostname(),
         }
         fixed_ips = port_request['fixed_ips'] = []
         fixed_ip = {'subnet_id': subnet_v4_id}
