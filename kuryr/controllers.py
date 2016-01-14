@@ -427,6 +427,13 @@ def network_driver_create_network():
 
     neutron_network_name = json_data['NetworkID']
     pool_cidr = json_data['IPv4Data'][0]['Pool']
+    gateway_ip = ''
+    if 'Gateway' in json_data['IPv4Data'][0]:
+        gateway_cidr = json_data['IPv4Data'][0]['Gateway']
+        gateway_ip = gateway_cidr.split('/')[0]
+        app.logger.debug("gateway_cidr {0}, gateway_ip {1}"
+            .format(gateway_cidr, gateway_ip))
+
     network = app.neutron.create_network(
         {'network': {'name': neutron_network_name, "admin_state_up": True}})
 
@@ -446,6 +453,9 @@ def network_driver_create_network():
             'cidr': subnet_cidr,
             'enable_dhcp': app.enable_dhcp,
         }]
+        if gateway_ip:
+            new_subnets[0]['gateway_ip'] = gateway_ip
+
         app.neutron.create_subnet({'subnets': new_subnets})
 
     return flask.jsonify(constants.SCHEMA['SUCCESS'])
@@ -453,7 +463,7 @@ def network_driver_create_network():
 
 @app.route('/NetworkDriver.DeleteNetwork', methods=['POST'])
 def network_driver_delete_network():
-    """Deletes the Neutron Network which name is the given NetworkID.
+    """Delete the Neutron Network with name as the given NetworkID.
 
     This function takes the following JSON data and delegates the actual
     network deletion to the Neutron client. ::
