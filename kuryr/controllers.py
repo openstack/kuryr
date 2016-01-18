@@ -575,9 +575,9 @@ def network_driver_create_endpoint():
         interface_cidrv4 = interface.get('Address', '')
         interface_cidrv6 = interface.get('AddressIPv6', '')
         interface_mac = interface.get('MacAddress', '')
-        if not filtered_networks:
+        if not interface_cidrv4 and not interface_cidrv6:
             return flask.jsonify({
-                'Err': "Interface address not provided."
+                'Err': "Interface address v4 or v6 not provided."
             })
         response_interface = _create_or_update_port(
             neutron_network_id, endpoint_id, interface_cidrv4,
