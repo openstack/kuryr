@@ -1023,7 +1023,6 @@ def ipam_release_address():
     jsonschema.validate(json_data, schemata.RELEASE_ADDRESS_SCHEMA)
     pool_id = json_data['PoolID']
     rel_address = json_data['Address']
-    filtered_ports = []
     pools = _get_subnetpools_by_attrs(id=pool_id)
     if pools:
         pool = pools[0]
