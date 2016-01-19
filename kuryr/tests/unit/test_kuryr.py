@@ -229,18 +229,26 @@ class TestKuryr(base.TestKuryrBase):
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
         fake_v4_subnet = self._get_fake_v4_subnet(
             docker_network_id, docker_endpoint_id, subnet_v4_id)
-        fake_subnet_response = {
+        fake_v6_subnet = self._get_fake_v6_subnet(
+            docker_network_id, docker_endpoint_id, subnet_v6_id)
+
+        fake_subnetv4_response = {
             "subnets": [
                 fake_v4_subnet['subnet']
+            ]
+        }
+        fake_subnetv6_response = {
+            "subnets": [
+                fake_v6_subnet['subnet']
             ]
         }
 
         self.mox.StubOutWithMock(app.neutron, 'list_subnets')
         app.neutron.list_subnets(network_id=fake_neutron_network_id,
-            cidr='192.168.1.0/24').AndReturn(fake_subnet_response)
+            cidr='192.168.1.0/24').AndReturn(fake_subnetv4_response)
         app.neutron.list_subnets(
             network_id=fake_neutron_network_id,
-            cidr='fe80::/64').AndReturn({'subnets': []})
+            cidr='fe80::/64').AndReturn(fake_subnetv6_response)
 
         fake_ipv4cidr = '192.168.1.2/24'
         fake_ipv6cidr = 'fe80::f816:3eff:fe20:57c4/64'
@@ -249,8 +257,10 @@ class TestKuryr(base.TestKuryrBase):
             docker_endpoint_id, fake_neutron_network_id,
             fake_port_id,
             subnet_v4_id, subnet_v6_id)
-        fake_fixed_ips = [{'subnet_id': subnet_v4_id,
-                           'ip_address': '192.168.1.2'}]
+        fake_fixed_ips = ['subnet_id=%s' % subnet_v4_id,
+                          'ip_address=192.168.1.2',
+                          'subnet_id=%s' % subnet_v6_id,
+                          'ip_address=fe80::f816:3eff:fe20:57c4']
         fake_port_response = {
             "ports": [
                 fake_port['port']
@@ -262,8 +272,8 @@ class TestKuryr(base.TestKuryrBase):
         fake_updated_port = fake_port['port']
         fake_updated_port['name'] = '-'.join([docker_endpoint_id, 'port'])
         self.mox.StubOutWithMock(app.neutron, 'update_port')
-        app.neutron.update_port({'port': fake_updated_port}).AndReturn(
-            fake_updated_port)
+        app.neutron.update_port(fake_updated_port['id'], {'port': {
+            'name': fake_updated_port['name']}}).AndReturn(fake_port)
 
         self.mox.ReplayAll()
 
