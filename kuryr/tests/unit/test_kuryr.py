@@ -101,7 +101,8 @@ class TestKuryr(base.TestKuryrBase):
                 'name': fake_cidr_v4,
                 'network_id': fake_neutron_network_id,
                 'ip_version': 4,
-                'cidr': fake_cidr_v4
+                'cidr': fake_cidr_v4,
+                'enable_dhcp': app.enable_dhcp,
             }]
         }
         subnet_v4_id = str(uuid.uuid4())
