@@ -125,7 +125,7 @@ COMMONS = {
         u'ipv4datum': {
             u'description': u'IPv4 data',
             u'required': [
-                u'AddressSpace', u'Pool', u'Gateway'],
+                u'AddressSpace', u'Pool'],
             u'type': u'object',
             u'example': {
                 u'AddressSpace': u'foo',
