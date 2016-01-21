@@ -28,7 +28,7 @@ be tried now as explained in [1].
 
 References:
 
-[1] https://github.com/openstack/kuryr/blob/master/doc/source/devref/libnetwork\_remote\_driver\_design.rst#L64
+[1] https://github.com/openstack/kuryr/blob/master/doc/source/devref/libnetwork_remote_driver_design.rst#L64
 
 Vagrant Options available
 -------------------------
