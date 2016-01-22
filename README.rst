@@ -51,3 +51,38 @@ Testing Kuryr
 ::
 
     $ tox
+
+You can also run specific test cases using the ``-e`` flag, e.g., to only run
+the *fullstack* test case.
+
+::
+
+    $ tox -e fullstack
+
+Generate Documentation
+----------------------
+
+
+We use `Sphinix <https://pypi.python.org/pypi/Sphinx>`_ to maintain the
+documentation. You can install Sphinix using pip.
+
+::
+
+    $ pip install -U Sphinx
+
+The source code of the documentation are under *doc*, you can generate the
+html files using the following command. If the generation succeeds,a
+*build/html* dir will be created under *doc*.
+
+::
+
+    $ cd doc
+    $ make html
+
+Now you can serve the documentation at http://localhost:8080 as a simple
+website.
+
+::
+
+    $ cd build/html
+    $ python -m SimpleHTTPServer 8080
