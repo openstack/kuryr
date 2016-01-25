@@ -11,7 +11,6 @@
 # under the License.
 
 import hashlib
-import random
 import uuid
 
 import ddt
@@ -60,7 +59,7 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_create_network(self):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         self.mox.StubOutWithMock(app.neutron, "create_network")
         fake_request = {
             "network": {
@@ -144,7 +143,7 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_create_network_wo_gw(self):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         self.mox.StubOutWithMock(app.neutron, "create_network")
         fake_request = {
             "network": {
@@ -226,7 +225,7 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_delete_network(self):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         fake_neutron_network_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_network_id, docker_network_id)
         self.mox.StubOutWithMock(app.neutron, 'list_subnets')
@@ -249,9 +248,9 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_delete_network_with_subnets(self):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
 
         fake_neutron_network_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_network_id, docker_network_id)
@@ -300,9 +299,9 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_create_endpoint(self):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
 
         fake_neutron_network_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_network_id, docker_network_id)
@@ -382,9 +381,9 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_delete_endpoint(self):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         data = {
             'NetworkID': docker_network_id,
             'EndpointID': docker_endpoint_id,
@@ -399,11 +398,11 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_join(self):
         fake_docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         fake_docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         fake_container_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
 
         fake_neutron_network_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)
@@ -465,9 +464,9 @@ class TestKuryr(base.TestKuryrBase):
 
     def test_network_driver_leave(self):
         fake_docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         fake_docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
 
         fake_neutron_network_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_network_id, fake_docker_network_id)

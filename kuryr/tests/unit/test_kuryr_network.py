@@ -11,7 +11,6 @@
 # under the License.
 
 import hashlib
-import random
 
 from ddt import data
 from ddt import ddt
@@ -20,6 +19,7 @@ from oslo_serialization import jsonutils
 
 from kuryr import app
 from kuryr.tests.unit import base
+from kuryr import utils
 
 
 class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
@@ -64,7 +64,7 @@ class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
 
     def test_create_network_unauthorized(self):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         self._create_network_with_exception(
             docker_network_id, exceptions.Unauthorized())
 
@@ -117,9 +117,9 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
 
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
 
         fake_v4_subnet = self._get_fake_v4_subnet(
             docker_network_id, docker_endpoint_id, subnet_v4_id)
@@ -173,9 +173,9 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
 
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
 
         fake_v4_subnet = self._get_fake_v4_subnet(
             docker_network_id, docker_endpoint_id, subnet_v4_id)
@@ -213,7 +213,7 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
     @data(exceptions.Unauthorized, exceptions.NotFound, exceptions.Conflict)
     def test_delete_network_failures(self, GivenException):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         self._delete_network_with_exception(
             docker_network_id, GivenException())
 
@@ -239,7 +239,7 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
     def test_delete_network_with_subnet_deletion_failures(self,
             GivenException):
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         self._delete_network_with_subnet_exception(
             docker_network_id, GivenException())
 

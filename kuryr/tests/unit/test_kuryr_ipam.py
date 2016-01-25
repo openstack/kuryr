@@ -13,7 +13,6 @@
 import ddt
 import hashlib
 from oslo_serialization import jsonutils
-import random
 import uuid
 
 from kuryr.common import config
@@ -176,7 +175,7 @@ class TestKuryrIpam(base.TestKuryrBase):
 
         # faking list_subnets
         docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         neutron_network_id = str(uuid.uuid4())
         subnet_v4_id = str(uuid.uuid4())
         fake_v4_subnet = self._get_fake_v4_subnet(
@@ -241,9 +240,9 @@ class TestKuryrIpam(base.TestKuryrBase):
 
         # faking list_subnets
         docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         neutron_network_id = docker_network_id = str(uuid.uuid4())
         subnet_v4_id = str(uuid.uuid4())
         fake_v4_subnet = self._get_fake_v4_subnet(

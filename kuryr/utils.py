@@ -11,6 +11,7 @@
 # under the License.
 
 import os
+import random
 import socket
 import sys
 import traceback
@@ -80,7 +81,7 @@ def make_json_app(import_name, **kwargs):
         response.headers['Content-Type'] = content_type
         return response
 
-    for code in w_exceptions.default_exceptions.iterkeys():
+    for code in w_exceptions.default_exceptions:
         app.error_handler_spec[None][code] = make_json_error
 
     return app
@@ -138,3 +139,7 @@ def get_dict_format_fixed_ips_from_kv_format(fixed_ips):
             new_fixed_ips.append({'subnet_id': subnet_id,
                 'ip_address': ip})
     return new_fixed_ips
+
+
+def getrandbits(bit_size=256):
+    return str(random.getrandbits(bit_size)).encode('utf-8')
