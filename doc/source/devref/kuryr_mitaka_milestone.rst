@@ -34,10 +34,10 @@ This list of items will need to be prioritized.
 
 5) Nested VM - agent less mode (or with Kuryr shim layer)
 
-   Magnum Kuryr Integration
+6) Magnum Kuryr Integration
    https://blueprints.launchpad.net/kuryr/+spec/containers-in-instances
 
-   Create kuryr heat resources for Magnum to consume
+   Create Kuryr heat resources for Magnum to consume
 
 7) Missing APIs in Neutron to support docker networking model
 
