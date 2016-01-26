@@ -37,13 +37,14 @@ Prerequisites
 Running Kuryr
 -------------
 
-Please run the following script, it creates `/usr/lib/docker/plugins/kuryr`
-and the JSON spec file, `/usr/lib/docker/plugins/kuryr/kuryr.json`, if they
-don't exist.
+Please run the following script, it creates ``/usr/lib/docker/plugins/kuryr``
+and the JSON spec file, ``/usr/lib/docker/plugins/kuryr/kuryr.json``, if they
+don't exist. Kuryr requires the root privilege for creating and deleting the
+veth pairs with `pyroute2 <http://docs.pyroute2.org/>`_ to run.
 
 ::
 
-    $ ./scripts/run_kuryr.sh
+    $ sudo ./scripts/run_kuryr.sh
 
 Testing Kuryr
 -------------
