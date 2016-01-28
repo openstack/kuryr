@@ -32,7 +32,7 @@ class ConfigurationTest(base.TestKuryrBase):
         self.assertEqual('http://127.0.0.1:2377',
                          config.CONF.kuryr_uri)
 
-        self.assertTrue(config.CONF.debug)
+        self.assertEqual(True, config.CONF.debug)
 
         self.assertEqual('http://127.0.0.1:9696',
                          config.CONF.neutron_client.neutron_uri)
