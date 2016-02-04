@@ -357,8 +357,9 @@ class TestKuryr(base.TestKuryrBase):
         fake_updated_port['name'] = '-'.join([docker_endpoint_id, 'port'])
         self.mox.StubOutWithMock(app.neutron, 'update_port')
         app.neutron.update_port(fake_updated_port['id'], {'port': {
-            'name': fake_updated_port['name']}}).AndReturn(fake_port)
-
+            'name': fake_updated_port['name'],
+            'device_owner': constants.DEVICE_OWNER,
+            'device_id': docker_endpoint_id}}).AndReturn(fake_port)
         self.mox.ReplayAll()
 
         data = {

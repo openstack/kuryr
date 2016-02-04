@@ -238,7 +238,11 @@ def _update_port(port, endpoint_id):
     port['name'] = utils.get_neutron_port_name(endpoint_id)
     try:
         response_port = app.neutron.update_port(
-                port['id'], {'port': {'name': port['name']}})
+                port['id'],
+                {'port': {
+                    'name': port['name'],
+                    'device_owner': constants.DEVICE_OWNER,
+                    'device_id': endpoint_id}})
     except n_exceptions.NeutronClientException as ex:
         app.logger.error("Error happend during creating a "
                          "Neutron port: {0}".format(ex))
