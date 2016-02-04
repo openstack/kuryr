@@ -74,9 +74,21 @@ if is_service_enabled kuryr; then
         # Delete previous etcd data first
         run_process etcd-server "$DEST/etcd/etcd-$ETCD_VERSION-linux-amd64/etcd --data-dir $DEST/etcd/db.etcd"
 
+        # FIXME(mestery): By default, Ubuntu ships with /bin/sh pointing to
+        # the dash shell.
+        # ..
+        # ..
+        # The dots above represent a pause as you pick yourself up off the
+        # floor. This means the latest version of "install_docker.sh" to load
+        # docker fails because dash can't interpret some of it's bash-specific
+        # things. It's a bug in install_docker.sh that it relies on those and
+        # uses a shebang of /bin/sh, but that doesn't help us if we want to run
+        # docker and specifically Kuryr. So, this works around that.
+        sudo update-alternatives --install /bin/sh sh /bin/bash 100
+
         wget http://get.docker.com -O install_docker.sh
         sudo chmod 777 install_docker.sh
-        sudo bash install_docker.sh
+        sudo sh install_docker.sh
         sudo rm install_docker.sh
 
         # CentOS/RedHat distros don't start the services just after the package
