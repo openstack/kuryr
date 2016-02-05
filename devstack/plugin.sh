@@ -76,7 +76,7 @@ if is_service_enabled kuryr; then
 
         wget http://get.docker.com -O install_docker.sh
         sudo chmod 777 install_docker.sh
-        sudo sh install_docker.sh
+        sudo bash install_docker.sh
         sudo rm install_docker.sh
 
         # CentOS/RedHat distros don't start the services just after the package
