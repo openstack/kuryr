@@ -64,8 +64,8 @@ Generate Documentation
 ----------------------
 
 
-We use `Sphinix <https://pypi.python.org/pypi/Sphinx>`_ to maintain the
-documentation. You can install Sphinix using pip.
+We use `Sphinx <https://pypi.python.org/pypi/Sphinx>`_ to maintain the
+documentation. You can install Sphinx using pip.
 
 ::
 
