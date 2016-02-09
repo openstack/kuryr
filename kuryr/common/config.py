@@ -18,7 +18,7 @@ import os
 
 from oslo_config import cfg
 
-from kuryr import i18n
+from kuryr import _i18n as i18n
 from kuryr import version
 
 _ = i18n._
