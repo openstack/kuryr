@@ -228,7 +228,7 @@ def _create_port(endpoint_id, neutron_network_id, interface_mac, fixed_ips):
     try:
         rcvd_port = app.neutron.create_port({'port': port})
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happend during creating a "
+        app.logger.error("Error happened during creating a "
                          "Neutron port: {0}".format(ex))
         raise
     return rcvd_port['port']
@@ -244,7 +244,7 @@ def _update_port(port, endpoint_id):
                     'device_owner': constants.DEVICE_OWNER,
                     'device_id': endpoint_id}})
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happend during creating a "
+        app.logger.error("Error happened during creating a "
                          "Neutron port: {0}".format(ex))
         raise
     return response_port['port']
@@ -964,7 +964,7 @@ def ipam_request_address():
             allocated_address = '/'.join(
                 [allocated_address, str(cidr.prefixlen)])
         except n_exceptions.NeutronClientException as ex:
-            app.logger.error("Error happend during ip allocation on"
+            app.logger.error("Error happened during ip allocation on"
                              "Neutron side: {0}".format(ex))
             raise
     else:
@@ -1008,7 +1008,7 @@ def ipam_release_pool():
         app.logger.info("The subnetpool with ID {0} is still in use."
                         " It can't be deleted for now.".format(pool_id))
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happend during deleting a "
+        app.logger.error("Error happened during deleting a "
                          "Neutron subnetpool: {0}".format(ex))
         raise
 
@@ -1075,7 +1075,7 @@ def ipam_release_address():
         for port in filtered_ports:
             app.neutron.delete_port(port['id'])
     except n_exceptions.NeutronClientException as ex:
-        app.logger.error("Error happend while fetching and deleting port, "
+        app.logger.error("Error happened while fetching and deleting port, "
                          "{0}".format(ex))
         raise
 
