@@ -11,7 +11,6 @@
 # under the License.
 
 import hashlib
-import random
 
 import ddt
 from oslo_config import cfg
@@ -24,8 +23,8 @@ from kuryr import utils
 class TestKuryrUtils(base.TestKuryrBase):
     """Unit tests for utilities."""
 
-    @ddt.data(hashlib.sha256(str(random.getrandbits(256))).hexdigest(),
-          '51c75a2515d4' '51c75a')
+    @ddt.data(hashlib.sha256(utils.getrandbits(
+        256)).hexdigest(), '51c75a2515d4' '51c75a')
     def test_get_sandbox_key(self, fake_container_id):
         sandbox_key = utils.get_sandbox_key(fake_container_id)
         expected = '/'.join([utils.DOCKER_NETNS_BASE, fake_container_id[:12]])
@@ -33,7 +32,7 @@ class TestKuryrUtils(base.TestKuryrBase):
 
     def test_get_port_name(self):
         fake_docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         generated_neutron_port_name = utils.get_neutron_port_name(
             fake_docker_endpoint_id)
         self.assertIn(utils.PORT_POSTFIX, generated_neutron_port_name)

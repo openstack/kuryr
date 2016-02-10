@@ -11,7 +11,6 @@
 # under the License.
 
 import hashlib
-import random
 import uuid
 
 import ddt
@@ -171,9 +170,9 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
               exceptions.NotFound, exceptions.ServiceUnavailable)
     def test_create_endpoint_port_failures(self, GivenException):
         fake_docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         fake_docker_endpoint_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         fake_neutron_network_id = str(uuid.uuid4())
         fake_neutron_subnet_v4_id = str(uuid.uuid4())
         fake_neutron_subnet_v6_id = str(uuid.uuid4())
@@ -215,7 +214,7 @@ class TestKuryrEndpointCreateFailures(TestKuryrEndpointFailures):
 
     def test_create_endpoint_bad_request(self):
         fake_docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         invalid_docker_endpoint_id = 'id-should-be-hexdigits'
 
         response = self._invoke_create_request(
@@ -242,7 +241,7 @@ class TestKuryrEndpointDeleteFailures(TestKuryrEndpointFailures):
 
     def test_delete_endpoint_bad_request(self):
         fake_docker_network_id = hashlib.sha256(
-            str(random.getrandbits(256))).hexdigest()
+            utils.getrandbits(256)).hexdigest()
         invalid_docker_endpoint_id = 'id-should-be-hexdigits'
 
         response = self._invoke_delete_request(
