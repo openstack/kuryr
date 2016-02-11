@@ -45,8 +45,10 @@ ovs_hybrid_bind_port() {
     # create a linux bridge
     br_name="qbr"${PORT:0:11}
     ip link add name $br_name type bridge
-    echo 0 > /sys/devices/virtual/net/$br_name/bridge/forward_delay
-    echo 0 > /sys/devices/virtual/net/$br_name/bridge/stp_state
+    # Using brctl allows containerized usage not to need privileged mode
+    # as sysfs is mounted read-only when running with just CAP_NET_ADMIN
+    brctl setfd $br_name 0
+    brctl stp $br_name off
 
     # connect the veth outside to linux bridge
     ip link set $VETH up

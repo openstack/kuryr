@@ -14,17 +14,24 @@ import sys
 
 from oslo_log import log
 
+from kuryr import app
+from kuryr.common import config
+from kuryr import controllers
+
+
+config.init(sys.argv[1:])
+
+controllers.check_for_neutron_ext_support()
+controllers.check_for_neutron_ext_tag()
+app.debug = config.CONF.debug
+
+log.setup(config.CONF, 'Kuryr')
+
 
 def start():
-    from kuryr.common import config
-    config.init(sys.argv[1:])
     port = int(config.CONF.kuryr_uri.split(':')[-1])
-
-    from kuryr import app
-    from kuryr import controllers
-    controllers.check_for_neutron_ext_support()
-    controllers.check_for_neutron_ext_tag()
-    app.debug = config.CONF.debug
-
-    log.setup(config.CONF, 'Kuryr')
     app.run("0.0.0.0", port)
+
+
+if __name__ == '__main__':
+    start()
