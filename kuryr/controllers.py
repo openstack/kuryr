@@ -88,13 +88,16 @@ def get_neutron_client():
     password = keystone_conf.admin_password
     auth_token = keystone_conf.admin_token
     auth_uri = keystone_conf.auth_uri.rstrip('/')
+    ca_cert = keystone_conf.auth_ca_cert
+    insecure = keystone_conf.auth_insecure
 
     neutron_uri = cfg.CONF.neutron_client.neutron_uri
     if username and password:
         # Authenticate with password crentials
         neutron_client = utils.get_neutron_client(
             url=neutron_uri, username=username, tenant_name=tenant_name,
-            password=password, auth_url=auth_uri)
+            password=password, auth_url=auth_uri,
+            ca_cert=ca_cert, insecure=insecure)
     else:
         neutron_client = utils.get_neutron_client_simple(
             url=neutron_uri, auth_url=auth_uri, token=auth_token)
