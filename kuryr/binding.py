@@ -35,6 +35,9 @@ UNBINDING_SUBCOMMAND = 'unbind'
 VETH_POSTFIX = '-veth'
 VIF_TYPE_KEY = 'binding:vif_type'
 
+ip = pyroute2.IPDB()
+ipr = pyroute2.IPRoute()
+
 
 def _is_up(interface):
     flags = interface['flags']
@@ -51,7 +54,8 @@ def cleanup_veth(ifname):
               exists, otherwise None
     :raises: pyroute2.netlink.NetlinkError
     """
-    ipr = pyroute2.IPRoute()
+    global ipr
+
     veths = ipr.link_lookup(ifname=ifname)
     if veths:
         host_veth_index = veths[0]
@@ -75,15 +79,12 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     :raises: kuryr.common.exceptions.VethCreationFailure,
              processutils.ProcessExecutionError
     """
-    # NOTE(tfukushima): pyroute2.ipdb requires Linux to be imported. So I don't
-    # import it in the module scope but here.
-    import pyroute2.ipdb
+    global ip
 
     ifname = endpoint_id[:8] + VETH_POSTFIX
     peer_name = ifname + CONTAINER_VETH_POSTFIX
     subnets_dict = {subnet['id']: subnet for subnet in neutron_subnets}
 
-    ip = pyroute2.IPDB()
     try:
         with ip.create(ifname=ifname, kind=KIND_VETH,
                        reuse=True, peer=peer_name) as host_veth:
@@ -108,8 +109,6 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     except pyroute2.ipdb.common.CommitException:
         raise exceptions.VethCreationFailure(
             'Could not configure the veth endpoint for the container.')
-    finally:
-        ip.release()
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     binding_exec_path = os.path.join(config.CONF.bindir, vif_type)
@@ -134,9 +133,6 @@ def port_unbind(endpoint_id, neutron_port):
               invoked with the executable script for unbinding
     :raises: processutils.ProcessExecutionError, pyroute2.netlink.NetlinkError
     """
-    # NOTE(tfukushima): pyroute2.netlink requires Linux to be imported. So I
-    # don't import it in the module scope but here.
-    import pyroute2.netlink
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     unbinding_exec_path = os.path.join(config.CONF.bindir, vif_type)
@@ -148,5 +144,5 @@ def port_unbind(endpoint_id, neutron_port):
         cleanup_veth(ifname)
     except pyroute2.netlink.NetlinkError:
         raise exceptions.VethDeleteionFailure(
-            'Deleting the veth pair was failed.')
+            'Deleting the veth pair failed.')
     return (stdout, stderr)
