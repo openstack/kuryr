@@ -75,6 +75,12 @@ keystone_opts = [
     cfg.StrOpt('admin_token',
                default=os.environ.get('SERVICE_TOKEN'),
                help=_('The admin token.')),
+    cfg.StrOpt('auth_ca_cert',
+               default=os.environ.get('SERVICE_CA_CERT'),
+               help=_('The CA certification file.')),
+    cfg.BoolOpt('auth_insecure',
+                default=False,
+                help=_("Turn off verification of the certificate for ssl")),
 ]
 binding_opts = [
     cfg.StrOpt('veth_dst_prefix',
