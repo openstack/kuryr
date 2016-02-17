@@ -30,7 +30,7 @@ Kuryr Specs
 ===========
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    specs/index
 
