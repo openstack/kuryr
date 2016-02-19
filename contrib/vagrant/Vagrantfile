@@ -9,7 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.hostname = 'devstack'
 
   config.vm.provider 'virtualbox' do |v, override|
-    override.vm.box = ENV.fetch('VAGRANT_KURYR_VM_BOX', 'trusty')
+    override.vm.box = ENV.fetch('VAGRANT_KURYR_VM_BOX', 'ubuntu/trusty64')
     v.memory        = VM_MEMORY
     v.cpus          = VM_CPUS
   end
