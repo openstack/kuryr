@@ -5,14 +5,14 @@
 
 hacking<0.11,>=0.10.0
 
-coverage>=3.6
-ddt>=0.7.0
-python-subunit>=0.0.18
-sphinx!=1.2.0,!=1.3b1,<1.3,>=1.1.2
-oslosphinx>=2.5.0 # Apache-2.0
+coverage>=3.6 # Apache-2.0
+ddt>=1.0.1 # MIT
+python-subunit>=0.0.18 # Apache-2.0/BSD
+sphinx!=1.2.0,!=1.3b1,<1.3,>=1.1.2 # BSD
+oslosphinx!=3.4.0,>=2.5.0 # Apache-2.0
 oslotest>=1.10.0 # Apache-2.0
-testrepository>=0.0.18
-testscenarios>=0.4
-testtools>=1.4.0
-docker-py>=1.5.0 # Apache-2.0
+testrepository>=0.0.18 # Apache-2.0/BSD
+testscenarios>=0.4 # Apache-2.0/BSD
+testtools>=1.4.0 # MIT
+docker-py>=1.6.0 # Apache-2.0
 reno>=0.1.1 # Apache2
