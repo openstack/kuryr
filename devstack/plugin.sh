@@ -91,11 +91,7 @@ if is_service_enabled kuryr; then
         sudo sh install_docker.sh
         sudo rm install_docker.sh
 
-        # CentOS/RedHat distros don't start the services just after the package
-        # is installed if it is not explicitily set. So the script fails on
-        # them in this killall because there is nothing to kill.
-        # TODO(devvesa): use a `is_running service` or a more elegant approach
-        sudo killall docker || true
+        sudo service docker stop
         run_process docker-engine "sudo /usr/bin/docker daemon -H tcp://0.0.0.0:2375 --cluster-store etcd://localhost:4001"
 
         run_process kuryr "sudo PYTHONPATH=$PYTHONPATH:$DEST/kuryr SERVICE_USER=admin SERVICE_PASSWORD=$SERVICE_PASSWORD SERVICE_TENANT_NAME=admin SERVICE_TOKEN=$SERVICE_TOKEN IDENTITY_URL=http://127.0.0.1:5000/v2.0 python $DEST/kuryr/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf"
