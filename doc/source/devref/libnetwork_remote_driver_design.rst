@@ -3,7 +3,7 @@ Libnetwork Remote Network Driver Design
 =======================================
 
 What is Kuryr
---------------
+-------------
 
 Kuryr implements a `libnetwork remote network driver`_ and maps its calls to OpenStack
 `Neutron`_. It works as a translator between libnetwork's
@@ -11,7 +11,7 @@ Kuryr implements a `libnetwork remote network driver`_ and maps its calls to Ope
 a `libnetwork IPAM driver`_.
 
 Goal
-~~~~~
+~~~~
 
 Through Kuryr any Neutron plugin can be used as libnetwork backend with no
 additional effort. Neutron APIs are vendor agnostic and thus all Neutron
@@ -23,7 +23,7 @@ the host, e.g., Linux bridge, Open vSwitch datapath and so on.
 
 
 Kuryr Workflow - Host Networking
----------------------------------
+--------------------------------
 Kuryr resides in each host that runs Docker containers and serves `APIs`_
 required for the libnetwork remote network driver. It is planned to use the
 `Adding tags to resources`_ new Neutron feature by Kuryr, to map between
@@ -38,7 +38,7 @@ Neutron resource Id's and Docker Id's (UUID's)
    - libnetwork also calls the following two API endpoints
 
      1. ``/NetworkDriver.GetCapabilities`` to obtain the capability of Kuryr
-        which defaults to ``"global"``
+        which defaults to ``"local"``
      2. ``/IpamDriver.GetDefaultAddressSpcaces`` to get the default address
         spaces used for the IPAM
 
@@ -234,7 +234,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         {
             "Name": "foo",
             "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "Scope": "global",
+            "Scope": "local",
             "Driver": "kuryr",
             "IPAM": {
                 "Driver": "default",
@@ -265,7 +265,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         {
             "Name": "foo",
             "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "Scope": "global",
+            "Scope": "local",
             "Driver": "kuryr",
             "IPAM": {
                 "Driver": "default",
@@ -372,7 +372,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
        {}
 
 Mapping between the CNM and the Neutron's Networking Model
-------------------------------------------------------------
+----------------------------------------------------------
 
 Kuryr communicates with Neutron via `Neutron client`_ and bridges between
 libnetwork and Neutron by translating their networking models. The following
