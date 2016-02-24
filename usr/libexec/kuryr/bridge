@@ -1,0 +1,59 @@
+#!/bin/bash
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+bind_port() {
+    echo "plugging veth $2 (Neutron port $1)..."
+
+    # create a linux bridge
+    br_name="br"${4:0:12}
+    ip link show $br_name
+    if [ $? -ne 0 ]; then
+        echo "Bridge $br_name does not exist, create it"
+        ip link add name $br_name type bridge
+        echo 0 > /sys/devices/virtual/net/$br_name/bridge/forward_delay
+        echo 0 > /sys/devices/virtual/net/$br_name/bridge/stp_state
+        ip link set $br_name  up
+    else
+        echo "Bridge $br_name exists"
+    fi
+
+    # connect the veth outside to linux bridge
+    ip link set dev $2 master $br_name
+    ip link set $2 up
+}
+
+unbind_port() {
+    echo "unplugging veth $1..."
+    br_name="br"${3:0:12}
+
+    ip link set dev $2 nomaster
+    ip link set $br_name down
+    ip link delete $br_name type bridge
+}
+
+case $1 in
+    "bind")
+        shift
+        bind_port "$@"
+        exit 0
+        ;;
+    "unbind")
+        shift
+        unbind_port "$@"
+        exit 0
+        ;;
+    *)
+        echo >&2 "$0: Invalid command $1."
+        exit 1
+        ;;
+esac
