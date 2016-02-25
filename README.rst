@@ -37,14 +37,24 @@ Prerequisites
 Running Kuryr
 -------------
 
-Please run the following script, it creates ``/usr/lib/docker/plugins/kuryr``
-and the JSON spec file, ``/usr/lib/docker/plugins/kuryr/kuryr.json``, if they
-don't exist. Kuryr requires the root privilege for creating and deleting the
-veth pairs with `pyroute2 <http://docs.pyroute2.org/>`_ to run.
+Currently, Kuryr utilizes a bash script to start the service.
 
 ::
 
     $ sudo ./scripts/run_kuryr.sh
+
+After the booting, please restart your Docker service, e.g.,
+
+::
+    $ sudo service docker restart
+
+The bash script creates the following files if they are missing.
+
+* ``/usr/lib/docker/plugins/kuryr/kuryr.json``: Json spec file for libnetwork;
+* ``/etc/kuryr/kuryr.conf``: Configuration file for Kuryr.
+
+Note the root privilege is required for creating and deleting the veth pairs
+with `pyroute2 <http://docs.pyroute2.org/>`_ to run.
 
 Testing Kuryr
 -------------
@@ -60,8 +70,8 @@ the *fullstack* test case.
 
     $ tox -e fullstack
 
-Generate Documentation
-----------------------
+Generating Documentation
+------------------------
 
 
 We use `Sphinx <https://pypi.python.org/pypi/Sphinx>`_ to maintain the
