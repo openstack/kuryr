@@ -48,14 +48,14 @@ if [[ ! -f "${KURYR_CONFIG}" ]]; then
     if [[ -f "${KURYR_DEFAULT_CONFIG}" ]]; then
         echo -n "${KURYR_CONFIG} is missing. Copying the default one... "
         sudo cp ${KURYR_DEFAULT_CONFIG} ${KURYR_CONFIG}
-        echo "Done"
     else
-        echo -n "${KURYR_CONFIG} and the  default config missing. Auto generating and copying one... "
+        echo -n "${KURYR_CONFIG} and the default config missing. Auto generating and copying one... "
         cd ${KURYR_HOME}
         tox -egenconfig
         sudo cp ${KURYR_DEFAULT_CONFIG}.sample ${KURYR_DEFAULT_CONFIG}
         sudo cp ${KURYR_DEFAULT_CONFIG} ${KURYR_CONFIG}
     fi
+    echo "Done"
 fi
 
 PYTHONPATH=${KURYR_HOME} python ${KURYR_HOME}/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf
