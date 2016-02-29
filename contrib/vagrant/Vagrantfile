@@ -43,4 +43,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.cache.scope = :box
   end
 
+  config.vm.network :forwarded_port, guest: 80, host_ip: "127.0.0.1", host: 8080
 end
