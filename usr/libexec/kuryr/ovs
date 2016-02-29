@@ -18,7 +18,7 @@ bind_port() {
     mac=`ip link show dev $2 | tail -1 | awk '{print $2}'`
     sudo ovs-vsctl add-port $INT_BRIDGE $2
     sudo ovs-vsctl set interface $2 external_ids:attached-mac=$mac \
-        external_ids:iface-id=$1 external_ids:vm-id=$3 \
+        external_ids:iface-id=$1 external_ids:vm-uuid=$3 \
         external_ids:iface-status=active external_ids:owner=kuryr
 }
 
