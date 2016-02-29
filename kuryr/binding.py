@@ -113,10 +113,14 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     binding_exec_path = os.path.join(config.CONF.bindir, vif_type)
     port_id = neutron_port['id']
+    network_id = neutron_port['network_id']
+    tenant_id = neutron_port['tenant_id']
+    mac_address = neutron_port['mac_address']
     try:
         stdout, stderr = processutils.execute(
             binding_exec_path, BINDING_SUBCOMMAND, port_id, ifname,
-            endpoint_id, run_as_root=True)
+            endpoint_id, mac_address, network_id, tenant_id,
+            run_as_root=True)
     except processutils.ProcessExecutionError:
         with excutils.save_and_reraise_exception():
             cleanup_veth(ifname)
@@ -136,10 +140,12 @@ def port_unbind(endpoint_id, neutron_port):
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     unbinding_exec_path = os.path.join(config.CONF.bindir, vif_type)
-    port_id = neutron_port['id']
-    stdout, stderr = processutils.execute(
-        unbinding_exec_path, UNBINDING_SUBCOMMAND, port_id, run_as_root=True)
     ifname = endpoint_id[:8] + VETH_POSTFIX
+    port_id = neutron_port['id']
+    mac_address = neutron_port['mac_address']
+    stdout, stderr = processutils.execute(
+        unbinding_exec_path, UNBINDING_SUBCOMMAND, port_id, ifname,
+        endpoint_id, mac_address, run_as_root=True)
     try:
         cleanup_veth(ifname)
     except pyroute2.netlink.NetlinkError:
