@@ -38,3 +38,15 @@ class Kuryr(utils.KuryrScenario):
         :param network_list_args: dict: names, ids
         """
         self._list_networks(network_list_args or {})
+
+    @scenario.configure(context={"cleanup": ["kuryr"]})
+    def create_and_delete_networks(self, network_create_args=None):
+        """Create and delete a network.
+
+        Measure the "docker network create" and "docker network rm" command
+        performance.
+
+        :param network_create_args: dict as options to create the network
+        """
+        network = self._create_network(network_create_args or {})
+        self._delete_network(network)
