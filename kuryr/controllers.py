@@ -26,7 +26,7 @@ from oslo_utils import excutils
 from kuryr import app
 from kuryr import binding
 from kuryr.common import config
-from kuryr.common import constants
+from kuryr.common import constants as const
 from kuryr.common import exceptions
 from kuryr._i18n import _LE, _LI, _LW
 from kuryr import schemata
@@ -222,7 +222,7 @@ def _create_port(endpoint_id, neutron_network_id, interface_mac, fixed_ips):
         'name': utils.get_neutron_port_name(endpoint_id),
         'admin_state_up': True,
         'network_id': neutron_network_id,
-        'device_owner': constants.DEVICE_OWNER,
+        'device_owner': const.DEVICE_OWNER,
         'device_id': endpoint_id,
         'binding:host_id': utils.get_hostname(),
         'fixed_ips': fixed_ips
@@ -245,7 +245,7 @@ def _update_port(port, endpoint_id):
                 port['id'],
                 {'port': {
                     'name': port['name'],
-                    'device_owner': constants.DEVICE_OWNER,
+                    'device_owner': const.DEVICE_OWNER,
                     'device_id': endpoint_id}})
     except n_exceptions.NeutronClientException as ex:
         app.logger.error(_LE("Error happend during creating a "
@@ -327,6 +327,12 @@ def _create_or_update_port(neutron_network_id, endpoint_id,
     return response_interface
 
 
+def _neutron_add_tags(netid, tag):
+    tags = utils.create_net_tags(tag)
+    for tag in tags:
+        app.neutron.add_tag('networks', netid, tag)
+
+
 @app.route('/Plugin.Activate', methods=['POST'])
 def plugin_activate():
     """Returns the list of the implemented drivers.
@@ -339,7 +345,7 @@ def plugin_activate():
 
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#handshake  # noqa
     """
-    return flask.jsonify(constants.SCHEMA['PLUGIN_ACTIVATE'])
+    return flask.jsonify(const.SCHEMA['PLUGIN_ACTIVATE'])
 
 
 @app.route('/NetworkDriver.GetCapabilities', methods=['POST'])
@@ -371,7 +377,7 @@ def network_driver_discover_new():
 
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#discovernew-notification  # noqa
     """
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.DiscoverDelete', methods=['POST'])
@@ -386,7 +392,7 @@ def network_driver_discover_delete():
 
       https://github.com/docker/libnetwork/blob/master/docs/remote.md#discoverdelete-notification  # noqa
     """
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.CreateNetwork', methods=['POST'])
@@ -433,7 +439,8 @@ def network_driver_create_network():
                      " /NetworkDriver.CreateNetwork".format(json_data))
     jsonschema.validate(json_data, schemata.NETWORK_CREATE_SCHEMA)
 
-    neutron_network_name = json_data['NetworkID']
+    container_net_id = json_data['NetworkID']
+    neutron_network_name = utils.make_net_name(container_net_id)
     pool_cidr = json_data['IPv4Data'][0]['Pool']
     gateway_ip = ''
     if 'Gateway' in json_data['IPv4Data'][0]:
@@ -444,6 +451,7 @@ def network_driver_create_network():
 
     network = app.neutron.create_network(
         {'network': {'name': neutron_network_name, "admin_state_up": True}})
+    _neutron_add_tags(network['network']['id'], container_net_id)
 
     app.logger.info(_LI("Created a new network with name {0}"
                       " successfully: {1}")
@@ -467,7 +475,7 @@ def network_driver_create_network():
 
         app.neutron.create_subnet({'subnets': new_subnets})
 
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.DeleteNetwork', methods=['POST'])
@@ -490,9 +498,9 @@ def network_driver_delete_network():
                      " /NetworkDriver.DeleteNetwork".format(json_data))
     jsonschema.validate(json_data, schemata.NETWORK_DELETE_SCHEMA)
 
-    neutron_network_name = json_data['NetworkID']
+    neutron_network_tags = utils.make_net_tags(json_data['NetworkID'])
     try:
-        filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
+        filtered_networks = _get_networks_by_attrs(tags=neutron_network_tags)
     except n_exceptions.NeutronClientException as ex:
         app.logger.error(_LE("Error happened during listing "
                              "Neutron networks: {0}").format(ex))
@@ -504,8 +512,8 @@ def network_driver_delete_network():
     # See the following doc for more details about Docker's IDs:
     #   https://github.com/docker/docker/blob/master/docs/terms/container.md#container-ids  # noqa
     if not filtered_networks:
-        app.logger.warn("Network with name {0} cannot be found"
-                        .format(neutron_network_name))
+        app.logger.warn("Network with tags {0} cannot be found"
+                        .format(neutron_network_tags))
     else:
         neutron_network_id = filtered_networks[0]['id']
         filtered_subnets = _get_subnets_by_attrs(
@@ -543,7 +551,7 @@ def network_driver_delete_network():
             raise
         app.logger.info(_LI("Deleted the network with ID {0} successfully")
                         .format(neutron_network_id))
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.CreateEndpoint', methods=['POST'])
@@ -586,15 +594,14 @@ def network_driver_create_endpoint():
                      .format(json_data))
     jsonschema.validate(json_data, schemata.ENDPOINT_CREATE_SCHEMA)
 
-    neutron_network_name = json_data['NetworkID']
+    neutron_network_tags = utils.make_net_tags(json_data['NetworkID'])
     endpoint_id = json_data['EndpointID']
-
-    filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
+    filtered_networks = _get_networks_by_attrs(tags=neutron_network_tags)
 
     if not filtered_networks:
         return flask.jsonify({
-            'Err': "Neutron network associated with ID {0} doesn't exist."
-            .format(neutron_network_name)
+            'Err': "Neutron network associated with tags {0} doesn't exist."
+            .format(neutron_network_tags)
         })
     else:
         neutron_network_id = filtered_networks[0]['id']
@@ -615,7 +622,7 @@ def network_driver_create_endpoint():
 
 @app.route('/NetworkDriver.EndpointOperInfo', methods=['POST'])
 def network_driver_endpoint_operational_info():
-    return flask.jsonify(constants.SCHEMA['ENDPOINT_OPER_INFO'])
+    return flask.jsonify(const.SCHEMA['ENDPOINT_OPER_INFO'])
 
 
 @app.route('/NetworkDriver.DeleteEndpoint', methods=['POST'])
@@ -639,7 +646,7 @@ def network_driver_delete_endpoint():
                      " /NetworkDriver.DeleteEndpoint".format(json_data))
     jsonschema.validate(json_data, schemata.ENDPOINT_DELETE_SCHEMA)
 
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
 @app.route('/NetworkDriver.Join', methods=['POST'])
@@ -684,15 +691,14 @@ def network_driver_join():
                      .format(json_data))
     jsonschema.validate(json_data, schemata.JOIN_SCHEMA)
 
-    neutron_network_name = json_data['NetworkID']
+    neutron_network_tags = utils.make_net_tags(json_data['NetworkID'])
     endpoint_id = json_data['EndpointID']
-
-    filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
+    filtered_networks = _get_networks_by_attrs(tags=neutron_network_tags)
 
     if not filtered_networks:
         return flask.jsonify({
-            'Err': "Neutron network associated with ID {0} doesn't exit."
-            .format(neutron_network_name)
+            'Err': "Neutron network associated with tags {0} doesn't exit."
+            .format(neutron_network_tags)
         })
     else:
         neutron_network_id = filtered_networks[0]['id']
@@ -742,10 +748,10 @@ def network_driver_join():
                     'Destination': host_route['destination']
                 }
                 if host_route.get('nexthop', None):
-                    static_route['RouteType'] = constants.TYPES['NEXTHOP']
+                    static_route['RouteType'] = const.TYPES['NEXTHOP']
                     static_route['NextHop'] = host_route['nexthop']
                 else:
-                    static_route['RouteType'] = constants.TYPES['CONNECTED']
+                    static_route['RouteType'] = const.TYPES['CONNECTED']
                 join_response['StaticRoutes'].append(static_route)
 
         return flask.jsonify(join_response)
@@ -768,15 +774,15 @@ def network_driver_leave():
                      " /NetworkDriver.DeleteEndpoint"
                      .format(json_data))
     jsonschema.validate(json_data, schemata.LEAVE_SCHEMA)
-    neutron_network_name = json_data['NetworkID']
-    endpoint_id = json_data['EndpointID']
 
-    filtered_networks = _get_networks_by_attrs(name=neutron_network_name)
+    neutron_network_tags = utils.make_net_tags(json_data['NetworkID'])
+    endpoint_id = json_data['EndpointID']
+    filtered_networks = _get_networks_by_attrs(tags=neutron_network_tags)
 
     if not filtered_networks:
         return flask.jsonify({
-            'Err': "Neutron network associated with ID {0} doesn't exit."
-            .format(neutron_network_name)
+            'Err': "Neutron network associated with tags {0} doesn't exit."
+            .format(neutron_network_tags)
         })
     else:
         neutron_port_name = utils.get_neutron_port_name(endpoint_id)
@@ -800,7 +806,7 @@ def network_driver_leave():
             with excutils.save_and_reraise_exception():
                 app.logger.error(_LE('Cleaning the veth pair up was failed.'))
 
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
 @app.route('/IpamDriver.GetDefaultAddressSpaces', methods=['POST'])
@@ -1025,7 +1031,7 @@ def ipam_release_pool():
                              "Neutron subnetpool: {0}").format(ex))
         raise
 
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
 @app.route('/IpamDriver.ReleaseAddress', methods=['POST'])
@@ -1092,6 +1098,6 @@ def ipam_release_address():
                              "{0}").format(ex))
         raise
 
-    return flask.jsonify(constants.SCHEMA['SUCCESS'])
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 neutron_client()

@@ -33,7 +33,7 @@ class TestKuryrNetworkCreateFailures(base.TestKuryrFailures):
         self.mox.StubOutWithMock(app.neutron, "create_network")
         fake_request = {
             "network": {
-                "name": network_name,
+                "name": utils.make_net_name(network_name),
                 "admin_state_up": True
             }
         }
@@ -116,8 +116,8 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
                 }]
             }
         self.mox.StubOutWithMock(app.neutron, 'list_networks')
-        app.neutron.list_networks(
-            name=network_id).AndReturn(fake_networks_response)
+        t = utils.make_net_tags(network_id)
+        app.neutron.list_networks(tags=t).AndReturn(fake_networks_response)
         subnet_v4_id = "9436e561-47bf-436a-b1f1-fe23a926e031"
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
 
@@ -172,8 +172,8 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
             }]
         }
         self.mox.StubOutWithMock(app.neutron, 'list_networks')
-        app.neutron.list_networks(
-            name=network_id).AndReturn(fake_networks_response)
+        t = utils.make_net_tags(network_id)
+        app.neutron.list_networks(tags=t).AndReturn(fake_networks_response)
         subnet_v4_id = "9436e561-47bf-436a-b1f1-fe23a926e031"
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
 
