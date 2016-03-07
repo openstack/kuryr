@@ -35,8 +35,40 @@ UNBINDING_SUBCOMMAND = 'unbind'
 VETH_POSTFIX = '-veth'
 VIF_TYPE_KEY = 'binding:vif_type'
 
-ip = pyroute2.IPDB()
-ipr = pyroute2.IPRoute()
+_IPDB_CACHE = None
+_IPROUTE_CACHE = None
+
+
+def get_ipdb():
+    """Returns the already cached or a newly created IPDB instance.
+
+    IPDB reads the Linux specific file when it's instantiated. This behaviour
+    prevents Mac OSX users from running unit tests. This function makes the
+    loading IPDB lazyily and therefore it can be mocked after the import of
+    modules that import this module.
+
+    :returns: The already cached or newly created ``pyroute2.IPDB`` instance
+    """
+    global _IPDB_CACHE
+    if not _IPDB_CACHE:
+        _IPDB_CACHE = pyroute2.IPDB()
+    return _IPDB_CACHE
+
+
+def get_iproute():
+    """Returns the already cached or a newly created IPRoute instance.
+
+    IPRoute reads the Linux specific file when it's instantiated. This
+    behaviour prevents Mac OSX users from running unit tests. This function
+    makes the loading IPDB lazyily and therefore it can be mocked after the
+    import of modules that import this module.
+
+    :returns: The already cached or newly created ``pyroute2.IPRoute`` instance
+    """
+    global _IPROUTE_CACHE
+    if not _IPROUTE_CACHE:
+        _IPROUTE_CACHE = pyroute2.IPRoute()
+    return _IPROUTE_CACHE
 
 
 def _is_up(interface):
@@ -54,7 +86,7 @@ def cleanup_veth(ifname):
               exists, otherwise None
     :raises: pyroute2.netlink.NetlinkError
     """
-    global ipr
+    ipr = get_iproute()
 
     veths = ipr.link_lookup(ifname=ifname)
     if veths:
@@ -79,7 +111,7 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     :raises: kuryr.common.exceptions.VethCreationFailure,
              processutils.ProcessExecutionError
     """
-    global ip
+    ip = get_ipdb()
 
     ifname = endpoint_id[:8] + VETH_POSTFIX
     peer_name = ifname + CONTAINER_VETH_POSTFIX
