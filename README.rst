@@ -81,6 +81,11 @@ documentation. You can install Sphinx using pip.
 
     $ pip install -U Sphinx
 
+In addition to Sphinx you will also need the following requirements
+(not covered by `requirements.txt`)::
+
+    $ pip install oslosphinx reno 'reno[sphinx]'
+
 The source code of the documentation are under *doc*, you can generate the
 html files using the following command. If the generation succeeds,a
 *build/html* dir will be created under *doc*.
