@@ -12,6 +12,7 @@
 
 
 from kuryr.tests.fullstack import kuryr_base
+from kuryr import utils
 
 
 class NetworkTest(kuryr_base.KuryrBaseTest):
@@ -28,11 +29,13 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
            deleted from Neutron.
         """
         res = self.docker_client.create_network(name='fakenet', driver='kuryr')
-        network_id = res['Id']
-        network = self.neutron_client.list_networks(name=network_id)
+        net_id = res['Id']
+        network = self.neutron_client.list_networks(
+            tags=utils.make_net_tags(net_id))
         self.assertEqual(1, len(network['networks']))
-        self.docker_client.remove_network(network_id)
-        network = self.neutron_client.list_networks(name=network_id)
+        self.docker_client.remove_network(net_id)
+        network = self.neutron_client.list_networks(
+            tags=utils.make_net_tags(net_id))
         self.assertEqual(0, len(network['networks']))
 
     def test_create_delete_network_without_kuryr_driver(self):
@@ -43,16 +46,17 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
            not added to Neutron
         """
         res = self.docker_client.create_network(name='fakenet')
-        network_id = res['Id']
-        network = self.neutron_client.list_networks(name=network_id)
+        net_id = res['Id']
+        network = self.neutron_client.list_networks(
+            tags=utils.make_net_tags(net_id))
         self.assertEqual(0, len(network['networks']))
         docker_networks = self.docker_client.networks()
         network_found = False
         for docker_net in docker_networks:
-            if docker_net['Id'] == network_id:
+            if docker_net['Id'] == net_id:
                 network_found = True
         self.assertTrue(network_found)
-        self.docker_client.remove_network(network_id)
+        self.docker_client.remove_network(net_id)
 
     def test_create_network_with_same_name(self):
         """Create docker network with same name
@@ -62,16 +66,20 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
            deleted as well
         """
         res = self.docker_client.create_network(name='fakenet', driver='kuryr')
-        network_id1 = res['Id']
+        net_id1 = res['Id']
         res = self.docker_client.create_network(name='fakenet', driver='kuryr')
-        network_id2 = res['Id']
-        network = self.neutron_client.list_networks(name=network_id1)
+        net_id2 = res['Id']
+        network = self.neutron_client.list_networks(
+            tags=utils.make_net_tags(net_id1))
         self.assertEqual(1, len(network['networks']))
-        network = self.neutron_client.list_networks(name=network_id2)
+        network = self.neutron_client.list_networks(
+            tags=utils.make_net_tags(net_id2))
         self.assertEqual(1, len(network['networks']))
-        self.docker_client.remove_network(network_id1)
-        self.docker_client.remove_network(network_id2)
-        network = self.neutron_client.list_networks(name=network_id1)
+        self.docker_client.remove_network(net_id1)
+        self.docker_client.remove_network(net_id2)
+        network = self.neutron_client.list_networks(
+            tags=utils.make_net_tags(net_id1))
         self.assertEqual(0, len(network['networks']))
-        network = self.neutron_client.list_networks(name=network_id2)
+        network = self.neutron_client.list_networks(
+            tags=utils.make_net_tags(net_id2))
         self.assertEqual(0, len(network['networks']))

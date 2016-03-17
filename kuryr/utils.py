@@ -27,6 +27,7 @@ from oslo_config import cfg
 from werkzeug import exceptions as w_exceptions
 
 from kuryr._i18n import _LE
+from kuryr.common import constants as const
 from kuryr.common import exceptions
 
 DOCKER_NETNS_BASE = '/var/run/docker/netns'
@@ -146,3 +147,21 @@ def get_dict_format_fixed_ips_from_kv_format(fixed_ips):
 
 def getrandbits(bit_size=256):
     return str(random.getrandbits(bit_size)).encode('utf-8')
+
+
+def create_net_tags(tag):
+    tags = []
+    tags.append(const.NEUTRON_ID_LH_OPTION + ':' + tag[:32])
+    if len(tag) > 32:
+        tags.append(const.NEUTRON_ID_UH_OPTION + ':' + tag[32:64])
+
+    return tags
+
+
+def make_net_tags(tag):
+    tags = create_net_tags(tag)
+    return ','.join(map(str, tags))
+
+
+def make_net_name(netid):
+    return const.NET_NAME_PREFIX + netid[:8]

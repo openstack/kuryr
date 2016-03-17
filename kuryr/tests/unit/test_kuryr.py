@@ -63,7 +63,7 @@ class TestKuryr(base.TestKuryrBase):
         self.mox.StubOutWithMock(app.neutron, "create_network")
         fake_request = {
             "network": {
-                "name": docker_network_id,
+                "name": utils.make_net_name(docker_network_id),
                 "admin_state_up": True
             }
         }
@@ -74,7 +74,7 @@ class TestKuryr(base.TestKuryrBase):
             "network": {
                 "status": "ACTIVE",
                 "subnets": [],
-                "name": docker_network_id,
+                "name": utils.make_net_name(docker_network_id),
                 "admin_state_up": True,
                 "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
                 "router:external": False,
@@ -84,6 +84,11 @@ class TestKuryr(base.TestKuryrBase):
             }
         }
         app.neutron.create_network(fake_request).AndReturn(fake_response)
+
+        self.mox.StubOutWithMock(app.neutron, "add_tag")
+        tags = utils.create_net_tags(docker_network_id)
+        for tag in tags:
+            app.neutron.add_tag('networks', fake_neutron_network_id, tag)
 
         self.mox.StubOutWithMock(app.neutron, 'list_subnets')
         fake_existing_subnets_response = {
@@ -147,7 +152,7 @@ class TestKuryr(base.TestKuryrBase):
         self.mox.StubOutWithMock(app.neutron, "create_network")
         fake_request = {
             "network": {
-                "name": docker_network_id,
+                "name": utils.make_net_name(docker_network_id),
                 "admin_state_up": True
             }
         }
@@ -158,7 +163,7 @@ class TestKuryr(base.TestKuryrBase):
             "network": {
                 "status": "ACTIVE",
                 "subnets": [],
-                "name": docker_network_id,
+                "name": utils.make_net_name(docker_network_id),
                 "admin_state_up": True,
                 "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
                 "router:external": False,
@@ -168,6 +173,11 @@ class TestKuryr(base.TestKuryrBase):
             }
         }
         app.neutron.create_network(fake_request).AndReturn(fake_response)
+
+        self.mox.StubOutWithMock(app.neutron, "add_tag")
+        tags = utils.create_net_tags(docker_network_id)
+        for tag in tags:
+            app.neutron.add_tag('networks', fake_neutron_network_id, tag)
 
         self.mox.StubOutWithMock(app.neutron, 'list_subnets')
         fake_existing_subnets_response = {

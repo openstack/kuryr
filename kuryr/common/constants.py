@@ -19,3 +19,7 @@ SCHEMA = {
 }
 
 DEVICE_OWNER = 'kuryr:container'
+
+NEUTRON_ID_LH_OPTION = 'kuryr.net.uuid.lh'
+NEUTRON_ID_UH_OPTION = 'kuryr.net.uuid.uh'
+NET_NAME_PREFIX = 'kuryr-net-'

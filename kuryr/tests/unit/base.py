@@ -61,7 +61,7 @@ class TestKuryrBase(TestCase):
             "networks": [{
                 "status": "ACTIVE",
                 "subnets": [],
-                "name": docker_network_id,
+                "name": utils.make_net_name(docker_network_id),
                 "admin_state_up": True,
                 "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
                 "router:external": False,
@@ -71,8 +71,8 @@ class TestKuryrBase(TestCase):
             }]
         }
         self.mox.StubOutWithMock(app.neutron, 'list_networks')
-        app.neutron.list_networks(
-            name=docker_network_id).AndReturn(fake_list_response)
+        t = utils.make_net_tags(docker_network_id)
+        app.neutron.list_networks(tags=t).AndReturn(fake_list_response)
         self.mox.ReplayAll()
 
         return neutron_network_id
