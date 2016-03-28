@@ -14,6 +14,7 @@ from neutronclient.tests.unit import test_cli20
 
 from kuryr import app
 from kuryr import binding
+from kuryr.common import constants as const
 from kuryr import utils
 
 
@@ -56,12 +57,15 @@ class TestKuryrBase(TestCase):
         self.mox.ReplayAll()
         return fake_unbinding_response
 
-    def _mock_out_network(self, neutron_network_id, docker_network_id):
+    def _mock_out_network(self, neutron_network_id, docker_network_id,
+                          check_existing=False):
+        no_networks_response = {
+            "networks": []
+        }
         fake_list_response = {
             "networks": [{
                 "status": "ACTIVE",
                 "subnets": [],
-                "name": utils.make_net_name(docker_network_id),
                 "admin_state_up": True,
                 "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
                 "router:external": False,
@@ -72,9 +76,13 @@ class TestKuryrBase(TestCase):
         }
         self.mox.StubOutWithMock(app.neutron, 'list_networks')
         t = utils.make_net_tags(docker_network_id)
+        if check_existing:
+            te = t + ',' + const.KURYR_EXISTING_NEUTRON_NET
+            app.neutron.list_networks(tags=te).AndReturn(
+                no_networks_response)
         app.neutron.list_networks(tags=t).AndReturn(fake_list_response)
-        self.mox.ReplayAll()
 
+        self.mox.ReplayAll()
         return neutron_network_id
 
     @staticmethod

@@ -327,10 +327,24 @@ def _create_or_update_port(neutron_network_id, endpoint_id,
     return response_interface
 
 
-def _neutron_add_tags(netid, tag):
+def _neutron_net_add_tag(netid, tag):
+    app.neutron.add_tag('networks', netid, tag)
+
+
+def _neutron_net_add_tags(netid, tag):
     tags = utils.create_net_tags(tag)
     for tag in tags:
-        app.neutron.add_tag('networks', netid, tag)
+        _neutron_net_add_tag(netid, tag)
+
+
+def _neutron_net_remove_tag(netid, tag):
+    app.neutron.remove_tag('networks', netid, tag)
+
+
+def _neutron_net_remove_tags(netid, tag):
+    tags = utils.create_net_tags(tag)
+    for tag in tags:
+        _neutron_net_remove_tag(netid, tag)
 
 
 @app.route('/Plugin.Activate', methods=['POST'])
@@ -449,23 +463,50 @@ def network_driver_create_network():
         app.logger.debug("gateway_cidr {0}, gateway_ip {1}"
             .format(gateway_cidr, gateway_ip))
 
-    network = app.neutron.create_network(
-        {'network': {'name': neutron_network_name, "admin_state_up": True}})
-    _neutron_add_tags(network['network']['id'], container_net_id)
+    neutron_uuid = None
+    neutron_name = None
+    options = json_data.get('Options')
+    if options:
+        generic_options = options.get(const.NETWORK_GENERIC_OPTIONS)
+        if generic_options:
+            neutron_uuid = generic_options.get(const.NEUTRON_UUID_OPTION)
+            neutron_name = generic_options.get(const.NEUTRON_NAME_OPTION)
 
-    app.logger.info(_LI("Created a new network with name {0}"
-                      " successfully: {1}")
-                    .format(neutron_network_name, network))
+    if not neutron_uuid and not neutron_name:
+        network = app.neutron.create_network(
+            {'network': {'name': neutron_network_name,
+                         "admin_state_up": True}})
+        network_id = network['network']['id']
+        _neutron_net_add_tags(network['network']['id'], container_net_id)
+
+        app.logger.info(_LI("Created a new network with name {0}"
+                            " successfully: {1}")
+                        .format(neutron_network_name, network))
+    else:
+        try:
+            if neutron_uuid:
+                networks = _get_networks_by_attrs(id=neutron_uuid)
+            else:
+                networks = _get_networks_by_attrs(name=neutron_name)
+            network_id = networks[0]['id']
+        except n_exceptions.NeutronClientException as ex:
+            app.logger.error(_LE("Error happened during listing "
+                                 "Neutron networks: {0}").format(ex))
+            raise
+        _neutron_net_add_tags(network_id, container_net_id)
+        _neutron_net_add_tag(network_id, const.KURYR_EXISTING_NEUTRON_NET)
+        app.logger.info(_LI("Using existing network {0} successfully")
+                        .format(neutron_uuid))
 
     cidr = netaddr.IPNetwork(pool_cidr)
     subnet_network = str(cidr.network)
     subnet_cidr = '/'.join([subnet_network, str(cidr.prefixlen)])
     subnets = _get_subnets_by_attrs(
-        network_id=network['network']['id'], cidr=subnet_cidr)
+        network_id=network_id, cidr=subnet_cidr)
     if not subnets:
         new_subnets = [{
             'name': pool_cidr,
-            'network_id': network['network']['id'],
+            'network_id': network_id,
             'ip_version': cidr.version,
             'cidr': subnet_cidr,
             'enable_dhcp': app.enable_dhcp,
@@ -498,21 +539,36 @@ def network_driver_delete_network():
                      " /NetworkDriver.DeleteNetwork".format(json_data))
     jsonschema.validate(json_data, schemata.NETWORK_DELETE_SCHEMA)
 
-    neutron_network_tags = utils.make_net_tags(json_data['NetworkID'])
+    container_net_id = json_data['NetworkID']
+    neutron_network_tags = utils.make_net_tags(container_net_id)
+    existing_network_tags = neutron_network_tags + ','
+    existing_network_tags += const.KURYR_EXISTING_NEUTRON_NET
+    try:
+        existing_networks = _get_networks_by_attrs(tags=existing_network_tags)
+    except n_exceptions.NeutronClientException as ex:
+        app.logger.error(_LE("Error happened during listing "
+                             "Neutron networks: {0}").format(ex))
+        raise
+
+    if existing_networks:
+        app.logger.warn(_LW("Network is a pre existing Neutron network, "
+                            "not deleting in Neutron. removing tags: {0}")
+                        .format(existing_network_tags))
+        neutron_net_id = existing_networks[0]['id']
+        _neutron_net_remove_tags(neutron_net_id, container_net_id)
+        _neutron_net_remove_tag(neutron_net_id,
+                                const.KURYR_EXISTING_NEUTRON_NET)
+        return flask.jsonify(const.SCHEMA['SUCCESS'])
+
     try:
         filtered_networks = _get_networks_by_attrs(tags=neutron_network_tags)
     except n_exceptions.NeutronClientException as ex:
         app.logger.error(_LE("Error happened during listing "
                              "Neutron networks: {0}").format(ex))
         raise
-    # We assume Neutron's Network names are not conflicted in Kuryr because
-    # they are Docker IDs, 256 bits hashed values, which are rarely conflicted.
-    # However, if there're multiple networks associated with the single
-    # NetworkID, it raises DuplicatedResourceException and stops processes.
-    # See the following doc for more details about Docker's IDs:
-    #   https://github.com/docker/docker/blob/master/docs/terms/container.md#container-ids  # noqa
+
     if not filtered_networks:
-        app.logger.warn("Network with tags {0} cannot be found"
+        app.logger.warn(_LW("Network with tags {0} cannot be found")
                         .format(neutron_network_tags))
     else:
         neutron_network_id = filtered_networks[0]['id']

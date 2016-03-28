@@ -23,3 +23,8 @@ DEVICE_OWNER = 'kuryr:container'
 NEUTRON_ID_LH_OPTION = 'kuryr.net.uuid.lh'
 NEUTRON_ID_UH_OPTION = 'kuryr.net.uuid.uh'
 NET_NAME_PREFIX = 'kuryr-net-'
+
+NETWORK_GENERIC_OPTIONS = 'com.docker.network.generic'
+NEUTRON_UUID_OPTION = 'neutron.net.uuid'
+NEUTRON_NAME_OPTION = 'neutron.net.name'
+KURYR_EXISTING_NEUTRON_NET = 'kuryr.net.existing'

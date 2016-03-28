@@ -18,6 +18,7 @@ from neutronclient.common import exceptions
 from oslo_serialization import jsonutils
 
 from kuryr import app
+from kuryr.common import constants as const
 from kuryr.tests.unit import base
 from kuryr import utils
 
@@ -97,10 +98,11 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
     """
     def _delete_network_with_exception(self, network_id, ex):
         fake_neutron_network_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+        no_networks_response = {
+            "networks": []
+        }
         if ex == exceptions.NotFound:
-            fake_networks_response = {
-                "networks": []
-            }
+            fake_networks_response = no_networks_response
         else:
             fake_networks_response = {
                 "networks": [{
@@ -117,6 +119,8 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
             }
         self.mox.StubOutWithMock(app.neutron, 'list_networks')
         t = utils.make_net_tags(network_id)
+        te = t + ',' + const.KURYR_EXISTING_NEUTRON_NET
+        app.neutron.list_networks(tags=te).AndReturn(no_networks_response)
         app.neutron.list_networks(tags=t).AndReturn(fake_networks_response)
         subnet_v4_id = "9436e561-47bf-436a-b1f1-fe23a926e031"
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
@@ -158,6 +162,9 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
 
     def _delete_network_with_subnet_exception(self, network_id, ex):
         fake_neutron_network_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+        no_networks_response = {
+            "networks": []
+        }
         fake_networks_response = {
             "networks": [{
                 "status": "ACTIVE",
@@ -173,6 +180,8 @@ class TestKuryrNetworkDeleteFailures(base.TestKuryrFailures):
         }
         self.mox.StubOutWithMock(app.neutron, 'list_networks')
         t = utils.make_net_tags(network_id)
+        te = t + ',' + const.KURYR_EXISTING_NEUTRON_NET
+        app.neutron.list_networks(tags=te).AndReturn(no_networks_response)
         app.neutron.list_networks(tags=t).AndReturn(fake_networks_response)
         subnet_v4_id = "9436e561-47bf-436a-b1f1-fe23a926e031"
         subnet_v6_id = "64dd4a98-3d7a-4bfd-acf4-91137a8d2f51"
