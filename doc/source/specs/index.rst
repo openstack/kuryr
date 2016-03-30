@@ -26,6 +26,11 @@ Kuryr Specs
 This section contains detailed specification documents for
 different features inside Kuryr.
 
+.. toctree::
+    :maxdepth: 1
+
+    existing-neutron-network
+
 
 Spec Template
 --------------
