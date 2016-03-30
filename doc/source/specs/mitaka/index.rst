@@ -20,21 +20,20 @@
       (Avoid deeper levels because they do not render well.)
 
 
-Kuryr Specs
-===========
+Mitaka Sepcifications
+=====================
 
 This section contains detailed specification documents for
 different features inside Kuryr.
 
 
-Spec Template
---------------
+Spec
+----
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 1
 
-    skeleton
-    template
-    mitaka/index
+    nested_containers
+    kuryr_k8s_integration
 
 Indices and tables
 ------------------
