@@ -296,7 +296,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    ::
 
        $ CID=d7fcc280916a8b771d2375688b700b036519d92ba2989622627e641bdde6e646
-       $ sudo docker network disconnet foo $CID
+       $ sudo docker network disconnect foo $CID
 
    This makes a HTTP POST call on ``/NetworkDriver.Leave`` with the following
    JSON data.
@@ -397,11 +397,11 @@ Notes on implementing the libnetwork remote driver API in Kuryr
 ---------------------------------------------------------------
 
 1. DiscoverNew Notification:
-   Neutron does not use the informaton related to discovery of new resources such
+   Neutron does not use the information related to discovery of new resources such
    as new nodes and therefore the implementation of this API method does nothing.
 
 2. DiscoverDelete Notification:
-   Neutron does not use the informaton related to discovery of resources such as
+   Neutron does not use the information related to discovery of resources such as
    nodes being deleted and therefore the implementation of this API method does
    nothing.
 

@@ -20,7 +20,7 @@
       (Avoid deeper levels because they do not render well.)
 
 
-Mitaka Sepcifications
+Mitaka Specifications
 =====================
 
 This section contains detailed specification documents for
