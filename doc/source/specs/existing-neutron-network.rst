@@ -27,7 +27,7 @@ The main use case being addressed in this spec is described below:
   independent of Kuryr
 
 With the addition of Tags to neutron resources
-`Add tags for neutron resources spec`_
+`Add tags to neutron resources spec`_
 the association between container networks and Neutron networks is
 implemented by associating tag(s) to Neutron networks.  In particular,
 the container network ID is stored in such tags.  Currently the
@@ -175,4 +175,5 @@ References
 
 * `Add tags to neutron resources spec`_
 
-.. _Add tags to neutron resources: http://docs.openstack.org/developer/neutron/devref/tag.html
+.. _Add tags to neutron resources spec: http://docs.openstack.org/developer/neutron/devref/tag.html
+.. _Kuryr devref: http://docs.openstack.org/developer/kuryr/devref/index.html
