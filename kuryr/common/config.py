@@ -18,10 +18,9 @@ import os
 
 from oslo_config import cfg
 
-from kuryr import _i18n as i18n
+from kuryr._i18n import _
 from kuryr import version
 
-_ = i18n._
 
 core_opts = [
     cfg.StrOpt('pybasedir',
