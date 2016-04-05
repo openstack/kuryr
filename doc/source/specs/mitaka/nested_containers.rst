@@ -386,7 +386,7 @@ Kuryr Agent running inside Nova instances will communicate with OpenStack APIs. 
 happen, credentials will have to be stored inside Nova instances hosting Bays.
 
 This arrangement poses a security threat that credentials might be compromised and there
-could be ways malacious containers could get access to credentials or Kuryr Agent.
+could be ways malicious containers could get access to credentials or Kuryr Agent.
 To mitigate the impact, there are multiple options:
 
 1. Run Kuryr Agent in two modes: primary and secondary. Only primary mode has access to the

@@ -207,7 +207,7 @@ Service Discovery
 Service discovery should be supported via environment variables.
 Kubernetes also offers a DNS cluster add-on to support application services name
 resolution. It uses SkyDNS with helper container, kube2sky to bridge between
-kubernetes to SkyDNS and etcd to maintain  services registry.
+kubernetes to SkyDNS and etcd to maintain services registry.
 Kubernetes Service DNS names can be resolved using standard methods inside the
 pods (i.e. gethostbyname). DNS server runs as kubernetes service with assigned
 static IP from the service cluster ip range. Both DNS server IP and domain are
@@ -250,7 +250,7 @@ of the Pod, more accurately of the infrastructure container. Kuryr will provide
 CNI Driver that implements [3]. In order to be able to configure and report an
 IP configuration, the Kuryr CNI driver must be able to access IPAM to get IP
 details for the Pod. The IP, port UUID, GW and port type details should be
-available to the driver via **CNI_ARGS** in additon to the standard content::
+available to the driver via **CNI_ARGS** in addition to the standard content::
 
    CNI_ARGS=K8S_POD_NAMESPACE=default;\
    K8S_POD_NAME=nginx-app-722l8;\
