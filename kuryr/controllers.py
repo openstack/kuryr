@@ -486,8 +486,14 @@ def network_driver_create_network():
         try:
             if neutron_uuid:
                 networks = _get_networks_by_attrs(id=neutron_uuid)
+                specified_network = neutron_uuid
             else:
                 networks = _get_networks_by_attrs(name=neutron_name)
+                specified_network = neutron_name
+            if not networks:
+                raise exceptions.KuryrException(
+                      ("Specified network id/name({0}) does not "
+                       "exist.").format(specified_network))
             network_id = networks[0]['id']
         except n_exceptions.NeutronClientException as ex:
             app.logger.error(_LE("Error happened during listing "

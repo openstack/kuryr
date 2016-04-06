@@ -233,6 +233,86 @@ class TestKuryr(base.TestKuryrBase):
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
+    def test_network_driver_create_network_with_network_id_not_exist(self):
+        docker_network_id = hashlib.sha256(
+            utils.getrandbits(256)).hexdigest()
+
+        self.mox.StubOutWithMock(app.neutron, "list_networks")
+        fake_neutron_net_id = str(uuid.uuid4())
+        fake_existing_networks_response = {
+            "networks": []
+        }
+        app.neutron.list_networks(
+            id=fake_neutron_net_id).AndReturn(
+                fake_existing_networks_response)
+        self.mox.ReplayAll()
+        network_request = {
+            'NetworkID': docker_network_id,
+            'IPv4Data': [{
+                'AddressSpace': 'foo',
+                'Pool': '192.168.42.0/24',
+            }],
+            'IPv6Data': [{
+                'AddressSpace': 'bar',
+                'Pool': 'fe80::/64',
+                'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
+            }],
+            'Options': {
+                 constants.NETWORK_GENERIC_OPTIONS: {
+                     constants.NEUTRON_UUID_OPTION: fake_neutron_net_id
+                 }
+            }
+        }
+        response = self.app.post('/NetworkDriver.CreateNetwork',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(network_request))
+        self.assertEqual(500, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertIn('Err', decoded_json)
+        err_message = ("Specified network id/name({0}) does not "
+                      "exist.").format(fake_neutron_net_id)
+        self.assertEqual({'Err': err_message}, decoded_json)
+
+    def test_network_driver_create_network_with_network_name_not_exist(self):
+        docker_network_id = hashlib.sha256(
+            utils.getrandbits(256)).hexdigest()
+
+        self.mox.StubOutWithMock(app.neutron, "list_networks")
+        fake_neutron_network_name = "fake_network"
+        fake_existing_networks_response = {
+            "networks": []
+        }
+        app.neutron.list_networks(
+            name=fake_neutron_network_name).AndReturn(
+                fake_existing_networks_response)
+        self.mox.ReplayAll()
+        network_request = {
+            'NetworkID': docker_network_id,
+            'IPv4Data': [{
+                'AddressSpace': 'foo',
+                'Pool': '192.168.42.0/24',
+            }],
+            'IPv6Data': [{
+                'AddressSpace': 'bar',
+                'Pool': 'fe80::/64',
+                'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
+            }],
+            'Options': {
+                 constants.NETWORK_GENERIC_OPTIONS: {
+                     constants.NEUTRON_NAME_OPTION: fake_neutron_network_name
+                 }
+            }
+        }
+        response = self.app.post('/NetworkDriver.CreateNetwork',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(network_request))
+        self.assertEqual(500, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertIn('Err', decoded_json)
+        err_message = ("Specified network id/name({0}) does not "
+                      "exist.").format(fake_neutron_network_name)
+        self.assertEqual({'Err': err_message}, decoded_json)
+
     def test_network_driver_delete_network(self):
         docker_network_id = hashlib.sha256(
             utils.getrandbits(256)).hexdigest()
