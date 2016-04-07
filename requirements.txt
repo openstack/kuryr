@@ -10,6 +10,6 @@ netaddr!=0.7.16,>=0.7.12 # BSD
 oslo.concurrency>=3.5.0 # Apache-2.0
 oslo.serialization>=1.10.0 # Apache-2.0
 oslo.utils>=3.5.0 # Apache-2.0
-python-neutronclient!=4.1.0,>=2.6.0 # Apache-2.0
+python-neutronclient>=4.1.1 # Apache-2.0
 pyroute2>=0.3.10 # Apache-2.0 (+ dual licensed GPL2)
 os-client-config>=1.13.1 # Apache-2.0
