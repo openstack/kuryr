@@ -84,7 +84,7 @@ def cleanup_veth(ifname):
     :param ifname: the name of the veth endpoint
     :returns: the index of the interface which name is the given ifname if it
               exists, otherwise None
-    :raises: pyroute2.netlink.NetlinkError
+    :raises: pyroute2.NetlinkError
     """
     ipr = get_iproute()
 
@@ -135,10 +135,10 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
             peer_veth.address = neutron_port[MAC_ADDRESS_KEY].lower()
             if not _is_up(peer_veth):
                 peer_veth.up()
-    except pyroute2.ipdb.common.CreateException:
+    except pyroute2.CreateException:
         raise exceptions.VethCreationFailure(
             'Creating the veth pair was failed.')
-    except pyroute2.ipdb.common.CommitException:
+    except pyroute2.CommitException:
         raise exceptions.VethCreationFailure(
             'Could not configure the veth endpoint for the container.')
 
@@ -167,7 +167,7 @@ def port_unbind(endpoint_id, neutron_port):
     :param neutron_port: a port dictionary returned from python-neutronclient
     :returns: the tuple of stdout and stderr returned by processutils.execute
               invoked with the executable script for unbinding
-    :raises: processutils.ProcessExecutionError, pyroute2.netlink.NetlinkError
+    :raises: processutils.ProcessExecutionError, pyroute2.NetlinkError
     """
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
@@ -180,7 +180,7 @@ def port_unbind(endpoint_id, neutron_port):
         endpoint_id, mac_address, run_as_root=True)
     try:
         cleanup_veth(ifname)
-    except pyroute2.netlink.NetlinkError:
+    except pyroute2.NetlinkError:
         raise exceptions.VethDeleteionFailure(
             'Deleting the veth pair failed.')
     return (stdout, stderr)
