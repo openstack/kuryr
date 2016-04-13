@@ -17,15 +17,20 @@ __all__ = [
 import copy
 import itertools
 
-import kuryr.common.config
+from oslo_log import _options
 
+from kuryr.common import config
+
+
+_core_opts_with_logging = config.core_opts
+_core_opts_with_logging += _options.logging_cli_opts
+_core_opts_with_logging += _options.generic_log_opts
 
 _kuryr_opts = [
-    (None, list(itertools.chain(
-        kuryr.common.config.core_opts))),
-    ('neutron_client', kuryr.common.config.neutron_opts),
-    ('keystone_client', kuryr.common.config.keystone_opts),
-    ('binding', kuryr.common.config.binding_opts),
+    (None, list(itertools.chain(_core_opts_with_logging))),
+    ('neutron_client', config.neutron_opts),
+    ('keystone_client', config.keystone_opts),
+    ('binding', config.binding_opts),
 ]
 
 

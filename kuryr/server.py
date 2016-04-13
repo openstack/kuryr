@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
 import sys
+
+from oslo_log import log
 
 
 def start():
@@ -23,6 +24,6 @@ def start():
     from kuryr import controllers
     controllers.check_for_neutron_ext_support()
     app.debug = config.CONF.debug
-    app.logger.addHandler(logging.StreamHandler(sys.stdout))
-    app.logger.setLevel(getattr(logging, config.CONF.log_level))
+
+    log.setup(config.CONF, 'Kuryr')
     app.run("0.0.0.0", port)

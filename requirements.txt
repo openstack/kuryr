@@ -8,6 +8,7 @@ Flask<1.0,>=0.10 # BSD
 jsonschema!=2.5.0,<3.0.0,>=2.0.0 # MIT
 netaddr!=0.7.16,>=0.7.12 # BSD
 oslo.concurrency>=3.5.0 # Apache-2.0
+oslo.log>=1.14.0  # Apache-2.0
 oslo.serialization>=1.10.0 # Apache-2.0
 oslo.utils>=3.5.0 # Apache-2.0
 python-neutronclient>=4.1.1 # Apache-2.0
