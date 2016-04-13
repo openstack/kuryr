@@ -37,7 +37,8 @@ Prerequisites
 Running Kuryr
 -------------
 
-Currently, Kuryr utilizes a bash script to start the service.
+Currently, Kuryr utilizes a bash script to start the service. Make sure that 
+you have installed `tox` before the execution of the below command.
 
 ::
 
