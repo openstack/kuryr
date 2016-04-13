@@ -17,6 +17,7 @@ Routines for configuring Kuryr
 import os
 
 from oslo_config import cfg
+from oslo_log import log
 
 from kuryr._i18n import _
 from kuryr import version
@@ -50,8 +51,6 @@ core_opts = [
     cfg.StrOpt('global_default_address_space',
                default='global_scope',
                help=_('The default neutron global address-scope name.')),
-    cfg.BoolOpt('debug', default=True,
-               help=_('Enable or Disable debug mode for kuryr server.'))
 ]
 neutron_opts = [
     cfg.StrOpt('neutron_uri',
@@ -98,6 +97,9 @@ CONF.register_opts(core_opts)
 CONF.register_opts(neutron_opts, group='neutron_client')
 CONF.register_opts(keystone_opts, group='keystone_client')
 CONF.register_opts(binding_opts, 'binding')
+
+# Setting oslo.log options for logging.
+log.register_options(CONF)
 
 
 def init(args, **kwargs):
