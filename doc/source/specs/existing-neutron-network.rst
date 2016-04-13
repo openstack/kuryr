@@ -70,13 +70,13 @@ Proposed Workflow
 
        $ sudo docker network create --driver=kuryr --ipam-driver=kuryr \
               --subnet 10.0.0.0/16 --gateway 10.0.0.1 --ip-range 10.0.0.0/24 \
-              -o neutron.uuid=25495f6a-8eae-43ff-ad7b-77ba57ed0a04 \
+              -o neutron.net.uuid=25495f6a-8eae-43ff-ad7b-77ba57ed0a04 \
               foo
        286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364
 
        $ sudo docker network create --driver=kuryr --ipam-driver=kuryr \
               --subnet 10.0.0.0/16 --gateway 10.0.0.1 --ip-range 10.0.0.0/24 \
-              -o neutron.name=my_network_name \
+              -o neutron.net.name=my_network_name \
               foo
        286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364
 
