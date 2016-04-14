@@ -12,41 +12,46 @@
 # under the License.
 
 INT_BRIDGE="br-int"
+OPERATION=$1
+PORT=$2
+VETH=$3
+CONTAINER_UUID=$4
+MAC_ADDRESS=$5
+
 
 bind_port() {
-    echo "plugging veth $2 (Neutron port $1)..."
-    mac=`ip link show dev $2 | tail -1 | awk '{print $2}'`
-    sudo ovs-vsctl add-port $INT_BRIDGE $2
-    sudo ovs-vsctl set interface $2 external_ids:attached-mac=$mac \
-        external_ids:iface-id=$1 external_ids:vm-uuid=$3 \
+    echo "plugging veth $VETH (Neutron port $PORT)..."
+    sudo ovs-vsctl -- --may-exist add-port $INT_BRIDGE $VETH -- \
+        set interface $VETH external_ids:attached-mac=$MAC_ADDRESS \
+        external_ids:iface-id=$PORT external_ids:vm-uuid=$CONTAINER_UUID \
         external_ids:iface-status=active external_ids:owner=kuryr
 }
 
 unbind_port() {
-    echo "unplugging veth $1..."
+    echo "unplugging veth $PORT..."
     PORT=`sudo ovs-vsctl --data=bare --no-heading --columns=name \
-          find interface external_ids:iface-id=$1 \
+          find interface external_ids:iface-id=$PORT \
           external_ids:owner=kuryr`
     if [ -z "$PORT" ]; then
-        echo >&2 "Failed to find port $1."
+        echo >&2 "Failed to find port $PORT."
         exit 1
     fi
     sudo ovs-vsctl del-port $INT_BRIDGE $PORT
 }
 
-case $1 in
+case $OPERATION in
     "bind")
         shift
-        bind_port "$@"
+        bind_port
         exit 0
         ;;
     "unbind")
         shift
-        unbind_port "$@"
+        unbind_port
         exit 0
         ;;
     *)
-        echo >&2 "$0: Invalid command $1."
+        echo >&2 "$0: Invalid command $OPERATION."
         exit 1
         ;;
 esac
