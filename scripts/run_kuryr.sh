@@ -58,4 +58,4 @@ if [[ ! -f "${KURYR_CONFIG}" ]]; then
     echo "Done"
 fi
 
-PYTHONPATH=${KURYR_HOME} python ${KURYR_HOME}/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf
+PYTHONPATH=${KURYR_HOME} python ${KURYR_HOME}/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf $@
