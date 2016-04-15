@@ -47,7 +47,7 @@ class TestKuryrJoinFailures(base.TestKuryrFailures):
         fake_ifname = 'fake-veth'
         fake_binding_response = (
             fake_ifname,
-            fake_ifname + binding.CONTAINER_VETH_POSTFIX,
+            binding.CONTAINER_VETH_PREFIX + fake_ifname,
             ('fake stdout', '')
         )
         self.mox.StubOutWithMock(binding, 'port_bind')
