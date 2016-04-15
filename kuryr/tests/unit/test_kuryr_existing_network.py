@@ -13,7 +13,7 @@
 import hashlib
 import uuid
 
-from ddt import ddt
+import ddt
 from oslo_serialization import jsonutils
 
 from kuryr import app
@@ -22,7 +22,7 @@ from kuryr.tests.unit import base
 from kuryr import utils
 
 
-@ddt
+@ddt.ddt
 class TestKuryrNetworkPreExisting(base.TestKuryrBase):
 
     def _ids(self):
@@ -46,19 +46,32 @@ class TestKuryrNetworkPreExisting(base.TestKuryrBase):
         }
         return docker_network_id, fake_neutron_net_id, fake_response
 
-    def test_create_network_pre_existing(self):
+    @ddt.data(
+        (True), (False))
+    def test_create_network_pre_existing(self, use_tags):
+        if not use_tags:
+            self.mox.StubOutWithMock(app, "tag")
+            app.tag = use_tags
+
         docker_network_id, fake_neutron_net_id, fake_response = self._ids()
 
         self.mox.StubOutWithMock(app.neutron, "list_networks")
         app.neutron.list_networks(id=fake_neutron_net_id).AndReturn(
             fake_response)
 
-        self.mox.StubOutWithMock(app.neutron, "add_tag")
-        tags = utils.create_net_tags(docker_network_id)
-        for tag in tags:
-            app.neutron.add_tag('networks', fake_neutron_net_id, tag)
-        app.neutron.add_tag('networks', fake_neutron_net_id,
-                            const.KURYR_EXISTING_NEUTRON_NET)
+        if app.tag:
+            self.mox.StubOutWithMock(app.neutron, "add_tag")
+            tags = utils.create_net_tags(docker_network_id)
+            for tag in tags:
+                app.neutron.add_tag('networks', fake_neutron_net_id, tag)
+            app.neutron.add_tag('networks', fake_neutron_net_id,
+                                const.KURYR_EXISTING_NEUTRON_NET)
+        else:
+            self.mox.StubOutWithMock(app.neutron, "update_network")
+            app.neutron.update_network(
+                fake_neutron_net_id, {'network':
+                                      {'name': docker_network_id}}).AndReturn(
+                                          fake_response)
 
         self.mox.StubOutWithMock(app.neutron, 'list_subnets')
         fake_existing_subnets_response = {
@@ -120,21 +133,44 @@ class TestKuryrNetworkPreExisting(base.TestKuryrBase):
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual(const.SCHEMA['SUCCESS'], decoded_json)
 
-    def test_delete_network_pre_existing(self):
+    @ddt.data(
+        (True), (False))
+    def test_delete_network_pre_existing(self, use_tags):
+        if not use_tags:
+            self.mox.StubOutWithMock(app, "tag")
+            app.tag = use_tags
+
         docker_network_id, fake_neutron_net_id, fake_response = self._ids()
 
-        self.mox.StubOutWithMock(app.neutron, 'list_networks')
-        t = utils.make_net_tags(docker_network_id)
-        te = t + ',' + const.KURYR_EXISTING_NEUTRON_NET
-        app.neutron.list_networks(tags=te).AndReturn(
-            fake_response)
+        if app.tag:
+            self.mox.StubOutWithMock(app.neutron, 'list_networks')
+            t = utils.make_net_tags(docker_network_id)
+            te = t + ',' + const.KURYR_EXISTING_NEUTRON_NET
+            app.neutron.list_networks(tags=te).AndReturn(
+                fake_response)
 
-        self.mox.StubOutWithMock(app.neutron, "remove_tag")
-        tags = utils.create_net_tags(docker_network_id)
-        for tag in tags:
-            app.neutron.remove_tag('networks', fake_neutron_net_id, tag)
-        app.neutron.remove_tag('networks', fake_neutron_net_id,
-                               const.KURYR_EXISTING_NEUTRON_NET)
+            self.mox.StubOutWithMock(app.neutron, "remove_tag")
+            tags = utils.create_net_tags(docker_network_id)
+            for tag in tags:
+                app.neutron.remove_tag('networks', fake_neutron_net_id, tag)
+            app.neutron.remove_tag('networks', fake_neutron_net_id,
+                                   const.KURYR_EXISTING_NEUTRON_NET)
+        else:
+
+            self.mox.StubOutWithMock(app.neutron, 'list_networks')
+            app.neutron.list_networks(name=docker_network_id).AndReturn(
+                fake_response)
+
+            self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+            fake_existing_subnets_response = {
+                "subnets": []
+            }
+            app.neutron.list_subnets(
+                network_id=fake_neutron_net_id).AndReturn(
+                    fake_existing_subnets_response)
+
+            self.mox.StubOutWithMock(app.neutron, 'delete_network')
+            app.neutron.delete_network(fake_neutron_net_id).AndReturn(None)
 
         self.mox.ReplayAll()
         data = {'NetworkID': docker_network_id}
