@@ -44,7 +44,9 @@ class TestKuryrIpam(base.TestKuryrBase):
          {"LocalDefaultAddressSpace":
           config.CONF.local_default_address_space,
           "GlobalDefaultAddressSpace":
-          config.CONF.global_default_address_space}))
+          config.CONF.global_default_address_space}),
+        ('/IpamDriver.GetCapabilities',
+         {"RequiresMACAddress": False}))
     @ddt.unpack
     def test_remote_ipam_driver_endpoint(self, endpoint, expected):
         response = self.app.post(endpoint)
