@@ -15,12 +15,8 @@ Steps to try vagrant image:
  4. Run `vagrant up`
     It will take around 10 mins.
  5. `vagrant ssh`
+    You will get a VM with everything running.
     You will get vm shell with keystone and neutron already running.
- 6. Run `cd kuryr && ./scripts/run_kuryr.sh &`
-    Kuryr service will be up and listening on port 2377.
- 7. Create the default Kuryr subnetpool:
-
-        neutron subnetpool-create --default-prefixlen 24 --pool-prefix 10.10.0.0/16 kuryr
 
 At this point you should have experimental docker, kuryr, neutron, keystone all
 up, running and pointing to each other. Any docker network related commands can
@@ -65,3 +61,4 @@ For example, to use OVN as the Neutron plugin with Kuryr, you can create a
     enable_service ovn-northd
     enable_service ovn-controller
     disable_service q-agt
+    disable_service q-l3
