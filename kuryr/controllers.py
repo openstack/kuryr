@@ -865,6 +865,20 @@ def network_driver_leave():
     return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
+@app.route('/IpamDriver.GetCapabilities', methods=['POST'])
+def ipam_get_capabilities():
+    """Provides the IPAM driver capabilities.
+
+    This function is called during the registration of the IPAM driver.
+
+    See the following link for more details about the spec:
+      https://github.com/docker/libnetwork/blob/master/docs/ipam.md#getcapabilities  # noqa
+    """
+    app.logger.debug("Received /IpamDriver.GetCapabilities")
+    capabilities = {'RequiresMACAddress': False}
+    return flask.jsonify(capabilities)
+
+
 @app.route('/IpamDriver.GetDefaultAddressSpaces', methods=['POST'])
 def ipam_get_default_address_spaces():
     """Provides the default address spaces for the IPAM.
