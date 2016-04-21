@@ -163,5 +163,7 @@ def make_net_tags(tag):
     return ','.join(map(str, tags))
 
 
-def make_net_name(netid):
-    return const.NET_NAME_PREFIX + netid[:8]
+def make_net_name(netid, tags=True):
+    if tags:
+        return const.NET_NAME_PREFIX + netid[:8]
+    return netid

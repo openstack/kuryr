@@ -23,6 +23,7 @@ def start():
     from kuryr import app
     from kuryr import controllers
     controllers.check_for_neutron_ext_support()
+    controllers.check_for_neutron_ext_tag()
     app.debug = config.CONF.debug
 
     log.setup(config.CONF, 'Kuryr')

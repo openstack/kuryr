@@ -27,6 +27,7 @@ class TestCase(test_cli20.CLITestV20Base):
         app.config['TESTING'] = True
         self.app = app.test_client()
         self.app.neutron = self.client
+        app.tag = True
 
 
 class TestKuryrBase(TestCase):
