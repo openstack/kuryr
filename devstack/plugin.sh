@@ -38,15 +38,15 @@ if is_service_enabled kuryr; then
 
     elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
 
-        if [[ ! -d "${KURYR_JSON_DIR}" ]]; then
-            echo -n "${KURYR_JSON_DIR} directory is missing. Creating it... "
-            sudo mkdir -p ${KURYR_JSON_DIR}
+        if [[ ! -d "${KURYR_ACTIVATOR_DIR}" ]]; then
+            echo -n "${KURYR_ACTIVATOR_DIR} directory is missing. Creating it... "
+            sudo mkdir -p ${KURYR_ACTIVATOR_DIR}
             echo "Done"
         fi
 
-        if [[ ! -f "${KURYR_JSON}" ]]; then
-             echo -n "${KURYR_JSON} is missing. Copying the default one... "
-             sudo cp ${KURYR_DEFAULT_JSON} ${KURYR_JSON}
+        if [[ ! -f "${KURYR_ACTIVATOR}" ]]; then
+             echo -n "${KURYR_ACTIVATOR} is missing. Copying the default one... "
+             sudo cp ${KURYR_DEFAULT_ACTIVATOR} ${KURYR_ACTIVATOR}
              echo "Done"
         fi
 
