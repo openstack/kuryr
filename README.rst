@@ -3,9 +3,7 @@ kuryr
 ===============================
 
 .. image:: https://raw.githubusercontent.com/openstack/kuryr/master/doc/images/kuryr_logo.png
-    :alt: Kuryr
-    :width: 67
-    :height: 112
+    :alt: Kuryr mascot
     :align: center
 
 
