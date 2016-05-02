@@ -86,12 +86,19 @@ if is_service_enabled kuryr; then
         # docker and specifically Kuryr. So, this works around that.
         sudo update-alternatives --install /bin/sh sh /bin/bash 100
 
-        wget http://get.docker.com -O install_docker.sh
-        sudo chmod 777 install_docker.sh
-        sudo sh install_docker.sh
-        sudo rm install_docker.sh
+        # Install docker only if it does not exist in the system
+        # We don't use `command -v docker` because other packages with binary
+        # called `docker` can be installed in the system
+        service docker status >/dev/null 2>&1 || {
+            wget http://get.docker.com -O install_docker.sh
+            sudo chmod 777 install_docker.sh
+            sudo sh install_docker.sh
+            sudo rm install_docker.sh
+        }
 
-        sudo service docker stop
+        # After an ./unstack it will be stopped. So it is ok if it returns exit-code == 1
+        sudo service docker stop || true
+
         run_process docker-engine "sudo /usr/bin/docker daemon -H tcp://0.0.0.0:2375 --cluster-store etcd://localhost:4001"
 
         run_process kuryr "sudo PYTHONPATH=$PYTHONPATH:$DEST/kuryr SERVICE_USER=admin SERVICE_PASSWORD=$SERVICE_PASSWORD SERVICE_TENANT_NAME=admin SERVICE_TOKEN=$SERVICE_TOKEN IDENTITY_URL=http://127.0.0.1:5000/v2.0 python $DEST/kuryr/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf"
