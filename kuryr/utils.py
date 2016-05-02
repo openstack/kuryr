@@ -167,3 +167,11 @@ def make_net_name(netid, tags=True):
     if tags:
         return const.NET_NAME_PREFIX + netid[:8]
     return netid
+
+
+def string_mappings(mapping_list):
+    """Make a string out of the mapping list"""
+    details = ''
+    if mapping_list:
+        details = '"' + str(mapping_list) + '"'
+        return details

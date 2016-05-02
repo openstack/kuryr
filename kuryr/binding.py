@@ -19,9 +19,11 @@ import pyroute2
 
 from kuryr.common import config
 from kuryr.common import exceptions
+from kuryr import utils
 
 
-CONTAINER_VETH_POSTFIX = '_c'
+VETH_PREFIX = 'tap'
+CONTAINER_VETH_PREFIX = 't_c'
 BINDING_SUBCOMMAND = 'bind'
 DOWN = 'DOWN'
 FALLBACK_VIF_TYPE = 'unbound'
@@ -32,8 +34,8 @@ KIND_VETH = 'veth'
 MAC_ADDRESS_KEY = 'mac_address'
 SUBNET_ID_KEY = 'subnet_id'
 UNBINDING_SUBCOMMAND = 'unbind'
-VETH_POSTFIX = '-veth'
 VIF_TYPE_KEY = 'binding:vif_type'
+VIF_DETAILS_KEY = 'binding:vif_details'
 
 _IPDB_CACHE = None
 _IPROUTE_CACHE = None
@@ -113,8 +115,8 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     """
     ip = get_ipdb()
 
-    ifname = endpoint_id[:8] + VETH_POSTFIX
-    peer_name = ifname + CONTAINER_VETH_POSTFIX
+    ifname = VETH_PREFIX + endpoint_id[:8]
+    peer_name = CONTAINER_VETH_PREFIX + ifname
     subnets_dict = {subnet['id']: subnet for subnet in neutron_subnets}
 
     try:
@@ -143,6 +145,7 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
             'Could not configure the veth endpoint for the container.')
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
+    vif_details = utils.string_mappings(neutron_port.get(VIF_DETAILS_KEY))
     binding_exec_path = os.path.join(config.CONF.bindir, vif_type)
     port_id = neutron_port['id']
     network_id = neutron_port['network_id']
@@ -151,7 +154,7 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     try:
         stdout, stderr = processutils.execute(
             binding_exec_path, BINDING_SUBCOMMAND, port_id, ifname,
-            endpoint_id, mac_address, network_id, tenant_id,
+            endpoint_id, mac_address, network_id, tenant_id, vif_details,
             run_as_root=True)
     except processutils.ProcessExecutionError:
         with excutils.save_and_reraise_exception():
@@ -171,13 +174,14 @@ def port_unbind(endpoint_id, neutron_port):
     """
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
+    vif_details = utils.string_mappings(neutron_port.get(VIF_DETAILS_KEY))
     unbinding_exec_path = os.path.join(config.CONF.bindir, vif_type)
-    ifname = endpoint_id[:8] + VETH_POSTFIX
+    ifname = VETH_PREFIX + endpoint_id[:8]
     port_id = neutron_port['id']
     mac_address = neutron_port['mac_address']
     stdout, stderr = processutils.execute(
         unbinding_exec_path, UNBINDING_SUBCOMMAND, port_id, ifname,
-        endpoint_id, mac_address, run_as_root=True)
+        endpoint_id, mac_address, vif_details, run_as_root=True)
     try:
         cleanup_veth(ifname)
     except pyroute2.netlink.NetlinkError:

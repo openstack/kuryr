@@ -12,42 +12,98 @@
 # under the License.
 
 INT_BRIDGE="br-int"
+HYBRID_PLUG="'ovs_hybrid_plug': True"
+
 OPERATION=$1
 PORT=$2
 VETH=$3
 CONTAINER_UUID=$4
 MAC_ADDRESS=$5
 
-
-bind_port() {
+ovs_bind_port() {
     echo "plugging veth $VETH (Neutron port $PORT)..."
-    sudo ovs-vsctl -- --may-exist add-port $INT_BRIDGE $VETH -- \
+    ovs-vsctl -- --may-exist add-port $INT_BRIDGE $VETH -- \
         set interface $VETH external_ids:attached-mac=$MAC_ADDRESS \
         external_ids:iface-id=$PORT external_ids:vm-uuid=$CONTAINER_UUID \
         external_ids:iface-status=active external_ids:owner=kuryr
 }
 
-unbind_port() {
-    echo "unplugging veth $PORT..."
-    PORT=`sudo ovs-vsctl --data=bare --no-heading --columns=name \
-          find interface external_ids:iface-id=$PORT \
-          external_ids:owner=kuryr`
-    if [ -z "$PORT" ]; then
+ovs_unbind_port() {
+    echo "unplugging port $PORT..."
+    MYPORT=`ovs-vsctl --data=bare --no-heading --columns=name \
+        find interface external_ids:iface-id=$PORT \
+        external_ids:owner=kuryr`
+    if [ -z "$MYPORT" ]; then
         echo >&2 "Failed to find port $PORT."
         exit 1
     fi
-    sudo ovs-vsctl del-port $INT_BRIDGE $PORT
+    ovs-vsctl del-port $INT_BRIDGE $MYPORT
 }
+
+ovs_hybrid_bind_port() {
+    echo "... plugging veth $VETH (Neutron port $PORT) ..."
+    # create a linux bridge
+    br_name="qbr"${PORT:0:11}
+    ip link add name $br_name type bridge
+    echo 0 > /sys/devices/virtual/net/$br_name/bridge/forward_delay
+    echo 0 > /sys/devices/virtual/net/$br_name/bridge/stp_state
+
+    # connect the veth outside to linux bridge
+    ip link set $VETH up
+    ip link set dev $VETH master $br_name
+    # create a veth pair to connect linux bridge and the integration bridge
+    veth_lb="qvb"${PORT:0:11}
+    veth_ovs="qvo"${PORT:0:11}
+    ip link add $veth_lb type veth peer name $veth_ovs
+
+    # connect one end to the linux bridge
+    ip link set dev $veth_lb master $br_name
+    ip link set $br_name up
+
+    # connect one end to the ovs integration bridge
+    ovs-vsctl add-port $INT_BRIDGE $veth_ovs -- \
+        set interface $veth_ovs external_ids:attached-mac=$MAC_ADDRESS \
+        external_ids:iface-id=$PORT external_ids:vm-id=$CONTAINER_UUID \
+        external_ids:iface-status=active external_ids:owner=kuryr
+
+    ip link set $veth_lb up
+    ip link set $veth_ovs up
+}
+
+ovs_hybrid_unbind_port() {
+    echo "unplugging port $PORT ..."
+    br_name="qbr"${PORT:0:11}
+    veth_lb="qvb"${PORT:0:11}
+    veth_ovs="qvo"${PORT:0:11}
+
+    ip link set dev $veth_lb nomaster
+    ovs-vsctl del-port $veth_ovs
+    ip link delete $veth_lb type veth
+
+    ip link set $br_name down
+    ip link delete $br_name type bridge
+}
+
 
 case $OPERATION in
     "bind")
         shift
-        bind_port
+        if [ "${7/$HYBRID_PLUG}" = "$7" ]
+        then
+            ovs_bind_port
+        else
+            ovs_hybrid_bind_port
+        fi
         exit 0
         ;;
     "unbind")
         shift
-        unbind_port
+        if [ "${5/$HYBRID_PLUG}" = "$5" ]
+        then
+            ovs_unbind_port
+        else
+            ovs_hybrid_unbind_port
+        fi
         exit 0
         ;;
     *)
