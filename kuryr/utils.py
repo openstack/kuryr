@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import hashlib
 import os
 import random
 import socket
@@ -155,6 +156,10 @@ def get_dict_format_fixed_ips_from_kv_format(fixed_ips):
 
 def getrandbits(bit_size=256):
     return str(random.getrandbits(bit_size)).encode('utf-8')
+
+
+def get_hash(bit_size=256):
+    return hashlib.sha256(getrandbits(bit_size=bit_size)).hexdigest()
 
 
 def create_net_tags(tag):

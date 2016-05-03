@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import hashlib
 import uuid
 
 import ddt
@@ -58,8 +57,7 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(expected, decoded_json)
 
     def test_network_driver_create_network(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
         self.mox.StubOutWithMock(app.neutron, "create_network")
         fake_request = {
             "network": {
@@ -147,8 +145,7 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
     def test_network_driver_create_network_wo_gw(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
         self.mox.StubOutWithMock(app.neutron, "create_network")
         fake_request = {
             "network": {
@@ -234,8 +231,7 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
     def test_network_driver_create_network_with_network_id_not_exist(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
 
         self.mox.StubOutWithMock(app.neutron, "list_networks")
         fake_neutron_net_id = str(uuid.uuid4())
@@ -274,8 +270,7 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual({'Err': err_message}, decoded_json)
 
     def test_network_driver_create_network_with_network_name_not_exist(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
 
         self.mox.StubOutWithMock(app.neutron, "list_networks")
         fake_neutron_network_name = "fake_network"
@@ -314,8 +309,7 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual({'Err': err_message}, decoded_json)
 
     def test_network_driver_delete_network(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
         fake_neutron_net_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_net_id, docker_network_id,
                                check_existing=True)
@@ -338,10 +332,8 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
     def test_network_driver_delete_network_with_subnets(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
-        docker_endpoint_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
+        docker_endpoint_id = utils.get_hash()
 
         fake_neutron_net_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_net_id, docker_network_id,
@@ -390,10 +382,8 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
     def test_network_driver_create_endpoint(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
-        docker_endpoint_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
+        docker_endpoint_id = utils.get_hash()
 
         fake_neutron_net_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_net_id, docker_network_id)
@@ -473,10 +463,8 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(expected, decoded_json)
 
     def test_network_driver_delete_endpoint(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
-        docker_endpoint_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
+        docker_endpoint_id = utils.get_hash()
         data = {
             'NetworkID': docker_network_id,
             'EndpointID': docker_endpoint_id,
@@ -490,12 +478,9 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
     def test_network_driver_join(self):
-        fake_docker_net_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
-        fake_docker_endpoint_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
-        fake_container_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        fake_docker_net_id = utils.get_hash()
+        fake_docker_endpoint_id = utils.get_hash()
+        fake_container_id = utils.get_hash()
 
         fake_neutron_net_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_net_id, fake_docker_net_id)
@@ -556,10 +541,8 @@ class TestKuryr(base.TestKuryrBase):
         self.assertEqual(expected_response, decoded_json)
 
     def test_network_driver_leave(self):
-        fake_docker_net_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
-        fake_docker_endpoint_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        fake_docker_net_id = utils.get_hash()
+        fake_docker_endpoint_id = utils.get_hash()
 
         fake_neutron_net_id = str(uuid.uuid4())
         self._mock_out_network(fake_neutron_net_id, fake_docker_net_id)
