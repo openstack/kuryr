@@ -13,7 +13,8 @@ Steps to try vagrant image:
  2. Git clone Kuryr repository.
  3. Run `cd kuryr/contrib/vagrant`
  4. Run `vagrant up`
-    It will take around 10 mins.
+    It will take from 10 to 60 minutes, depending on your internet speed.
+    Vagrant-cachier can speed up the process [2].
  5. `vagrant ssh`
     You will get a VM with everything running.
     You will get vm shell with keystone and neutron already running.
@@ -25,6 +26,7 @@ be tried now as explained in [1].
 References:
 
 [1] https://github.com/openstack/kuryr/blob/master/doc/source/devref/libnetwork_remote_driver_design.rst#L64
+[2] http://fgrehm.viewdocs.io/vagrant-cachier/
 
 Vagrant Options available
 -------------------------
