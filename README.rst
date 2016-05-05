@@ -32,6 +32,14 @@ Prerequisites
 
     $ sudo pip install -r requirements.txt
 
+Installing Kuryr's libnetwork driver
+------------------------------------
+
+Running the following will grab the requirements and install kuryr
+
+::
+    $ sudo pip install .
+
 Running Kuryr
 -------------
 
