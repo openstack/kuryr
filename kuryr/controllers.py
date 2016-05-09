@@ -905,6 +905,44 @@ def network_driver_leave():
     return flask.jsonify(const.SCHEMA['SUCCESS'])
 
 
+@app.route('/NetworkDriver.ProgramExternalConnectivity', methods=['POST'])
+def network_driver_program_external_connectivity():
+    """Peovides external connectivity fora given container.
+
+    Performs the necessary programming to allow the external connectivity
+    dictated by the specified options
+
+    See the following link for more details about the spec:
+      https://github.com/docker/libnetwork/blob/master/driverapi/driverapi.go
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for"
+                     " /NetworkDriver.ProgramExternalConnectivity"
+                     .format(json_data))
+    # TODO(namix): Add support for exposed ports
+    # TODO(namix): Add support for published ports
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
+
+
+@app.route('/NetworkDriver.RevokeExternalConnectivity', methods=['POST'])
+def network_driver_revoke_external_connectivity():
+    """Removes external connectivity for a given container.
+
+    Performs the necessary programming to remove the external connectivity
+    of a container
+
+    See the following link for more details about the spec:
+      https://github.com/docker/libnetwork/blob/master/driverapi/driverapi.go
+    """
+    json_data = flask.request.get_json(force=True)
+    app.logger.debug("Received JSON data {0} for"
+                     " /NetworkDriver.RevokeExternalConnectivity"
+                     .format(json_data))
+    # TODO(namix): Add support for removal of exposed ports
+    # TODO(namix): Add support for removal of published ports
+    return flask.jsonify(const.SCHEMA['SUCCESS'])
+
+
 @app.route('/IpamDriver.GetCapabilities', methods=['POST'])
 def ipam_get_capabilities():
     """Provides the IPAM driver capabilities.
