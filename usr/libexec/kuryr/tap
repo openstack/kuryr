@@ -1,0 +1,47 @@
+#!/bin/bash
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+bind_port() {
+    echo "Binding VIF_TYPE_TAP Neutron port $1 / veth $2..."
+    #
+    # No real code is needed here, because VIF_TYPE_TAP means that the
+    # host-side TAP or veth device should be left unbridged.  The core Kuryr
+    # code has already created the Linux TAP/veth device on the host side, so
+    # there is nothing further for this script to do.
+}
+
+unbind_port() {
+    echo "Unbinding VIF_TYPE_TAP Neutron port $1..."
+    #
+    # As with bind_port(), there is actually nothing to do here.  The core
+    # Kuryr code will delete the Linux TAP/veth device on the host side after
+    # this script returns, and for VIF_TYPE_TAP we don't need to do anything to
+    # 'unbind' before that happens.
+}
+
+case $1 in
+    "bind")
+        shift
+        bind_port "$@"
+        exit 0
+        ;;
+    "unbind")
+        shift
+        unbind_port "$@"
+        exit 0
+        ;;
+    *)
+        echo >&2 "$0: Invalid command $1."
+        exit 1
+        ;;
+esac
