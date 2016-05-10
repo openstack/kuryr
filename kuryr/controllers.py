@@ -393,7 +393,7 @@ def plugin_scope():
     """Returns the capability as the remote network driver.
 
     This function returns the capability of the remote network driver, which is
-    ``global`` or ``local`` and defaults to ``global``. With ``global``
+    ``global`` or ``local`` and defaults to ``local``. With ``global``
     capability, the network information is shared among multipe Docker daemons
     if the distributed store is appropriately configured.
 
