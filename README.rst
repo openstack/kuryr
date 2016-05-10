@@ -40,10 +40,30 @@ Running the following will grab the requirements and install kuryr
 ::
     $ sudo pip install .
 
+
+Configuring Kuryr
+-----------------
+
+Edit keystone section in `/etc/kuryr/kuryr.conf`, replace ADMIN_PASSWORD:
+
+::
+    auth_uri = http://127.0.0.1:35357/v2.0
+    admin_user = admin
+    admin_tenant_name = service
+    admin_password = ADMIN_PASSWORD
+
+
+In the same file uncomment the `bindir` parameter with the path for the Kuryr vif binding
+executables:
+
+::
+    bindir = /usr/local/libexec/kuryr
+
+
 Running Kuryr
 -------------
 
-Currently, Kuryr utilizes a bash script to start the service. Make sure that 
+Currently, Kuryr utilizes a bash script to start the service. Make sure that
 you have installed `tox` before the execution of the below command.
 
 ::
@@ -65,6 +85,18 @@ with `pyroute2 <http://docs.pyroute2.org/>`_ to run.
 
 Testing Kuryr
 -------------
+
+For a quick check that Kuryr is working create a network:
+
+::
+
+    $ docker network create --driver kuryr test_net
+    785f8c1b5ae480c4ebcb54c1c48ab875754e4680d915b270279e4f6a1aa52283
+    $ docker network ls
+    NETWORK ID          NAME                DRIVER
+    785f8c1b5ae4        test_net            kuryr
+
+To test it with tox:
 
 ::
 
