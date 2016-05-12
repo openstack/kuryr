@@ -22,8 +22,6 @@ from kuryr.common import exceptions
 from kuryr import utils
 
 
-VETH_PREFIX = 'tap'
-CONTAINER_VETH_PREFIX = 't_c'
 BINDING_SUBCOMMAND = 'bind'
 DOWN = 'DOWN'
 FALLBACK_VIF_TYPE = 'unbound'
@@ -115,8 +113,8 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     """
     ip = get_ipdb()
 
-    ifname = VETH_PREFIX + endpoint_id[:8]
-    peer_name = CONTAINER_VETH_PREFIX + ifname
+    port_id = neutron_port['id']
+    ifname, peer_name = utils.get_veth_pair_names(port_id)
     subnets_dict = {subnet['id']: subnet for subnet in neutron_subnets}
 
     try:
@@ -176,8 +174,10 @@ def port_unbind(endpoint_id, neutron_port):
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     vif_details = utils.string_mappings(neutron_port.get(VIF_DETAILS_KEY))
     unbinding_exec_path = os.path.join(config.CONF.bindir, vif_type)
-    ifname = VETH_PREFIX + endpoint_id[:8]
+
     port_id = neutron_port['id']
+    ifname, _ = utils.get_veth_pair_names(port_id)
+
     mac_address = neutron_port['mac_address']
     stdout, stderr = processutils.execute(
         unbinding_exec_path, UNBINDING_SUBCOMMAND, port_id, ifname,

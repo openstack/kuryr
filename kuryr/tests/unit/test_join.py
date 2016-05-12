@@ -20,6 +20,7 @@ from werkzeug import exceptions as w_exceptions
 
 from kuryr import app
 from kuryr import binding
+from kuryr.common import constants as const
 from kuryr.common import exceptions
 from kuryr.tests.unit import base
 from kuryr import utils
@@ -47,7 +48,7 @@ class TestKuryrJoinFailures(base.TestKuryrFailures):
         fake_ifname = 'fake-veth'
         fake_binding_response = (
             fake_ifname,
-            binding.CONTAINER_VETH_PREFIX + fake_ifname,
+            const.CONTAINER_VETH_PREFIX + fake_ifname,
             ('fake stdout', '')
         )
         self.mox.StubOutWithMock(binding, 'port_bind')
