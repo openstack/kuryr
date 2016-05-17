@@ -109,6 +109,14 @@ def get_neutron_port_name(docker_endpoint_id):
     return '-'.join([docker_endpoint_id, PORT_POSTFIX])
 
 
+def get_veth_pair_names(port_id):
+    ifname = const.VETH_PREFIX + port_id
+    ifname = ifname[:const.NIC_NAME_LEN]
+    peer_name = const.CONTAINER_VETH_PREFIX + port_id
+    peer_name = peer_name[:const.NIC_NAME_LEN]
+    return ifname, peer_name
+
+
 def get_hostname():
     """Returns the host name."""
     return socket.gethostname()
