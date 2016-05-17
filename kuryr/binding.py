@@ -147,6 +147,11 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets):
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     vif_details = utils.string_mappings(neutron_port.get(VIF_DETAILS_KEY))
     binding_exec_path = os.path.join(config.CONF.bindir, vif_type)
+    if not os.path.exists(binding_exec_path):
+        cleanup_veth(ifname)
+        raise exceptions.BindingNotSupportedFailure(
+            "vif_type({0}) is not supported. A binding script for "
+            "this type can't be found.".format(vif_type))
     port_id = neutron_port['id']
     network_id = neutron_port['network_id']
     tenant_id = neutron_port['tenant_id']
