@@ -1247,5 +1247,3 @@ def ipam_release_address():
         raise
 
     return flask.jsonify(const.SCHEMA['SUCCESS'])
-
-neutron_client()

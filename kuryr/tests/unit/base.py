@@ -15,6 +15,7 @@ from neutronclient.tests.unit import test_cli20
 from kuryr import app
 from kuryr import binding
 from kuryr.common import constants as const
+from kuryr import controllers
 from kuryr import utils
 
 
@@ -35,6 +36,7 @@ class TestKuryrBase(TestCase):
 
     def setUp(self):
         super(TestKuryrBase, self).setUp()
+        controllers.neutron_client()
         self.app.neutron.format = 'json'
         self.addCleanup(self.mox.VerifyAll)
         self.addCleanup(self.mox.UnsetStubs)
