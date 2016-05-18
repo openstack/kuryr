@@ -23,6 +23,14 @@ class BindingFailure(KuryrException):
     """
 
 
+class BindingNotSupportedFailure(KuryrException):
+    """Exception represents the vif type binding not support.
+
+    This exception is thrown when the executable script for the binding does
+    not exist and Kuryr can't proceed further.
+    """
+
+
 class DuplicatedResourceException(KuryrException):
     """Exception represents there're multiple resources for the ID.
 
