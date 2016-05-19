@@ -38,6 +38,7 @@ Installing Kuryr's libnetwork driver
 Running the following will grab the requirements and install kuryr
 
 ::
+
     $ sudo pip install .
 
 
@@ -47,6 +48,7 @@ Configuring Kuryr
 Edit keystone section in `/etc/kuryr/kuryr.conf`, replace ADMIN_PASSWORD:
 
 ::
+
     auth_uri = http://127.0.0.1:35357/v2.0
     admin_user = admin
     admin_tenant_name = service
@@ -57,6 +59,7 @@ In the same file uncomment the `bindir` parameter with the path for the Kuryr vi
 executables:
 
 ::
+
     bindir = /usr/local/libexec/kuryr
 
 
@@ -73,6 +76,7 @@ you have installed `tox` before the execution of the below command.
 After the booting, please restart your Docker service, e.g.,
 
 ::
+
     $ sudo service docker restart
 
 The bash script creates the following files if they are missing.

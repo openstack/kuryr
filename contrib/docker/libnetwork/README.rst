@@ -12,6 +12,7 @@ If you want to build your own container, you can just build it by running the
 following command from this same directory:
 
 ::
+
     docker build -t your_docker_username/libnetwork:latest .
 
 How to get the container
@@ -20,12 +21,14 @@ How to get the container
 To get the upstream docker libnetwork container with ovs, you can just do:
 
 ::
+
     docker pull kuryr/libnetwork:latest
 
 It is expected that different vendors may have their own versions of the
 Kuryr libnetwork container in their docker hub namespaces, for example:
 
 ::
+
     docker pull midonet/libnetwork:latest
 
 The reason for this is that some vendors' binding scripts need different (and
@@ -37,6 +40,7 @@ How to run the container
 First we prepare Docker to find the driver
 
 ::
+
     sudo mkdir -p /usr/lib/docker/plugins/kuryr
     sudo curl -o /usr/lib/docker/plugins/kuryr/kuryr.spec \
     https://raw.githubusercontent.com/openstack/kuryr/master/etc/kuryr.spec
@@ -45,6 +49,7 @@ First we prepare Docker to find the driver
 Then we start the container
 
 ::
+
     docker run --name kuryr-libnetwork \
       --net=host \
       --cap-add=NET_ADMIN \
