@@ -20,7 +20,7 @@ from kuryr import controllers
 
 
 config.init(sys.argv[1:])
-
+controllers.neutron_client()
 controllers.check_for_neutron_ext_support()
 controllers.check_for_neutron_ext_tag()
 app.debug = config.CONF.debug
