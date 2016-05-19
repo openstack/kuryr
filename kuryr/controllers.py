@@ -1131,7 +1131,7 @@ def ipam_request_address():
             allocated_address = '/'.join(
                 [allocated_address, str(cidr.prefixlen)])
         except n_exceptions.NeutronClientException as ex:
-            app.logger.error(_LE("Error happend during ip allocation on"
+            app.logger.error(_LE("Error happend during ip allocation on "
                                  "Neutron side: {0}").format(ex))
             raise
     else:
