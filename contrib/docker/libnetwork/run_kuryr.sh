@@ -5,7 +5,6 @@ cat > /etc/kuryr/kuryr.conf << EOF
 [DEFAULT]
 
 bindir = /usr/libexec/kuryr
-log_level = $LOG_LEVEL
 capability_scope = $CAPABILITY_SCOPE
 EOF
 
