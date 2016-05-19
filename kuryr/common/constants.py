@@ -18,6 +18,13 @@ SCHEMA = {
     "SUCCESS": {}
 }
 
+# Routes are either given a RouteType of 0 and a value for NextHop;
+# or, a RouteType of 1 and no value for NextHop, meaning a connected route.
+ROUTE_TYPE = {
+     "NEXTHOP": 0,
+     "CONNECTED": 1
+}
+
 DEVICE_OWNER = 'kuryr:container'
 NIC_NAME_LEN = 14
 VETH_PREFIX = 'tap'

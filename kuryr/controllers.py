@@ -843,10 +843,10 @@ def network_driver_join():
                     'Destination': host_route['destination']
                 }
                 if host_route.get('nexthop', None):
-                    static_route['RouteType'] = const.TYPES['NEXTHOP']
+                    static_route['RouteType'] = const.ROUTE_TYPE['NEXTHOP']
                     static_route['NextHop'] = host_route['nexthop']
                 else:
-                    static_route['RouteType'] = const.TYPES['CONNECTED']
+                    static_route['RouteType'] = const.ROUTE_TYPE['CONNECTED']
                 join_response['StaticRoutes'].append(static_route)
 
         return flask.jsonify(join_response)
