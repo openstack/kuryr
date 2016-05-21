@@ -1085,6 +1085,7 @@ def ipam_request_address():
     jsonschema.validate(json_data, schemata.REQUEST_ADDRESS_SCHEMA)
     pool_id = json_data['PoolID']
     req_address = json_data['Address']
+    is_gateway = False
     allocated_address = ''
     subnet_cidr = ''
     pool_prefix_len = ''
@@ -1108,31 +1109,48 @@ def ipam_request_address():
             .format(pool_id))
     # check if any subnet with matching cidr is present
     subnets = _get_subnets_by_attrs(cidr=subnet_cidr)
+    # Check if the port is gateway
+    options = json_data.get('Options')
+    if options:
+        request_address_type = options.get(const.REQUEST_ADDRESS_TYPE)
+        if request_address_type == const.NETWORK_GATEWAY_OPTIONS:
+            is_gateway = True
     if subnets:
         subnet = subnets[0]
-        # allocating address for container port
-        neutron_network_id = subnet['network_id']
-        try:
-            port = {
-                'name': 'kuryr-unbound-port',
-                'admin_state_up': True,
-                'network_id': neutron_network_id,
-                'binding:host_id': utils.get_hostname(),
-            }
-            fixed_ips = port['fixed_ips'] = []
-            fixed_ip = {'subnet_id': subnet['id']}
-            if req_address:
-                fixed_ip['ip_address'] = req_address
-            fixed_ips.append(fixed_ip)
-            created_port_resp = app.neutron.create_port({'port': port})
-            created_port = created_port_resp['port']
-            allocated_address = created_port['fixed_ips'][0]['ip_address']
-            allocated_address = '/'.join(
-                [allocated_address, str(cidr.prefixlen)])
-        except n_exceptions.NeutronClientException as ex:
-            app.logger.error(_LE("Error happened during ip allocation on "
-                                 "Neutron side: %s"), ex)
-            raise
+        if is_gateway:
+            # check if request gateway ip same with existed gateway ip
+            existed_gateway_ip = subnet.get('gateway_ip', '')
+            if req_address == existed_gateway_ip:
+                allocated_address = '/'.join([req_address, pool_prefix_len])
+            else:
+                raise exceptions.GatewayConflictFailure(
+                    "Requested gateway {0} does not match with "
+                    "gateway {1} in existed "
+                    "network.".format(req_address, existed_gateway_ip))
+        else:
+            # allocating address for container port
+            neutron_network_id = subnet['network_id']
+            try:
+                port = {
+                    'name': 'kuryr-unbound-port',
+                    'admin_state_up': True,
+                    'network_id': neutron_network_id,
+                    'binding:host_id': utils.get_hostname(),
+                }
+                fixed_ips = port['fixed_ips'] = []
+                fixed_ip = {'subnet_id': subnet['id']}
+                if req_address:
+                    fixed_ip['ip_address'] = req_address
+                fixed_ips.append(fixed_ip)
+                created_port_resp = app.neutron.create_port({'port': port})
+                created_port = created_port_resp['port']
+                allocated_address = created_port['fixed_ips'][0]['ip_address']
+                allocated_address = '/'.join(
+                    [allocated_address, str(cidr.prefixlen)])
+            except n_exceptions.NeutronClientException as ex:
+                app.logger.error(_LE("Error happened during ip allocation on "
+                                     "Neutron side: %s"), ex)
+                raise
     else:
         # Auxiliary address or gw_address is received at network creation time.
         # This address cannot be reserved with neutron at this time as subnet

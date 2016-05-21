@@ -34,6 +34,8 @@ NEUTRON_ID_LH_OPTION = 'kuryr.net.uuid.lh'
 NEUTRON_ID_UH_OPTION = 'kuryr.net.uuid.uh'
 NET_NAME_PREFIX = 'kuryr-net-'
 
+REQUEST_ADDRESS_TYPE = 'RequestAddressType'
+NETWORK_GATEWAY_OPTIONS = 'com.docker.network.gateway'
 NETWORK_GENERIC_OPTIONS = 'com.docker.network.generic'
 NEUTRON_UUID_OPTION = 'neutron.net.uuid'
 NEUTRON_NAME_OPTION = 'neutron.net.name'
