@@ -30,6 +30,16 @@ function install_etcd_data_store {
     rm -rf $DEST/etcd/db.etcd
 }
 
+
+function check_docker {
+    if is_ubuntu; then
+       dpkg -s docker-engine > /dev/null 2>&1
+    else
+       rpm -q docker-engine > /dev/null 2>&1
+    fi
+}
+
+
 # main loop
 if is_service_enabled kuryr; then
     if [[ "$1" == "stack" && "$2" == "install" ]]; then
@@ -86,10 +96,12 @@ if is_service_enabled kuryr; then
         # docker and specifically Kuryr. So, this works around that.
         sudo update-alternatives --install /bin/sh sh /bin/bash 100
 
-        # Install docker only if it does not exist in the system
-        # We don't use `command -v docker` because other packages with binary
-        # called `docker` can be installed in the system
-        service docker status >/dev/null 2>&1 || {
+        # Install docker only if it's not already installed. The following checks
+        # whether the docker-engine package is already installed, as this is the
+        # most common way for installing docker from binaries. In case it's been
+        # manually installed, the install_docker.sh script will prompt a warning
+        # if another docker executable is found
+        check_docker || {
             wget http://get.docker.com -O install_docker.sh
             sudo chmod 777 install_docker.sh
             sudo sh install_docker.sh
