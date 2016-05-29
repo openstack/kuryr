@@ -6,7 +6,7 @@
 
 ============================================================================
 Networking for Nested Containers in OpenStack / Magnum - Neutron Integration
-=============================================================================
+============================================================================
 
 Launchpad blueprint:
 
@@ -219,41 +219,41 @@ found here [4].
 
 Example of model::
 
-+-------------------------------+   +-------------------------------+
-| +---------+       +---------+ |   | +---------+       +---------+ |
-| |   c1    |       |   c2    | |   | |   c3    |       |    c4   | |
-| +---------+       +---------+ |   | +---------+       +---------+ |
-|                               |   |                               |
-|              VM1              |   |              VM2              |
-|                               |   |                               |
-|                               |   |                               |
-+---------+------------+--------+   +---------+------------+--------+
-          |Trunk Port1 |                      |Trunk Port2 |
-          +------------+                      +------------+
-                /|\                                /|\
-               / | \                              / | \
-              /  |  \                            /  |  \
-          +--+ +-++ +--+                     +--+ +-++ +--+
-          |S1| |S2| |S3|                     |S4| |S5| |S6|
-          +-++ +--+ +-++                     +--+ +-++ +-++
-            |         |                         |   |    |
-            |    |    |                     +---+   |    |
-            |    |    +---+N1+          +-+N2+-----------+
-            |    |        |  |          |           |
-            +-------------+  |          |           |
-                 |           |          |           |
-                 +           ++ x  x  +-+           +
-                 N3+--------+x        x+-----------+N4
-                            x          x
-                            x  Router  x
-                             x        x
-                                x  x
+    +-------------------------------+   +-------------------------------+
+    | +---------+       +---------+ |   | +---------+       +---------+ |
+    | |   c1    |       |   c2    | |   | |   c3    |       |    c4   | |
+    | +---------+       +---------+ |   | +---------+       +---------+ |
+    |                               |   |                               |
+    |              VM1              |   |              VM2              |
+    |                               |   |                               |
+    |                               |   |                               |
+    +---------+------------+--------+   +---------+------------+--------+
+              |Trunk Port1 |                      |Trunk Port2 |
+              +------------+                      +------------+
+                    /|\                                /|\
+                   / | \                              / | \
+                  /  |  \                            /  |  \
+              +--+ +-++ +--+                     +--+ +-++ +--+
+              |S1| |S2| |S3|                     |S4| |S5| |S6|
+              +-++ +--+ +-++                     +--+ +-++ +-++
+                |         |                         |   |    |
+                |    |    |                     +---+   |    |
+                |    |    +---+N1+          +-+N2+-----------+
+                |    |        |  |          |           |
+                +-------------+  |          |           |
+                     |           |          |           |
+                     +           ++ x  x  +-+           +
+                     N3+--------+x        x+-----------+N4
+                                x          x
+                                x  Router  x
+                                 x        x
+                                    x  x
 
 
-C1-4 = Magnum containers
-N1-4 = Neutron Networks and Subnets
-S1,S3,S4,S6 = Subports
-S2,S5 = Trunk ports (untagged traffic)
+    C1-4 = Magnum containers
+    N1-4 = Neutron Networks and Subnets
+    S1,S3,S4,S6 = Subports
+    S2,S5 = Trunk ports (untagged traffic)
 
 In the example above, Magnum launches four containers (c1, c2, c3, c4)
 spread across two Nova instances. There are four Neutron
@@ -271,14 +271,20 @@ tagged:
 
 +------+----------------------+---------------+
 | Port | Tagged(VID)/untagged | Packets go to |
-+------+----------------------+---------------+
++======+======================+===============+
 | S1   |                  100 | N1            |
++------+----------------------+---------------+
 | S2   |             untagged | N3            |
++------+----------------------+---------------+
 | S3   |                  200 | N1            |
++------+----------------------+---------------+
 | S4   |                  100 | N2            |
++------+----------------------+---------------+
 | S5   |             untagged | N4            |
++------+----------------------+---------------+
 | S6   |                  300 | N2            |
 +------+----------------------+---------------+
+
 
 One thing to note over here is S1.vlan == S4.vlan is a valid scenario
 since they are part of different trunk ports. It is possible that some
@@ -355,28 +361,26 @@ Data Model Impact (Magnum)
 
 This document adds the network_id attribute to the container database
 table. A migration script will be provided to support the attribute
-being added. ::
+being added.
 
-    +-------------------+-----------------+---------------------------------------------+
-    |    Attribute      |     Type        |             Description                     |
-    +===================+=================+=============================================+
-    +-------------------+-----------------+---------------------------------------------+
-    |     network_id    |     uuid        |    UUID of a Neutron network                |
-    +-------------------+-----------------+---------------------------------------------+
++-------------------+-----------------+---------------------------------------------+
+|    Attribute      |     Type        |             Description                     |
++===================+=================+=============================================+
+|     network_id    |     uuid        |    UUID of a Neutron network                |
++-------------------+-----------------+---------------------------------------------+
 
 
 REST API Impact (Magnum)
 -------------------------
 
 This document adds network_id attribute to the Container
-API class. ::
+API class.
 
-    +-------------------+-----------------+---------------------------------------------+
-    |    Attribute      |     Type        |             Description                     |
-    +===================+=================+=============================================+
-    +-------------------+-----------------+---------------------------------------------+
-    |     network_id    |     uuid        |     UUID of a Neutron network               |
-    +-------------------+-----------------+---------------------------------------------+
++-------------------+-----------------+---------------------------------------------+
+|    Attribute      |     Type        |             Description                     |
++===================+=================+=============================================+
+|     network_id    |     uuid        |     UUID of a Neutron network               |
++-------------------+-----------------+---------------------------------------------+
 
 
 Security Impact
@@ -465,6 +469,7 @@ Work Items
 ----------
 
 Magnum:
+
 * Extend the Magnum API to support new network attribute.
 * Extend the Client API to support new network attribute.
 * Extend baymodel objects to support new container
@@ -474,10 +479,12 @@ Magnum:
   in Magnum.
 
 Heat:
+
 * Update Heat templates to support the Magnum container
   port information.
 
 Kuryr:
+
 * Kuryr container agent.
 * Kuryr VLAN/VID allocation engine.
 * Extend unit test cases in Kuryr for the agent and VLAN/VID allocation
@@ -522,7 +529,11 @@ References
 ==========
 
 [1] https://review.openstack.org/#/c/204686/7
+
 [2] http://specs.openstack.org/openstack/neutron-specs/specs/mitaka/vlan-aware-vms.html
+
 [3] https://blueprints.launchpad.net/kuryr/+spec/kuryr-agent
+
 [4] https://blueprints.launchpad.net/kuryr/+spec/kuryr-magnum-heat-deployment
+
 [5] http://docs.openstack.org/developer/magnum/
