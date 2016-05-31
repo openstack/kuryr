@@ -71,7 +71,7 @@ def make_json_app(import_name, **kwargs):
     @app.errorhandler(jsonschema.ValidationError)
     @app.errorhandler(processutils.ProcessExecutionError)
     def make_json_error(ex):
-        app.logger.error(_LE("Unexpected error happened: {0}").format(ex))
+        app.logger.error(_LE("Unexpected error happened: %s"), ex)
         traceback.print_exc(file=sys.stderr)
         response = flask.jsonify({"Err": str(ex)})
         response.status_code = w_exceptions.InternalServerError.code
