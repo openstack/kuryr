@@ -112,12 +112,24 @@ if is_service_enabled kuryr; then
         sudo service docker stop || true
 
         run_process docker-engine "sudo /usr/bin/docker daemon -H tcp://0.0.0.0:$KURYR_DOCKER_ENGINE_PORT --cluster-store etcd://localhost:$KURYR_ETCD_PORT"
-
-        run_process kuryr "sudo PYTHONPATH=$PYTHONPATH:$DEST/kuryr SERVICE_USER=admin SERVICE_PASSWORD=$SERVICE_PASSWORD SERVICE_TENANT_NAME=admin SERVICE_TOKEN=$SERVICE_TOKEN IDENTITY_URL=http://127.0.0.1:5000/v2.0 python $DEST/kuryr/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf"
-
     fi
 
     if [[ "$1" == "stack" && "$2" == "extra" ]]; then
+        # FIXME(limao): When Kuryr start up, it need to detect if neutron support tag plugin.
+        #               Kuryr will call neutron extension api to verify if neutron support tag.
+        #               So Kuryr need to start after neutron-server finish load tag plugin.
+        #               The process of devstack is:
+        #                  ...
+        #                  run_phase "stack" "post-config"
+        #                  ...
+        #                  start neutron-server
+        #                  ...
+        #                  run_phase "stack" "extra"
+        #
+        #               If Kuryr start up in "post-config" phase, there is no way to make sure
+        #               Kuryr can start before neutron-server, so Kuryr start in "extra" phase.
+        #               Bug: https://bugs.launchpad.net/kuryr/+bug/1587522
+        run_process kuryr "sudo PYTHONPATH=$PYTHONPATH:$DEST/kuryr SERVICE_USER=admin SERVICE_PASSWORD=$SERVICE_PASSWORD SERVICE_TENANT_NAME=admin SERVICE_TOKEN=$SERVICE_TOKEN IDENTITY_URL=http://127.0.0.1:5000/v2.0 python $DEST/kuryr/scripts/run_server.py  --config-file /etc/kuryr/kuryr.conf"
 
         neutron subnetpool-create --default-prefixlen $KURYR_POOL_PREFIX_LEN --pool-prefix $KURYR_POOL_PREFIX kuryr
 
