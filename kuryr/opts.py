@@ -23,6 +23,7 @@ from kuryr.common import config
 
 
 _core_opts_with_logging = config.core_opts
+_core_opts_with_logging += _options.common_cli_opts
 _core_opts_with_logging += _options.logging_cli_opts
 _core_opts_with_logging += _options.generic_log_opts
 
