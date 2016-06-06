@@ -11,7 +11,6 @@
 # under the License.
 
 import ddt
-import hashlib
 from oslo_serialization import jsonutils
 import uuid
 
@@ -176,8 +175,7 @@ class TestKuryrIpam(base.TestKuryrBase):
             kuryr_subnetpools)
 
         # faking list_subnets
-        docker_endpoint_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_endpoint_id = utils.get_hash()
         neutron_network_id = str(uuid.uuid4())
         subnet_v4_id = str(uuid.uuid4())
         fake_v4_subnet = self._get_fake_v4_subnet(
@@ -241,10 +239,8 @@ class TestKuryrIpam(base.TestKuryrBase):
         fake_ip4 = '10.0.0.5'
 
         # faking list_subnets
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
-        docker_endpoint_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
+        docker_endpoint_id = utils.get_hash()
         neutron_network_id = docker_network_id = str(uuid.uuid4())
         subnet_v4_id = str(uuid.uuid4())
         fake_v4_subnet = self._get_fake_v4_subnet(

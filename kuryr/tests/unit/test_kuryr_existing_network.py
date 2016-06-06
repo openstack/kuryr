@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import hashlib
 import uuid
 
 import ddt
@@ -26,8 +25,7 @@ from kuryr import utils
 class TestKuryrNetworkPreExisting(base.TestKuryrBase):
 
     def _ids(self):
-        docker_network_id = hashlib.sha256(
-            utils.getrandbits(256)).hexdigest()
+        docker_network_id = utils.get_hash()
         fake_neutron_net_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
         fake_response = {
             'networks':
