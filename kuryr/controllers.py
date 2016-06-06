@@ -131,8 +131,8 @@ def check_for_neutron_ext_tag():
     except n_exceptions.NeutronClientException as e:
         app.tag = False
         if e.status_code == n_exceptions.NotFound.status_code:
-            app.logger.warn(_LW("Neutron tags not supported. "
-                                "Continue without using them."))
+            app.logger.warning(_LW("Neutron tags not supported. "
+                                   "Continue without using them."))
 
 
 # TODO(tfukushima): Retrieve the following subnet names from the config file.
@@ -595,9 +595,10 @@ def network_driver_delete_network():
             raise
 
         if existing_networks:
-            app.logger.warn(_LW("Network is a pre existing Neutron network, "
-                                "not deleting in Neutron. removing tags: "
-                                "%s"), existing_network_identifier)
+            app.logger.warning(_LW("Network is a pre existing Neutron "
+                                   "network, not deleting in Neutron. "
+                                   "removing tags: %s"),
+                               existing_network_identifier)
             neutron_net_id = existing_networks[0]['id']
             _neutron_net_remove_tags(neutron_net_id, container_net_id)
             _neutron_net_remove_tag(neutron_net_id,
@@ -613,8 +614,9 @@ def network_driver_delete_network():
         raise
 
     if not filtered_networks:
-        app.logger.warn(_LW("Network with identifier %s cannot be found"),
-                        neutron_network_identifier)
+        app.logger.warning(_LW("Network with identifier %s cannot be "
+                               "found"),
+                           neutron_network_identifier)
     else:
         neutron_network_id = filtered_networks[0]['id']
         filtered_subnets = _get_subnets_by_attrs(
