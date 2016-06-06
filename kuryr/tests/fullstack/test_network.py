@@ -28,7 +28,19 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
            It then deletes the docker network and tests that it was
            deleted from Neutron.
         """
-        res = self.docker_client.create_network(name='fakenet', driver='kuryr')
+        fake_ipam = {
+            "Driver": "kuryr",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "10.0.0.0/16",
+                    "IPRange": "10.0.0.0/24",
+                    "Gateway": "10.0.0.1"
+                }
+            ]
+        }
+        res = self.docker_client.create_network(name='fakenet', driver='kuryr',
+                                                ipam=fake_ipam)
         net_id = res['Id']
         network = self.neutron_client.list_networks(
             tags=utils.make_net_tags(net_id))
@@ -65,9 +77,33 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
            delete them and see that neutron networks are
            deleted as well
         """
-        res = self.docker_client.create_network(name='fakenet', driver='kuryr')
+        fake_ipam_1 = {
+            "Driver": "kuryr",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "10.0.0.0/16",
+                    "IPRange": "10.0.0.0/24",
+                    "Gateway": "10.0.0.1"
+                }
+            ]
+        }
+        fake_ipam_2 = {
+            "Driver": "kuryr",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "10.1.0.0/16",
+                    "IPRange": "10.1.0.0/24",
+                    "Gateway": "10.1.0.1"
+                }
+            ]
+        }
+        res = self.docker_client.create_network(name='fakenet', driver='kuryr',
+                                                ipam=fake_ipam_1)
         net_id1 = res['Id']
-        res = self.docker_client.create_network(name='fakenet', driver='kuryr')
+        res = self.docker_client.create_network(name='fakenet', driver='kuryr',
+                                                ipam=fake_ipam_2)
         net_id2 = res['Id']
         network = self.neutron_client.list_networks(
             tags=utils.make_net_tags(net_id1))
