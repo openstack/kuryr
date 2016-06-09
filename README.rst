@@ -45,6 +45,20 @@ Running the following will grab the requirements and install kuryr
 Configuring Kuryr
 -----------------
 
+Generate sample config, `etc/kuryr.conf.sample`, running the following
+
+::
+
+    $ tox -e genconfig
+
+
+Rename and copy config file at required path
+
+::
+
+    $ cp etc/kuryr.conf.sample /etc/kuryr/kuryr.conf
+
+
 Edit keystone section in `/etc/kuryr/kuryr.conf`, replace ADMIN_PASSWORD:
 
 ::
@@ -79,10 +93,9 @@ After the booting, please restart your Docker service, e.g.,
 
     $ sudo service docker restart
 
-The bash script creates the following files if they are missing.
+The bash script creates the following file if it is missing.
 
-* ``/usr/lib/docker/plugins/kuryr/kuryr.json``: Json spec file for libnetwork;
-* ``/etc/kuryr/kuryr.conf``: Configuration file for Kuryr.
+* ``/usr/lib/docker/plugins/kuryr/kuryr.json``: Json spec file for libnetwork.
 
 Note the root privilege is required for creating and deleting the veth pairs
 with `pyroute2 <http://docs.pyroute2.org/>`_ to run.
