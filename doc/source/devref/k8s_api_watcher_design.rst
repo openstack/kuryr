@@ -52,7 +52,7 @@ Translation Mapping
 -------------------
 
 The detailed specification of the translation mappings is described in another
-document, :doc:`../specs/kuryr_k8s_integration`. In this document we touch what
+document, :doc:`../specs/mitaka/kuryr_k8s_integration`. In this document we touch what
 to be translated briefly.
 
 The main focus of Raven is the following resources.
@@ -71,7 +71,7 @@ connecting the cluster subnets and the service subnets.
 When each namespace is created, a cluster network that contains a cluster
 subnet, a service network that contains a service subnet, and a router that
 connects the cluster subnet and the service subnet are created through Neutron
-API. The apiserver ensures namespaces are created before pods are creted.
+API. The apiserver ensures namespaces are created before pods are created.
 
 Pods contain the information required by creating Neutron ports. If pods are
 associated with the specific namespace, the ports are created and associated
