@@ -75,16 +75,15 @@ API. The apiserver ensures namespaces are created before pods are creted.
 
 Pods contain the information required by creating Neutron ports. If pods are
 associated with the specific namespace, the ports are created and associated
-with the subnets for the namespace. In this case Raven also creates a LBaaS
-member for each port translated from the pod coordinating with the service
-translation.
+with the subnets for the namespace.
 
 Although it's optional, Raven can emulate kube-proxy_. This is for the network
 controller that leverages isolated datapath from ``docker0`` bridge such as
 Open vSwitch datapath. Services contain the information for the emulation. Raven
-maps kube-proxy to Neutron load balancers with VIPs. For "externalIPs" type K8s
-service, Raven associates a floating IP with a load balancer for enabling the
-pubilc accesses.
+maps kube-proxy to Neutron load balancers with VIPs. In this case Raven also
+creates a LBaaS pool member for each port translated from the pod coordinating
+with the service translation. For "externalIPs" type K8s service, Raven
+associates a floating IP with a load balancer for enabling the pubilc accesses.
 
 ================= =============
 Kubernetes        Neutron
