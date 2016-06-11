@@ -4,9 +4,9 @@
 
  http://creativecommons.org/licenses/by/3.0/legalcode
 
-====================================
+============================
 Kuryr Kubernetes Integration
-====================================
+============================
 
 https://blueprints.launchpad.net/kuryr/+spec/kuryr-k8s-integration
 
@@ -68,7 +68,7 @@ Kubernetes API abstractions:
   Service name, which point directly to the Pods  backing the Service.
   To receive traffic from the outside, service should be assigned an external
   IP address.
-  For more details on service, please refer to [2].
+  For more details on service, please refer to [1]_.
 
 Kubernetes provides two options for service discovery, environments variables
 and DNS. Environment variables are added for each active service when pod is
@@ -83,7 +83,7 @@ select subsets of objects.
 Annotations are string keys and values that can be used by external tooling to
 store arbitrary metadata.
 
-More detailed information on k8s API can be found in [6]
+More detailed information on k8s API can be found in [2]_
 
 
 Network Requirements
@@ -100,16 +100,19 @@ The kubernetes model is for each pod to have an IP in a flat shared namespace
 that allows full communication with physical computers and containers across
 the network. The above approach makes it easier than native Docker model to
 port applications from VMs to containers. More on kubernetes network model
-is here [7].
+is here [3]_.
 
 
 Use Cases
 ---------
 The kubernetes networking should address requirements of several stakeholders:
-1. Application developer, the one that runs its application on the k8s cluster
-2. Cluster administrator, the one that runs the k8s cluster
-3. Network infrastructure administrator, the one that provides the physical
-   network
+
+* Application developer, the one that runs its application on the k8s cluster
+
+* Cluster administrator, the one that runs the k8s cluster
+
+* Network infrastructure administrator, the one that provides the physical
+  network
 
 Use Case 1:
 ^^^^^^^^^^^
@@ -122,7 +125,7 @@ Use Case 2:
 ^^^^^^^^^^^
 Application isolation policy support.
 This use case is about application isolation policy support as it is defined
-by kubernetes community, based on spec [1]. Network isolation policy will
+by kubernetes community, based on spec [4]_. Network isolation policy will
 impose limitations on the connectivity from an optional set of traffic sources
 to an optional set of destination TCP/UDP ports.
 Regardless of network policy, pods should be accessible by the host on which
@@ -196,7 +199,7 @@ to pods in that namespace from any source inside or outside of the Kubernetes
 cluster will be denied unless allowed by a policy.
 For non-isolated namespace, all incoming connections to pods in that namespace
 will be allowed.
-The exact translation details are provided in the [5].
+The exact translation details are provided in the [5]_.
 
 As an alternative, and this goes beyond neutron, it seems that more native way
 might be to use policy (intent) based API to request the isolation policy.
@@ -233,6 +236,7 @@ the node and take care of creating the Pods, i.e. deploying the infrastructure
 and application containers and ensuring the required connectivity.
 
 There are two conceptual parts that kuryr needs to support:
+
 API Watcher
 ^^^^^^^^^^^
 To watch kubernetes API server for changes in services and pods and later
@@ -247,7 +251,7 @@ CNI Driver
 ^^^^^^^^^^
 To enable CNI plugin on each worker node to setup, teardown and provide status
 of the Pod, more accurately of the infrastructure container. Kuryr will provide
-CNI Driver that implements [3]. In order to be able to configure and report an
+CNI Driver that implements [6]_. In order to be able to configure and report an
 IP configuration, the Kuryr CNI driver must be able to access IPAM to get IP
 details for the Pod. The IP, port UUID, GW and port type details should be
 available to the driver via **CNI_ARGS** in addition to the standard content::
@@ -260,7 +264,7 @@ available to the driver via **CNI_ARGS** in addition to the standard content::
    GW=10.0.0.1,\
    PORT_TYPE=midonet
 
-For more details on kuryr CNI Driver, see [4].
+For more details on kuryr CNI Driver, see [7]_.
 
 Kube-proxy service that runs on each worker node and implements the service in
 native implementation is not required since service is implemented via neutron
@@ -290,10 +294,10 @@ TBD
 
 References
 ==========
-[1] https://docs.google.com/document/d/1qAm-_oSap-f1d6a-xRTj6xaH1sYQBfK36VyjB5XOZug
-[2] http://kubernetes.io/v1.1/docs/user-guide/services.html
-[3] https://github.com/appc/cni/blob/master/SPEC.md
-[4] https://blueprints.launchpad.net/kuryr/+spec/kuryr-cni-plugin
-[5] https://review.openstack.org/#/c/290172/
-[6] http://kubernetes.io/docs/api/
-[7] http://kubernetes.io/docs/admin/networking/#kubernetes-model
+.. [1] http://kubernetes.io/v1.1/docs/user-guide/services.html
+.. [2] http://kubernetes.io/docs/api/
+.. [3] http://kubernetes.io/docs/admin/networking/#kubernetes-model
+.. [4] https://docs.google.com/document/d/1qAm-_oSap-f1d6a-xRTj6xaH1sYQBfK36VyjB5XOZug
+.. [5] https://review.openstack.org/#/c/290172/
+.. [6] https://github.com/appc/cni/blob/master/SPEC.md
+.. [7] https://blueprints.launchpad.net/kuryr/+spec/kuryr-cni-plugin
