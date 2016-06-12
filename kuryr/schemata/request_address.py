@@ -31,7 +31,7 @@ REQUEST_ADDRESS_SCHEMA = {
             u'$ref': u'#/definitions/commons/definitions/uuid'
         },
         u'Address': {
-            u'description': u'Prefered address in regular IP form.',
+            u'description': u'Preferred address in regular IP form.',
             u'example': u'10.0.0.1',
             u'$ref': u'#/definitions/commons/definitions/ipv4_or_ipv6'
         },

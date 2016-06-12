@@ -119,7 +119,7 @@ COMMONS = {
         u'ipv4': {
             u'pattern': IPV4_PATTERN,
             u'type': u'string',
-            u'description': u'An IPv4 adddress',
+            u'description': u'An IPv4 address',
             u'example': u'10.0.0.1'
         },
         u'ipv4datum': {
@@ -143,7 +143,7 @@ COMMONS = {
                     u'example': u'foo',
                 },
                 u'Pool': {
-                    u'description': u'A range of IP Addresses represted in '
+                    u'description': u'A range of IP Addresses requested in '
                                     u'CIDR format address/mask.',
                     u'$ref': u'#/definitions/commons/definitions/cidr'
                 },
@@ -162,7 +162,7 @@ COMMONS = {
                     u'type': u'object',
                     u'patternProperties': {
                         u'.+': {
-                            u'description': u'key-vavule pair of the ID and '
+                            u'description': u'key-value pair of the ID and '
                                             u'the IP address',
                             u'$ref': u'#/definitions/commons/definitions/ipv4'
                         }
@@ -197,7 +197,7 @@ COMMONS = {
                     u'example': u'foo',
                 },
                 u'Pool': {
-                    u'description': u'A range of IP Addresses represted in '
+                    u'description': u'A range of IP Addresses requested in '
                                     u'CIDR format address/mask.',
                     u'$ref': u'#/definitions/commons/definitions/cidrv6'
                 },
