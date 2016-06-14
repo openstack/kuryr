@@ -1228,9 +1228,8 @@ def ipam_release_address():
     # check if any subnet with matching cidr is present
     subnets = _get_subnets_by_attrs(cidr=subnet_cidr)
     if not len(subnets):
-        raise exceptions.NoResourceException(
-            "No subnet is found using pool {0} "
-            "and pool_cidr {1}".format(pool_id, cidr))
+        app.logger.info(_LI("Subnet already deleted."))
+        return flask.jsonify(const.SCHEMA['SUCCESS'])
     subnet = subnets[0]
     cidr_address = netaddr.IPNetwork(rel_address)
     rcvd_fixed_ips = []
