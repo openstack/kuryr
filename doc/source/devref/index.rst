@@ -32,11 +32,12 @@ use cases for the various parts inside Kuryr.
 Programming HowTos and Tutorials
 --------------------------------
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 4
 
     goals_and_use_cases
     libnetwork_remote_driver_design
     kuryr_mitaka_milestone
+    k8s_api_watcher_design
 
 
 Indices and tables
