@@ -16,7 +16,7 @@
 Kubernetes API Watcher Design
 =============================
 
-This documentation describes the `Kuberenetes API`_ watcher daemon component,
+This documentation describes the `Kubernetes API`_ watcher daemon component,
 **Raven**, of Kuryr.
 
 What is Raven
