@@ -87,7 +87,7 @@ def make_json_app(import_name, **kwargs):
         return response
 
     for code in w_exceptions.default_exceptions:
-        app.error_handler_spec[None][code] = make_json_error
+        app.register_error_handler(code, make_json_error)
 
     return app
 
