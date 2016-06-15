@@ -29,7 +29,7 @@ constructs the virtual network topology on Neutron.
 
 Raven must act as the centralized component for the translations due to the
 constraints come from the concurrent deployments of the pods on worker nodes.
-Unless it's centralized, each plugin on each work node would make requests
+Unless it's centralized, each plugin on each worker node would make requests
 against Neutron API and it would lead the conflicts of the requests due to the
 race condition because of the lack of the lock or the serialization mechanisms
 for the requests against Neutron API.
@@ -62,7 +62,7 @@ The main focus of Raven is the following resources.
 * Service (Optional)
 
 Namespaces are translated into the networking basis, Neutron networks and
-subnets for the cluster and the service with the explicitly predefined values
+subnets for the cluster and the service using the explicitly predefined values
 in the configuration file, or implicitly specified by the environment
 variables, e.g., ``FLANNEL_NET=172.16.0.0/16`` as specified
 `in the deployment phase`_, or . Raven also creates Neutron routers for
@@ -73,7 +73,7 @@ subnet, a service network that contains a service subnet, and a router that
 connects the cluster subnet and the service subnet are created through Neutron
 API. The apiserver ensures namespaces are created before pods are created.
 
-Pods contain the information required by creating Neutron ports. If pods are
+Pods contain the information required for creating Neutron ports. If pods are
 associated with the specific namespace, the ports are created and associated
 with the subnets for the namespace.
 
@@ -333,7 +333,7 @@ Python 3 and drop Python 2.
 
 With asyncio we can achieve concurrent networking I/O operations required by
 watchers watch multiple endpoints and translate their responses into requests
-against Neutorn and K8s API server.
+against Neutron and K8s API server.
 
 Watchers
 ~~~~~~~~
@@ -344,7 +344,7 @@ how it is. The API endpoint URI is associated with the stream of the event
 notifications and the translation function maps each event coming from the
 apiserver into another form such as the request against Neutron API server.
 
-Watchers can be considered as concerns and reactions. They should be decouped
+Watchers can be considered as concerns and reactions. They should be decoupled
 from the actual task dispatcher and their consumers. A single or multiple
 watchers can be mixed into the single class that leverages them, i.e., Raven,
 or even mutliple classes leverage them can have the same concern and the same
@@ -366,7 +366,7 @@ A minimum watcher can be defined as follow.
             pass
 
 The watcher is defined in the declarative way and ideally doesn't care when it
-is called and by whom. However, it needs to recongnize the context such as the
+is called and by whom. However, it needs to recognize the context such as the
 event type and behave appropriately according to the situation.
 
 Raven
@@ -513,6 +513,7 @@ ADDED
 +++++
 
 ::
+
     {
       "type": "ADDED",
       "object": {
