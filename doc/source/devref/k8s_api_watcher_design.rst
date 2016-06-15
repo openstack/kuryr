@@ -65,8 +65,8 @@ Namespaces are translated into the networking basis, Neutron networks and
 subnets for the cluster and the service using the explicitly predefined values
 in the configuration file, or implicitly specified by the environment
 variables, e.g., ``FLANNEL_NET=172.16.0.0/16`` as specified
-`in the deployment phase`_, or . Raven also creates Neutron routers for
-connecting the cluster subnets and the service subnets.
+`in the deployment phase`_. Raven also creates Neutron routers for connecting
+the cluster subnets and the service subnets.
 
 When each namespace is created, a cluster network that contains a cluster
 subnet, a service network that contains a service subnet, and a router that
