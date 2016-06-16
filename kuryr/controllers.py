@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
 import os_client_config
 
 import flask
@@ -35,6 +34,8 @@ from kuryr import utils
 
 MANDATORY_NEUTRON_EXTENSION = "subnet_allocation"
 TAG_NEUTRON_EXTENSION = "tag"
+SUBNET_POOLS_V4 = [cfg.CONF.neutron_client.default_subnetpool_v4]
+SUBNET_POOLS_V6 = [cfg.CONF.neutron_client.default_subnetpool_v6]
 
 
 def _get_cloud_config(cloud='devstack-admin'):
@@ -133,13 +134,6 @@ def check_for_neutron_ext_tag():
         if e.status_code == n_exceptions.NotFound.status_code:
             app.logger.warning(_LW("Neutron tags not supported. "
                                    "Continue without using them."))
-
-
-# TODO(tfukushima): Retrieve the following subnet names from the config file.
-SUBNET_POOLS_V4 = [
-    p.strip() for p in os.environ.get('SUBNET_POOLS_V4', 'kuryr').split(',')]
-SUBNET_POOLS_V6 = [
-    p.strip() for p in os.environ.get('SUBNET_POOLS_V6', 'kuryr6').split(',')]
 
 
 def _cache_default_subnetpool_ids(app):
