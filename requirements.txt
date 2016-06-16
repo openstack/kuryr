@@ -4,13 +4,13 @@
 
 pbr>=1.6 # Apache-2.0
 Babel>=2.3.4 # BSD
-Flask<1.0,>=0.10 # BSD
+Flask!=0.11,<1.0,>=0.10 # BSD
 jsonschema!=2.5.0,<3.0.0,>=2.0.0 # MIT
 netaddr!=0.7.16,>=0.7.12 # BSD
 oslo.concurrency>=3.8.0 # Apache-2.0
 oslo.log>=1.14.0 # Apache-2.0
 oslo.serialization>=1.10.0 # Apache-2.0
-oslo.utils>=3.9.0 # Apache-2.0
+oslo.utils>=3.11.0 # Apache-2.0
 python-neutronclient>=4.2.0 # Apache-2.0
 pyroute2>=0.3.10 # Apache-2.0 (+ dual licensed GPL2)
 os-client-config>=1.13.1 # Apache-2.0
