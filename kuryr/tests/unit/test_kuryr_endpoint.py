@@ -39,13 +39,15 @@ class TestKuryrEndpointFailures(base.TestKuryrFailures):
                 'network_id': neutron_network_id,
                 'ip_version': 4,
                 "cidr": '192.168.1.0/24',
-                'enable_dhcp': 'False'
+                'enable_dhcp': 'False',
+                'subnetpool_id': ''
             }, {
                 'name': '-'.join([docker_endpoint_id, 'fe80::']),
                 'network_id': neutron_network_id,
                 'ip_version': 6,
                 "cidr": 'fe80::/64',
-                'enable_dhcp': 'False'
+                'enable_dhcp': 'False',
+                'subnetpool_id': ''
             }]
         }
         fake_subnets = self._get_fake_subnets(

@@ -140,8 +140,8 @@ class TestKuryrBase(TestCase):
         # The following fake response is retrieved from the Neutron doc:
         #   http://developer.openstack.org/api-ref-networking-v2.html#createSubnet  # noqa
         fake_subnet_response = {
-            "subnets": [{
-                "name": '-'.join([docker_endpoint_id, '192.168.1.0']),
+            "subnets": [
+                {"name": '-'.join([docker_endpoint_id, '192.168.1.0']),
                 "network_id": neutron_network_id,
                 "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
                 "allocation_pools": [{"start": "192.168.1.2",
@@ -150,9 +150,9 @@ class TestKuryrBase(TestCase):
                 "ip_version": 4,
                 "cidr": "192.168.1.0/24",
                 "id": fake_neutron_subnet_v4_id,
-                "enable_dhcp": True
-            }, {
-                "name": '-'.join([docker_endpoint_id, 'fe80::']),
+                "enable_dhcp": True,
+                "subnetpool_id": ''},
+                {"name": '-'.join([docker_endpoint_id, 'fe80::']),
                 "network_id": neutron_network_id,
                 "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
                 "allocation_pools": [{"start": "fe80::f816:3eff:fe20:57c4",
@@ -161,8 +161,9 @@ class TestKuryrBase(TestCase):
                 "ip_version": 6,
                 "cidr": "fe80::/64",
                 "id": fake_neutron_subnet_v6_id,
-                "enable_dhcp": True
-            }]
+                "enable_dhcp": True,
+                "subnetpool_id": ''}
+            ]
         }
         return fake_subnet_response
 
@@ -243,7 +244,8 @@ class TestKuryrBase(TestCase):
                 "ip_version": 4,
                 "cidr": '192.168.1.0/24',
                 "id": subnet_v4_id,
-                "enable_dhcp": True
+                "enable_dhcp": True,
+                "subnetpool_id": ''
             }
         }
         if subnetpool_id:

@@ -171,11 +171,6 @@ def _get_networks_by_attrs(**attrs):
 
 def _get_subnets_by_attrs(**attrs):
     subnets = app.neutron.list_subnets(**attrs)
-    if len(subnets.get('subnets', [])) > 2:  # subnets for IPv4 and/or IPv6
-        raise exceptions.DuplicatedResourceException(
-            "Multiple Neutron subnets exist for the params {0} "
-            .format(', '.join(['{0}={1}'.format(k, v)
-                               for k, v in attrs.items()])))
     return subnets['subnets']
 
 
@@ -214,6 +209,11 @@ def _get_subnets_by_interface_cidr(neutron_network_id,
                             str(cidr.prefixlen)])
     subnets = _get_subnets_by_attrs(
         network_id=neutron_network_id, cidr=subnet_cidr)
+    if len(subnets) > 2:
+        raise exceptions.DuplicatedResourceException(
+                "Multiple Neutron subnets exist for the network_id={0}"
+                "and cidr={1}"
+                .format(neutron_network_id, cidr))
     return subnets
 
 
@@ -512,12 +512,24 @@ def network_driver_create_network():
 
     neutron_uuid = None
     neutron_name = None
+    pool_name = ''
+    pool_id = ''
     options = json_data.get('Options')
     if options:
         generic_options = options.get(const.NETWORK_GENERIC_OPTIONS)
         if generic_options:
             neutron_uuid = generic_options.get(const.NEUTRON_UUID_OPTION)
             neutron_name = generic_options.get(const.NEUTRON_NAME_OPTION)
+            pool_name = generic_options.get(const.NEUTRON_POOL_NAME_OPTION)
+
+    if pool_name:
+        pools = _get_subnetpools_by_attrs(name=pool_name)
+        if pools:
+            pool_id = pools[0]['id']
+        else:
+            raise exceptions.KuryrException(
+                  ("Specified pool name({0}) does not "
+                   "exist.").format(pool_name))
 
     if not neutron_uuid and not neutron_name:
         network = app.neutron.create_network(
@@ -565,6 +577,11 @@ def network_driver_create_network():
     subnet_cidr = '/'.join([subnet_network, str(cidr.prefixlen)])
     subnets = _get_subnets_by_attrs(
         network_id=network_id, cidr=subnet_cidr)
+    if len(subnets) > 1:
+        raise exceptions.DuplicatedResourceException(
+            "Multiple Neutron subnets exist for the network_id={0}"
+            "and cidr={1}".format(network_id, cidr))
+
     if not subnets:
         new_subnets = [{
             'name': pool_cidr,
@@ -573,6 +590,8 @@ def network_driver_create_network():
             'cidr': subnet_cidr,
             'enable_dhcp': app.enable_dhcp,
         }]
+        if pool_id:
+            new_subnets[0]['subnetpool_id'] = pool_id
         if gateway_ip:
             new_subnets[0]['gateway_ip'] = gateway_ip
 
@@ -642,6 +661,10 @@ def network_driver_delete_network():
         neutron_network_id = filtered_networks[0]['id']
         filtered_subnets = _get_subnets_by_attrs(
             network_id=neutron_network_id)
+        if len(filtered_subnets) > 2:  # subnets for IPv4 and/or IPv6
+            raise exceptions.DuplicatedResourceException(
+                "Multiple Neutron subnets exist for the network_id={0} "
+                .format(neutron_network_id))
         for subnet in filtered_subnets:
             try:
                 subnetpool_id = subnet.get('subnetpool_id', None)
@@ -836,6 +859,10 @@ def network_driver_join():
                 .format(neutron_port_name))
         neutron_port = filtered_ports[0]
         all_subnets = _get_subnets_by_attrs(network_id=neutron_network_id)
+        if len(all_subnets) > 2:  # subnets for IPv4 and/or IPv6
+            raise exceptions.DuplicatedResourceException(
+                "Multiple Neutron subnets exist for the network_id={0} "
+                .format(neutron_network_id))
 
         try:
             ifname, peer_name, (stdout, stderr) = binding.port_bind(
@@ -1046,6 +1073,11 @@ def ipam_request_pool():
     v6 = json_data['V6']
     pool_id = ''
     subnet_cidr = ''
+    pool_name = ''
+    pools = []
+    options = json_data.get('Options')
+    if options:
+        pool_name = options.get(const.NEUTRON_POOL_NAME_OPTION)
     if requested_pool:
         app.logger.info(_LI("Creating subnetpool with the given pool CIDR"))
         if requested_subpool:
@@ -1053,11 +1085,14 @@ def ipam_request_pool():
         else:
             cidr = netaddr.IPNetwork(requested_pool)
         subnet_cidr = _get_subnet_cidr_using_cidr(cidr)
-        pool_name = utils.get_neutron_subnetpool_name(subnet_cidr)
-        # Check if requested pool already exist
-        pools = _get_subnetpools_by_attrs(name=pool_name)
-        if pools:
-            pool_id = pools[0]['id']
+        if not pool_name:
+            pool_name = utils.get_neutron_subnetpool_name(subnet_cidr)
+            pools = _get_subnetpools_by_attrs(name=pool_name)
+            if len(pools):
+                raise exceptions.KuryrException(
+                       "Another pool with same cidr exist. ipam and network"
+                       " options not used to pass pool name")
+
         if not pools:
             new_subnetpool = {
                 'name': pool_name,
@@ -1085,6 +1120,7 @@ def ipam_request_pool():
             subnet_cidr = _get_subnet_cidr_using_cidr(cidr)
         else:
             app.logger.error(_LE("Default neutron pools not found."))
+
     req_pool_res = {'PoolID': pool_id,
                     'Pool': subnet_cidr}
     return flask.jsonify(req_pool_res)
@@ -1123,6 +1159,7 @@ def ipam_request_address():
     is_gateway = False
     allocated_address = ''
     subnet_cidr = ''
+    subnet = {}
     pool_prefix_len = ''
     pools = _get_subnetpools_by_attrs(id=pool_id)
     if pools:
@@ -1143,56 +1180,64 @@ def ipam_request_address():
             "No subnetpools with id {0} is found."
             .format(pool_id))
     # check if any subnet with matching cidr is present
-    subnets = _get_subnets_by_attrs(cidr=subnet_cidr)
+    subnets_by_cidr = _get_subnets_by_attrs(cidr=subnet_cidr)
     # Check if the port is gateway
     options = json_data.get('Options')
     if options:
         request_address_type = options.get(const.REQUEST_ADDRESS_TYPE)
         if request_address_type == const.NETWORK_GATEWAY_OPTIONS:
             is_gateway = True
-    if subnets:
-        subnet = subnets[0]
-        if is_gateway:
+    if subnets_by_cidr:
+        if len(subnets_by_cidr) > 1:
+            for tmp_subnet in subnets_by_cidr:
+                if tmp_subnet.get('subnetpool_id', '') == pool_id:
+                    subnet = tmp_subnet
+            if not any(subnet) and not is_gateway:
+                raise exceptions.KuryrException(
+                    ("Subnet with cidr({0}) and pool {1}, does not "
+                    "exist.").format(cidr, pool_id))
+        else:
+            subnet = subnets_by_cidr[0]
+
+    if is_gateway:
+        if any(subnet):
             # check if request gateway ip same with existed gateway ip
             existed_gateway_ip = subnet.get('gateway_ip', '')
             if req_address == existed_gateway_ip:
-                allocated_address = '/'.join([req_address, pool_prefix_len])
+                allocated_address = '/'.join(
+                    [req_address, pool_prefix_len])
             else:
                 raise exceptions.GatewayConflictFailure(
                     "Requested gateway {0} does not match with "
                     "gateway {1} in existed "
                     "network.".format(req_address, existed_gateway_ip))
         else:
-            # allocating address for container port
-            neutron_network_id = subnet['network_id']
-            try:
-                port = {
-                    'name': 'kuryr-unbound-port',
-                    'admin_state_up': True,
-                    'network_id': neutron_network_id,
-                    'binding:host_id': utils.get_hostname(),
-                }
-                fixed_ips = port['fixed_ips'] = []
-                fixed_ip = {'subnet_id': subnet['id']}
-                if req_address:
-                    fixed_ip['ip_address'] = req_address
-                fixed_ips.append(fixed_ip)
-                created_port_resp = app.neutron.create_port({'port': port})
-                created_port = created_port_resp['port']
-                allocated_address = created_port['fixed_ips'][0]['ip_address']
-                allocated_address = '/'.join(
-                    [allocated_address, str(cidr.prefixlen)])
-            except n_exceptions.NeutronClientException as ex:
-                app.logger.error(_LE("Error happened during ip allocation on "
-                                     "Neutron side: %s"), ex)
-                raise
-    else:
-        # Auxiliary address or gw_address is received at network creation time.
-        # This address cannot be reserved with neutron at this time as subnet
-        # is not created yet. In /NetworkDriver.CreateNetwork this address will
-        # be reserved with neutron.
-        if req_address:
             allocated_address = '/'.join([req_address, pool_prefix_len])
+    else:
+        # allocating address for container port
+        neutron_network_id = subnet['network_id']
+        try:
+            port = {
+                'name': 'kuryr-unbound-port',
+                'admin_state_up': True,
+                'network_id': neutron_network_id,
+                'binding:host_id': utils.get_hostname(),
+            }
+            fixed_ips = port['fixed_ips'] = []
+            fixed_ip = {'subnet_id': subnet['id']}
+            if req_address:
+                fixed_ip['ip_address'] = req_address
+            fixed_ips.append(fixed_ip)
+            created_port_resp = app.neutron.create_port({'port': port})
+            created_port = created_port_resp['port']
+            app.logger.debug("created port %s", created_port)
+            allocated_address = created_port['fixed_ips'][0]['ip_address']
+            allocated_address = '/'.join(
+                [allocated_address, str(cidr.prefixlen)])
+        except n_exceptions.NeutronClientException as ex:
+            app.logger.error(_LE("Error happened during ip allocation on "
+                                 "Neutron side: %s"), ex)
+            raise
 
     return flask.jsonify({'Address': allocated_address})
 
@@ -1277,7 +1322,18 @@ def ipam_release_address():
     if not len(subnets):
         app.logger.info(_LI("Subnet already deleted."))
         return flask.jsonify(const.SCHEMA['SUCCESS'])
-    subnet = subnets[0]
+    if len(subnets) > 1:
+        subnet = {}
+        for tmp_subnet in subnets:
+            if tmp_subnet['subnetpool_id'] == pool_id:
+                subnet = tmp_subnet
+        if not subnet:
+            raise exceptions.KuryrException(
+                  ("Subnet with cidr({0}) and pool {1}, does not "
+                   "exist.").format(cidr, pool_id))
+    else:
+        subnet = subnets[0]
+
     cidr_address = netaddr.IPNetwork(rel_address)
     rcvd_fixed_ips = []
     fixed_ip = {'subnet_id': subnet['id']}

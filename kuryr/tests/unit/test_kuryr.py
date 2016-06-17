@@ -144,6 +144,286 @@ class TestKuryr(base.TestKuryrBase):
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
+    def test_network_driver_create_network_with_net_name_option(self):
+        docker_network_id = utils.get_hash()
+        fake_neutron_net_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+        self.mox.StubOutWithMock(app.neutron, "list_networks")
+        fake_neutron_net_name = 'my_network_name'
+        fake_existing_networks_response = {
+            "networks": [{
+                "status": "ACTIVE",
+                "subnets": [],
+                "admin_state_up": True,
+                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
+                "router:external": False,
+                "segments": [],
+                "shared": False,
+                "id": fake_neutron_net_id,
+                "name": "my_network_name"
+            }]
+        }
+        app.neutron.list_networks(
+            name=fake_neutron_net_name).AndReturn(
+                fake_existing_networks_response)
+
+        self.mox.StubOutWithMock(app.neutron, "add_tag")
+        tags = utils.create_net_tags(docker_network_id)
+        for tag in tags:
+            app.neutron.add_tag('networks', fake_neutron_net_id, tag)
+
+        app.neutron.add_tag(
+            'networks', fake_neutron_net_id, 'kuryr.net.existing')
+        self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+        fake_existing_subnets_response = {
+            "subnets": []
+        }
+        fake_cidr_v4 = '192.168.42.0/24'
+        app.neutron.list_subnets(
+            network_id=fake_neutron_net_id,
+            cidr=fake_cidr_v4).AndReturn(fake_existing_subnets_response)
+
+        self.mox.StubOutWithMock(app.neutron, 'create_subnet')
+        fake_subnet_request = {
+            "subnets": [{
+                'name': fake_cidr_v4,
+                'network_id': fake_neutron_net_id,
+                'ip_version': 4,
+                'cidr': fake_cidr_v4,
+                'enable_dhcp': app.enable_dhcp,
+                'gateway_ip': '192.168.42.1',
+            }]
+        }
+        subnet_v4_id = str(uuid.uuid4())
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            fake_neutron_net_id, subnet_v4_id,
+            name=fake_cidr_v4, cidr=fake_cidr_v4)
+        fake_subnet_response = {
+            'subnets': [
+                fake_v4_subnet['subnet']
+            ]
+        }
+        app.neutron.create_subnet(
+            fake_subnet_request).AndReturn(fake_subnet_response)
+
+        self.mox.ReplayAll()
+
+        network_request = {
+            'NetworkID': docker_network_id,
+            'IPv4Data': [{
+                'AddressSpace': 'foo',
+                'Pool': '192.168.42.0/24',
+                'Gateway': '192.168.42.1/24',
+            }],
+            'IPv6Data': [{
+                'AddressSpace': 'bar',
+                'Pool': 'fe80::/64',
+                'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
+            }],
+            'Options': {
+                'com.docker.network.enable_ipv6': False,
+                'com.docker.network.generic': {
+                    'neutron.net.name': 'my_network_name'
+                }
+            }
+        }
+        response = self.app.post('/NetworkDriver.CreateNetwork',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(network_request))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
+
+    def test_network_driver_create_network_with_netid_option(self):
+        docker_network_id = utils.get_hash()
+        fake_neutron_net_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+        self.mox.StubOutWithMock(app.neutron, "list_networks")
+        fake_existing_networks_response = {
+            "networks": [{
+                "status": "ACTIVE",
+                "subnets": [],
+                "admin_state_up": True,
+                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
+                "router:external": False,
+                "segments": [],
+                "shared": False,
+                "id": fake_neutron_net_id,
+            }]
+        }
+        app.neutron.list_networks(
+            id=fake_neutron_net_id).AndReturn(
+                fake_existing_networks_response)
+
+        self.mox.StubOutWithMock(app.neutron, "add_tag")
+        tags = utils.create_net_tags(docker_network_id)
+        for tag in tags:
+            app.neutron.add_tag('networks', fake_neutron_net_id, tag)
+
+        app.neutron.add_tag(
+            'networks', fake_neutron_net_id, 'kuryr.net.existing')
+        self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+        fake_existing_subnets_response = {
+            "subnets": []
+        }
+        fake_cidr_v4 = '192.168.42.0/24'
+        app.neutron.list_subnets(
+            network_id=fake_neutron_net_id,
+            cidr=fake_cidr_v4).AndReturn(fake_existing_subnets_response)
+
+        self.mox.StubOutWithMock(app.neutron, 'create_subnet')
+        fake_subnet_request = {
+            "subnets": [{
+                'name': fake_cidr_v4,
+                'network_id': fake_neutron_net_id,
+                'ip_version': 4,
+                'cidr': fake_cidr_v4,
+                'enable_dhcp': app.enable_dhcp,
+                'gateway_ip': '192.168.42.1',
+            }]
+        }
+        subnet_v4_id = str(uuid.uuid4())
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            fake_neutron_net_id, subnet_v4_id,
+            name=fake_cidr_v4, cidr=fake_cidr_v4)
+        fake_subnet_response = {
+            'subnets': [
+                fake_v4_subnet['subnet']
+            ]
+        }
+        app.neutron.create_subnet(
+            fake_subnet_request).AndReturn(fake_subnet_response)
+
+        self.mox.ReplayAll()
+
+        network_request = {
+            'NetworkID': docker_network_id,
+            'IPv4Data': [{
+                'AddressSpace': 'foo',
+                'Pool': '192.168.42.0/24',
+                'Gateway': '192.168.42.1/24',
+            }],
+            'IPv6Data': [{
+                'AddressSpace': 'bar',
+                'Pool': 'fe80::/64',
+                'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
+            }],
+            'Options': {
+                'com.docker.network.enable_ipv6': False,
+                'com.docker.network.generic': {
+                    'neutron.net.uuid': '4e8e5957-649f-477b-9e5b-f1f75b21c03c'
+                }
+            }
+        }
+        response = self.app.post('/NetworkDriver.CreateNetwork',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(network_request))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
+
+    def test_network_driver_create_network_with_pool_name_option(self):
+
+        self.mox.StubOutWithMock(app.neutron, 'list_subnetpools')
+        fake_kuryr_subnetpool_id = str(uuid.uuid4())
+        fake_name = "fake_pool_name"
+        kuryr_subnetpools = self._get_fake_v4_subnetpools(
+            fake_kuryr_subnetpool_id, name=fake_name)
+        app.neutron.list_subnetpools(name=fake_name).AndReturn(
+            {'subnetpools': kuryr_subnetpools['subnetpools']})
+        docker_network_id = utils.get_hash()
+        self.mox.StubOutWithMock(app.neutron, "create_network")
+        fake_request = {
+            "network": {
+                "name": utils.make_net_name(docker_network_id),
+                "admin_state_up": True
+            }
+        }
+        # The following fake response is retrieved from the Neutron doc:
+        #   http://developer.openstack.org/api-ref-networking-v2.html#createNetwork  # noqa
+        fake_neutron_net_id = "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
+        fake_response = {
+            "network": {
+                "status": "ACTIVE",
+                "subnets": [],
+                "name": utils.make_net_name(docker_network_id),
+                "admin_state_up": True,
+                "tenant_id": "9bacb3c5d39d41a79512987f338cf177",
+                "router:external": False,
+                "segments": [],
+                "shared": False,
+                "id": fake_neutron_net_id
+            }
+        }
+        app.neutron.create_network(fake_request).AndReturn(fake_response)
+
+        self.mox.StubOutWithMock(app.neutron, "add_tag")
+        tags = utils.create_net_tags(docker_network_id)
+        for tag in tags:
+            app.neutron.add_tag('networks', fake_neutron_net_id, tag)
+
+        self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+        fake_existing_subnets_response = {
+            "subnets": []
+        }
+        fake_cidr_v4 = '192.168.42.0/24'
+        app.neutron.list_subnets(
+            network_id=fake_neutron_net_id,
+            cidr=fake_cidr_v4).AndReturn(fake_existing_subnets_response)
+
+        self.mox.StubOutWithMock(app.neutron, 'create_subnet')
+        fake_subnet_request = {
+            "subnets": [{
+                'name': fake_cidr_v4,
+                'network_id': fake_neutron_net_id,
+                'ip_version': 4,
+                'cidr': fake_cidr_v4,
+                'enable_dhcp': app.enable_dhcp,
+                'gateway_ip': '192.168.42.1',
+                'subnetpool_id': fake_kuryr_subnetpool_id,
+            }]
+        }
+        subnet_v4_id = str(uuid.uuid4())
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            fake_neutron_net_id, subnet_v4_id,
+            name=fake_cidr_v4, cidr=fake_cidr_v4)
+        fake_subnet_response = {
+            'subnets': [
+                fake_v4_subnet['subnet']
+            ]
+        }
+        app.neutron.create_subnet(
+            fake_subnet_request).AndReturn(fake_subnet_response)
+
+        self.mox.ReplayAll()
+
+        network_request = {
+            'NetworkID': docker_network_id,
+            'IPv4Data': [{
+                'AddressSpace': 'foo',
+                'Pool': '192.168.42.0/24',
+                'Gateway': '192.168.42.1/24',
+            }],
+            'IPv6Data': [{
+                'AddressSpace': 'bar',
+                'Pool': 'fe80::/64',
+                'Gateway': 'fe80::f816:3eff:fe20:57c3/64',
+            }],
+            'Options': {
+                'com.docker.network.enable_ipv6': False,
+                'com.docker.network.generic': {
+                    'neutron.pool.name': 'fake_pool_name'
+                }
+            }
+        }
+        response = self.app.post('/NetworkDriver.CreateNetwork',
+                                 content_type='application/json',
+                                 data=jsonutils.dumps(network_request))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
+
     def test_network_driver_create_network_wo_gw(self):
         docker_network_id = utils.get_hash()
         self.mox.StubOutWithMock(app.neutron, "create_network")
