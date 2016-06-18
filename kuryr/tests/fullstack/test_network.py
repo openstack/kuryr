@@ -39,7 +39,8 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
                 }
             ]
         }
-        res = self.docker_client.create_network(name='fakenet', driver='kuryr',
+        net_name = utils.get_random_string(8)
+        res = self.docker_client.create_network(name=net_name, driver='kuryr',
                                                 ipam=fake_ipam)
         net_id = res['Id']
         network = self.neutron_client.list_networks(
@@ -57,7 +58,8 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
            docker driver, It tests that it was created correctly, but
            not added to Neutron
         """
-        res = self.docker_client.create_network(name='fakenet')
+        net_name = utils.get_random_string(8)
+        res = self.docker_client.create_network(name=net_name)
         net_id = res['Id']
         network = self.neutron_client.list_networks(
             tags=utils.make_net_tags(net_id))
@@ -82,9 +84,9 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
             "Options": {},
             "Config": [
                 {
-                    "Subnet": "10.0.0.0/16",
-                    "IPRange": "10.0.0.0/24",
-                    "Gateway": "10.0.0.1"
+                    "Subnet": "10.1.0.0/16",
+                    "IPRange": "10.1.0.0/24",
+                    "Gateway": "10.1.0.1"
                 }
             ]
         }
@@ -93,16 +95,18 @@ class NetworkTest(kuryr_base.KuryrBaseTest):
             "Options": {},
             "Config": [
                 {
-                    "Subnet": "10.1.0.0/16",
-                    "IPRange": "10.1.0.0/24",
-                    "Gateway": "10.1.0.1"
+                    "Subnet": "10.2.0.0/16",
+                    "IPRange": "10.2.0.0/24",
+                    "Gateway": "10.2.0.1"
                 }
             ]
         }
-        res = self.docker_client.create_network(name='fakenet', driver='kuryr',
+        net_name = utils.get_random_string(8)
+        res = self.docker_client.create_network(name=net_name, driver='kuryr',
                                                 ipam=fake_ipam_1)
         net_id1 = res['Id']
-        res = self.docker_client.create_network(name='fakenet', driver='kuryr',
+
+        res = self.docker_client.create_network(name=net_name, driver='kuryr',
                                                 ipam=fake_ipam_2)
         net_id2 = res['Id']
         network = self.neutron_client.list_networks(
