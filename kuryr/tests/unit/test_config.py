@@ -35,6 +35,12 @@ class ConfigurationTest(base.TestKuryrBase):
         self.assertEqual('http://127.0.0.1:9696',
                          config.CONF.neutron_client.neutron_uri)
 
+        self.assertEqual('kuryr',
+                         config.CONF.neutron_client.default_subnetpool_v4)
+
+        self.assertEqual('kuryr6',
+                         config.CONF.neutron_client.default_subnetpool_v6)
+
         self.assertEqual('http://127.0.0.1:35357/v2.0',
                          config.CONF.keystone_client.auth_uri)
 

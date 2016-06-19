@@ -55,6 +55,12 @@ neutron_opts = [
     cfg.StrOpt('enable_dhcp',
                default='True',
                help=_('Enable or Disable dhcp for neutron subnets.')),
+    cfg.StrOpt('default_subnetpool_v4',
+               default='kuryr',
+               help=_('Name of default subnetpool version 4')),
+    cfg.StrOpt('default_subnetpool_v6',
+               default='kuryr6',
+               help=_('Name of default subnetpool version 6')),
 ]
 keystone_opts = [
     cfg.StrOpt('auth_uri',
