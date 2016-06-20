@@ -60,6 +60,7 @@ The main focus of Raven is the following resources.
 * Namespace
 * Pod
 * Service (Optional)
+* Endpoints (Optional)
 
 Namespaces are translated into the networking basis, Neutron networks and
 subnets for the cluster and the service using the explicitly predefined values
@@ -81,21 +82,22 @@ Although it's optional, Raven can emulate kube-proxy_. This is for the network
 controller that leverages isolated datapath from ``docker0`` bridge such as
 Open vSwitch datapath. Services contain the information for the emulation. Raven
 maps kube-proxy to Neutron load balancers with VIPs. In this case Raven also
-creates a LBaaS pool member for each port translated from the pod coordinating
-with the service translation. For "externalIPs" type K8s service, Raven
-associates a floating IP with a load balancer for enabling the pubilc accesses.
+creates a LBaaS pool member for each Endpoints to be translated coordinating
+with the associated service translation. For "externalIPs" type K8s service,
+Raven associates a floating IP with a load balancer for enabling the pubilc
+accesses.
 
-================= =============
+================= =================
 Kubernetes        Neutron
-================= =============
+================= =================
 Namespace         Network
 (Cluster subnet)  (Subnet)
 Pod               Port
-                  LBaaS Member
 Service           LBaaS Pool
                   LBaaS VIP
                   (FloatingIP)
-================= =============
+Endpoints         LBaaS Pool Member
+================= =================
 
 
 .. _k8s-api-behaviour:
@@ -944,6 +946,110 @@ DELETED
       }
     }
 
+Endpoints
+~~~~~~~~~
+
+::
+
+    /api/v1/endpoints?watch=true
+
+ADDED
++++++
+
+::
+
+    {
+      "type": "ADDED",
+      "object": {
+        "apiVersion": "v1",
+        "kind": "Endpoints",
+        "subsets": [],
+        "metadata": {
+          "creationTimestamp": "2016-06-10T06:26:57Z",
+          "namespace": "default",
+          "labels": {
+            "app": "guestbook",
+            "tier": "frontend"
+          },
+          "selfLink": "/api/v1/namespaces/default/endpoints/frontend",
+          "name": "frontend",
+          "uid": "5542ba6b-2ed4-11e6-8128-42010af00003",
+          "resourceVersion": "1506396"
+        }
+      }
+    }
+
+MODIFIED
+++++++++
+
+::
+
+    {
+      "type": "MODIFIED",
+      "object": {
+        "apiVersion": "v1",
+        "kind": "Endpoints",
+        "subsets": [
+          {
+            "addresses": [
+              {
+                "targetRef": {
+                  "kind": "Pod",
+                  "name": "frontend-ib7ui",
+                  "namespace": "default",
+                  "uid": "554b2924-2ed4-11e6-8128-42010af00003",
+                  "resourceVersion": "1506444"
+                },
+                "ip": "192.168.0.119"
+              },
+              {
+                "targetRef": {
+                  "kind": "Pod",
+                  "name": "frontend-tt8ok",
+                  "namespace": "default",
+                  "uid": "554b37db-2ed4-11e6-8128-42010af00003",
+                  "resourceVersion": "1506459"
+                },
+                "ip": "192.168.0.120"
+              },
+              {
+                "targetRef": {
+                  "kind": "Pod",
+                  "name": "frontend-rxsaw",
+                  "namespace": "default",
+                  "uid": "554b43b8-2ed4-11e6-8128-42010af00003",
+                  "resourceVersion": "1506442"
+                },
+                "ip": "192.168.0.121"
+              }
+            ],
+            "ports": [
+              {
+                "port": 80,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ],
+        "metadata": {
+          "creationTimestamp": "2016-06-10T06:26:57Z",
+          "namespace": "default",
+          "labels": {
+            "app": "guestbook",
+            "tier": "frontend"
+          },
+          "selfLink": "/api/v1/namespaces/default/endpoints/frontend",
+          "name": "frontend",
+          "uid": "5542ba6b-2ed4-11e6-8128-42010af00003",
+          "resourceVersion": "1506460"
+        }
+      }
+    }
+
+DELETED
+++++++++
+
+The event could not be observed.
 
 .. _`Kubernetes API`: http://kubernetes.io/docs/api/
 .. _CNI: https://github.com/appc/cni
