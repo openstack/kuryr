@@ -39,6 +39,14 @@ class DuplicatedResourceException(KuryrException):
     """
 
 
+class GatewayConflictFailure(KuryrException):
+    """Exception represents gateway ip is conflict.
+
+    This exception is thrown when request gateway ip is conflict with the
+    gateway ip in existed network.
+    """
+
+
 class MandatoryApiMissing(KuryrException):
     """Exception represents that mandatory api is not found.
 

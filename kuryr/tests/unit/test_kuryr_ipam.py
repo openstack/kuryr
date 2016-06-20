@@ -15,6 +15,7 @@ from oslo_serialization import jsonutils
 import uuid
 
 from kuryr.common import config
+from kuryr.common import constants as const
 from kuryr.controllers import app
 from kuryr.tests.unit import base
 from kuryr import utils
@@ -226,6 +227,106 @@ class TestKuryrIpam(base.TestKuryrBase):
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual('10.0.0.5/16', decoded_json['Address'])
+
+    def test_ipam_driver_request_address_for_same_gateway(self):
+        # faking list_subnetpools
+        self.mox.StubOutWithMock(app.neutron, 'list_subnetpools')
+        fake_kuryr_subnetpool_id = str(uuid.uuid4())
+        fake_name = utils.get_neutron_subnetpool_name(FAKE_IP4_CIDR)
+        kuryr_subnetpools = self._get_fake_v4_subnetpools(
+            fake_kuryr_subnetpool_id, prefixes=[FAKE_IP4_CIDR],
+            name=fake_name)
+        app.neutron.list_subnetpools(id=fake_kuryr_subnetpool_id).AndReturn(
+            kuryr_subnetpools)
+
+        # faking list_subnets
+        docker_endpoint_id = utils.get_hash()
+        neutron_network_id = str(uuid.uuid4())
+        subnet_v4_id = str(uuid.uuid4())
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            neutron_network_id, docker_endpoint_id, subnet_v4_id,
+            subnetpool_id=fake_kuryr_subnetpool_id,
+            cidr=FAKE_IP4_CIDR)
+        fake_v4_subnet['subnet'].update(gateway_ip='10.0.0.1')
+        fake_subnet_response = {
+            'subnets': [
+                fake_v4_subnet['subnet']
+            ]
+        }
+        self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+        app.neutron.list_subnets(cidr=FAKE_IP4_CIDR).AndReturn(
+            fake_subnet_response)
+
+        # Apply mocks
+        self.mox.ReplayAll()
+
+        # Testing container ip allocation
+        fake_request = {
+            'PoolID': fake_kuryr_subnetpool_id,
+            'Address': '10.0.0.1',
+            'Options': {
+                const.REQUEST_ADDRESS_TYPE: const.NETWORK_GATEWAY_OPTIONS
+            }
+        }
+        response = self.app.post('/IpamDriver.RequestAddress',
+                                content_type='application/json',
+                                data=jsonutils.dumps(fake_request))
+
+        self.assertEqual(200, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertEqual('10.0.0.1/16', decoded_json['Address'])
+
+    def test_ipam_driver_request_address_for_different_gateway(self):
+        # faking list_subnetpools
+        self.mox.StubOutWithMock(app.neutron, 'list_subnetpools')
+        fake_kuryr_subnetpool_id = str(uuid.uuid4())
+        fake_name = utils.get_neutron_subnetpool_name(FAKE_IP4_CIDR)
+        kuryr_subnetpools = self._get_fake_v4_subnetpools(
+            fake_kuryr_subnetpool_id, prefixes=[FAKE_IP4_CIDR],
+            name=fake_name)
+        app.neutron.list_subnetpools(id=fake_kuryr_subnetpool_id).AndReturn(
+            kuryr_subnetpools)
+
+        # faking list_subnets
+        docker_endpoint_id = utils.get_hash()
+        neutron_network_id = str(uuid.uuid4())
+        subnet_v4_id = str(uuid.uuid4())
+        fake_v4_subnet = self._get_fake_v4_subnet(
+            neutron_network_id, docker_endpoint_id, subnet_v4_id,
+            subnetpool_id=fake_kuryr_subnetpool_id,
+            cidr=FAKE_IP4_CIDR)
+        fake_v4_subnet['subnet'].update(gateway_ip='10.0.0.1')
+        fake_subnet_response = {
+            'subnets': [
+                fake_v4_subnet['subnet']
+            ]
+        }
+        self.mox.StubOutWithMock(app.neutron, 'list_subnets')
+        app.neutron.list_subnets(cidr=FAKE_IP4_CIDR).AndReturn(
+            fake_subnet_response)
+
+        # Apply mocks
+        self.mox.ReplayAll()
+
+        # Testing container ip allocation
+        fake_request = {
+            'PoolID': fake_kuryr_subnetpool_id,
+            'Address': '10.0.0.5',  # Different with existed gw ip
+            'Options': {
+                const.REQUEST_ADDRESS_TYPE: const.NETWORK_GATEWAY_OPTIONS
+            }
+        }
+        response = self.app.post('/IpamDriver.RequestAddress',
+                                content_type='application/json',
+                                data=jsonutils.dumps(fake_request))
+
+        self.assertEqual(500, response.status_code)
+        decoded_json = jsonutils.loads(response.data)
+        self.assertIn('Err', decoded_json)
+        err_message = ("Requested gateway {0} does not match with "
+                       "gateway {1} in existed network.").format(
+                       '10.0.0.5', '10.0.0.1')
+        self.assertEqual({'Err': err_message}, decoded_json)
 
     def test_ipam_driver_release_address(self):
         # faking list_subnetpools
