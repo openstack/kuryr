@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import mock
 import os
 
 from neutronclient.common import exceptions as n_exceptions
@@ -45,13 +46,14 @@ class ConfigurationTest(base.TestKuryrBase):
                          config.CONF.keystone_client.auth_uri)
 
     def test_check_for_neutron_ext_support_with_ex(self):
-        ext_alias = "subnet_allocation"
-        self.mox.StubOutWithMock(controllers.app.neutron, "show_extension")
-        err = n_exceptions.NotFound.status_code
-        ext_not_found_ex = n_exceptions.NeutronClientException(status_code=err,
-                                                               message="")
-        neutron = controllers.app.neutron
-        neutron.show_extension(ext_alias).AndRaise(ext_not_found_ex)
-        self.mox.ReplayAll()
-        ex = exceptions.MandatoryApiMissing
-        self.assertRaises(ex, controllers.check_for_neutron_ext_support)
+        with mock.patch.object(controllers.app.neutron,
+                            'show_extension') as mock_extension:
+            ext_alias = "subnet_allocation"
+            err = n_exceptions.NotFound.status_code
+            ext_not_found_ex = n_exceptions.NeutronClientException(
+                                                    status_code=err,
+                                                    message="")
+            mock_extension.side_effect = ext_not_found_ex
+            ex = exceptions.MandatoryApiMissing
+            self.assertRaises(ex, controllers.check_for_neutron_ext_support)
+            mock_extension.assert_called_once_with(ext_alias)
