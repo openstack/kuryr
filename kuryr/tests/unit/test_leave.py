@@ -19,6 +19,7 @@ from werkzeug import exceptions as w_exceptions
 
 from kuryr import app
 from kuryr import binding
+from kuryr.common import constants as const
 from kuryr.common import exceptions
 from kuryr.tests.unit import base
 from kuryr import utils
@@ -68,7 +69,7 @@ class TestKuryrLeaveFailures(base.TestKuryrFailures):
         fake_neutron_v6_subnet_id = str(uuid.uuid4())
         fake_neutron_ports_response = self._get_fake_ports(
             fake_docker_endpoint_id, fake_neutron_network_id,
-            fake_neutron_port_id,
+            fake_neutron_port_id, const.PORT_STATUS_ACTIVE,
             fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
         app.neutron.list_ports(name=neutron_port_name).AndReturn(
             fake_neutron_ports_response)

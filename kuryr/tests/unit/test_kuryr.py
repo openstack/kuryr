@@ -420,7 +420,7 @@ class TestKuryr(base.TestKuryrBase):
         fake_port_id = str(uuid.uuid4())
         fake_port = self._get_fake_port(
             docker_endpoint_id, fake_neutron_net_id,
-            fake_port_id,
+            fake_port_id, constants.PORT_STATUS_ACTIVE,
             subnet_v4_id, subnet_v6_id)
         fake_fixed_ips = ['subnet_id=%s' % subnet_v4_id,
                           'ip_address=192.168.1.2',
@@ -477,7 +477,13 @@ class TestKuryr(base.TestKuryrBase):
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)
 
-    def test_network_driver_join(self):
+    @ddt.data(
+        (False), (True))
+    def test_network_driver_join(self, vif_plug_is_fatal):
+        if vif_plug_is_fatal:
+            self.mox.StubOutWithMock(app, "vif_plug_is_fatal")
+            app.vif_plug_is_fatal = True
+
         fake_docker_net_id = utils.get_hash()
         fake_docker_endpoint_id = utils.get_hash()
         fake_container_id = utils.get_hash()
@@ -492,7 +498,7 @@ class TestKuryr(base.TestKuryrBase):
         fake_neutron_v6_subnet_id = str(uuid.uuid4())
         fake_neutron_ports_response = self._get_fake_ports(
             fake_docker_endpoint_id, fake_neutron_net_id,
-            fake_neutron_port_id,
+            fake_neutron_port_id, constants.PORT_STATUS_DOWN,
             fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
         app.neutron.list_ports(name=neutron_port_name).AndReturn(
             fake_neutron_ports_response)
@@ -507,6 +513,16 @@ class TestKuryr(base.TestKuryrBase):
         fake_neutron_subnets = fake_neutron_subnets_response['subnets']
         _, fake_peer_name, _ = self._mock_out_binding(
             fake_docker_endpoint_id, fake_neutron_port, fake_neutron_subnets)
+
+        if vif_plug_is_fatal:
+            self.mox.StubOutWithMock(app.neutron, 'show_port')
+            fake_neutron_ports_response_2 = self._get_fake_port(
+                fake_docker_endpoint_id, fake_neutron_net_id,
+                fake_neutron_port_id, constants.PORT_STATUS_ACTIVE,
+                fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
+            app.neutron.show_port(fake_neutron_port_id).AndReturn(
+                fake_neutron_ports_response_2)
+
         self.mox.ReplayAll()
 
         fake_subnets_dict_by_id = {subnet['id']: subnet
@@ -554,7 +570,7 @@ class TestKuryr(base.TestKuryrBase):
         fake_neutron_v6_subnet_id = str(uuid.uuid4())
         fake_neutron_ports_response = self._get_fake_ports(
             fake_docker_endpoint_id, fake_neutron_net_id,
-            fake_neutron_port_id,
+            fake_neutron_port_id, constants.PORT_STATUS_ACTIVE,
             fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
         app.neutron.list_ports(name=neutron_port_name).AndReturn(
             fake_neutron_ports_response)
@@ -570,6 +586,7 @@ class TestKuryr(base.TestKuryrBase):
                                  content_type='application/json',
                                  data=jsonutils.dumps(leave_request))
 
+        self.mox.ReplayAll()
         self.assertEqual(200, response.status_code)
         decoded_json = jsonutils.loads(response.data)
         self.assertEqual(constants.SCHEMA['SUCCESS'], decoded_json)

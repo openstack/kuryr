@@ -169,6 +169,7 @@ class TestKuryrBase(TestCase):
     @staticmethod
     def _get_fake_port(docker_endpoint_id, neutron_network_id,
                        neutron_port_id,
+                       neutron_port_status=const.PORT_STATUS_DOWN,
                        neutron_subnet_v4_id=None,
                        neutron_subnet_v6_id=None,
                        neutron_subnet_v4_address="192.168.1.2",
@@ -177,7 +178,7 @@ class TestKuryrBase(TestCase):
         #   http://developer.openstack.org/api-ref-networking-v2.html#createPort  # noqa
         fake_port = {
             'port': {
-                "status": "DOWN",
+                "status": neutron_port_status,
                 "name": utils.get_neutron_port_name(docker_endpoint_id),
                 "allowed_address_pairs": [],
                 "admin_state_up": True,
@@ -206,11 +207,11 @@ class TestKuryrBase(TestCase):
 
     @classmethod
     def _get_fake_ports(cls, docker_endpoint_id, neutron_network_id,
-                        fake_neutron_port_id,
+                        fake_neutron_port_id, neutron_port_status,
                         fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id):
         fake_port = cls._get_fake_port(
             docker_endpoint_id, neutron_network_id,
-            fake_neutron_port_id,
+            fake_neutron_port_id, neutron_port_status,
             fake_neutron_subnet_v4_id, fake_neutron_subnet_v6_id)
         fake_port = fake_port['port']
         fake_ports = {

@@ -63,6 +63,15 @@ class NoResourceException(KuryrException):
     """
 
 
+class InactiveResourceException(KuryrException):
+    """Exception represents the resource for the given query is not active.
+
+    This exception is thrown when you query the Neutron resource associated
+    with the given query and you get the status of the resource as something
+    other than ACTIVE.
+    """
+
+
 class VethCreationFailure(KuryrException):
     """Exception represents the veth pair creation is failed.
 

@@ -196,7 +196,7 @@ class TestKuryrIpam(base.TestKuryrBase):
         fake_neutron_port_id = str(uuid.uuid4())
         fake_port = base.TestKuryrBase._get_fake_port(
             docker_endpoint_id, neutron_network_id,
-            fake_neutron_port_id,
+            fake_neutron_port_id, const.PORT_STATUS_ACTIVE,
             subnet_v4_id,
             neutron_subnet_v4_address="10.0.0.5")
         port_request = {
@@ -361,7 +361,7 @@ class TestKuryrIpam(base.TestKuryrBase):
         fake_neutron_port_id = str(uuid.uuid4())
         fake_port = base.TestKuryrBase._get_fake_port(
             docker_endpoint_id, neutron_network_id,
-            fake_neutron_port_id,
+            fake_neutron_port_id, const.PORT_STATUS_ACTIVE,
             subnet_v4_id,
             neutron_subnet_v4_address=fake_ip4)
         port_request = {

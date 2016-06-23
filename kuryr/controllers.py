@@ -15,11 +15,13 @@ import os_client_config
 import flask
 import jsonschema
 import netaddr
+import time
 
 from neutronclient.common import exceptions as n_exceptions
 from neutronclient.neutron import client
 from oslo_concurrency import processutils
 from oslo_config import cfg
+from oslo_log import log
 from oslo_utils import excutils
 
 from kuryr import app
@@ -30,6 +32,8 @@ from kuryr.common import exceptions
 from kuryr._i18n import _LE, _LI, _LW
 from kuryr import schemata
 from kuryr import utils
+
+LOG = log.getLogger(__name__)
 
 
 MANDATORY_NEUTRON_EXTENSION = "subnet_allocation"
@@ -110,6 +114,8 @@ def neutron_client():
     if not hasattr(app, 'neutron'):
         app.neutron = get_neutron_client()
         app.enable_dhcp = cfg.CONF.neutron_client.enable_dhcp
+        app.vif_plug_is_fatal = cfg.CONF.neutron_client.vif_plugging_is_fatal
+        app.vif_plug_timeout = cfg.CONF.neutron_client.vif_plugging_timeout
         app.neutron.format = 'json'
 
 
@@ -365,6 +371,27 @@ def _get_networks_by_identifier(identifier):
     if app.tag:
         return _get_networks_by_attrs(tags=identifier)
     return _get_networks_by_attrs(name=identifier)
+
+
+def _port_active(neutron_port_id, vif_plug_timeout):
+    port_active = False
+    tries = 0
+    while True:
+        try:
+            port = app.neutron.show_port(neutron_port_id)
+        except n_exceptions.NeutronClientException as ex:
+            app.logger.error(_LE('Could not get the port %s to check '
+                                 'its status'), ex)
+        else:
+            if port['port']['status'] == const.PORT_STATUS_ACTIVE:
+                port_active = True
+        if port_active or (tries >= vif_plug_timeout):
+            break
+        LOG.debug('Waiting for port %s to become ACTIVE', neutron_port_id)
+        tries += 1
+        time.sleep(1)
+
+    return port_active
 
 
 @app.route('/Plugin.Activate', methods=['POST'])
@@ -824,6 +851,14 @@ def network_driver_join():
             with excutils.save_and_reraise_exception():
                 app.logger.error(_LE(
                     'Could not bind the Neutron port to the veth endpoint.'))
+
+        if app.vif_plug_is_fatal:
+            port_active = _port_active(neutron_port['id'],
+                                       app.vif_plug_timeout)
+            if not port_active:
+                raise exceptions.InactiveResourceException(
+                    "Neutron port {0} did not become active on time."
+                    .format(neutron_port_name))
 
         join_response = {
             "InterfaceName": {

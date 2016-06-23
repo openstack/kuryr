@@ -61,6 +61,13 @@ neutron_opts = [
     cfg.StrOpt('default_subnetpool_v6',
                default='kuryr6',
                help=_('Name of default subnetpool version 6')),
+    cfg.BoolOpt('vif_plugging_is_fatal',
+                default=False,
+                help=_("Whether a plugging operation is failed if the port "
+                       "to plug does not become active")),
+    cfg.IntOpt('vif_plugging_timeout',
+               default=0,
+               help=_("Seconds to wait for port to become active")),
 ]
 keystone_opts = [
     cfg.StrOpt('auth_uri',
