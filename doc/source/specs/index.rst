@@ -39,7 +39,7 @@ Spec Template
 
     skeleton
     template
-    mitaka/index
+    newton/index
 
 Indices and tables
 ------------------
