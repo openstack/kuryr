@@ -84,7 +84,7 @@ Proposed Workflow
 
    If subnet information is specified by ``--subnet``, ``--gateway``, and
    ``--ip-range`` as shown in the command above, the corresponding subnetpools
-   and subnets are created or the exising resources are appropriately reused
+   and subnets are created or the existing resources are appropriately reused
    based on the provided information such as CIDR. For instance, if the network
    with the given UUID in the command exists and that network has the subnet
    whose CIDR is the same as what is given by ``--subnet`` and possibly
