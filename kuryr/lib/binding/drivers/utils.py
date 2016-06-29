@@ -19,7 +19,6 @@ from kuryr.lib import constants
 
 
 _IPDB_CACHE = None
-_IPROUTE_CACHE = None
 
 FIXED_IP_KEY = 'fixed_ips'
 IP_ADDRESS_KEY = 'ip_address'
@@ -51,22 +50,6 @@ def get_ipdb():
     return _IPDB_CACHE
 
 
-def get_iproute():
-    """Returns the already cached or a newly created IPRoute instance.
-
-    IPRoute reads the Linux specific file when it's instantiated. This
-    behaviour prevents Mac OSX users from running unit tests. This function
-    makes the loading IPDB lazyily and therefore it can be mocked after the
-    import of modules that import this module.
-
-    :returns: The already cached or newly created ``pyroute2.IPRoute`` instance
-    """
-    global _IPROUTE_CACHE
-    if not _IPROUTE_CACHE:
-        _IPROUTE_CACHE = pyroute2.IPRoute()
-    return _IPROUTE_CACHE
-
-
 def remove_device(ifname):
     """Removes the device with name ifname.
 
@@ -75,15 +58,15 @@ def remove_device(ifname):
               exists, otherwise None
     :raises: pyroute2.NetlinkError
     """
-    ipr = get_iproute()
+    ip = get_ipdb()
 
-    devices = ipr.link_lookup(ifname=ifname)
-    if devices:
-        dev_index = devices[0]
-        ipr.link('del', index=dev_index)
-        return dev_index
-    else:
-        return None
+    dev_index = ip.interface.get(ifname, {}).get('index', None)
+
+    if dev_index:
+        with ip.interfaces[ifname] as iface:
+            iface.remove()
+
+    return dev_index
 
 
 def is_up(interface):
