@@ -2,7 +2,7 @@
 
 set -ex
 
-VENV=${1:-"fullstack"}
+VENV=${1:-"debug-py27"}
 
 GATE_DEST=$BASE/new
 DEVSTACK_PATH=$GATE_DEST/devstack

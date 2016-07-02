@@ -13,29 +13,17 @@
 import uuid
 
 import ddt
+
 from oslo_config import cfg
 
-from kuryr.common import constants as const
+from kuryr.lib import constants as const
+from kuryr.lib import utils
 from kuryr.tests.unit import base
-from kuryr import utils
 
 
 @ddt.ddt
-class TestKuryrUtils(base.TestKuryrBase):
+class TestKuryrUtils(base.TestCase):
     """Unit tests for utilities."""
-
-    @ddt.data(utils.get_hash(), '51c75a2515d4' '51c75a')
-    def test_get_sandbox_key(self, fake_container_id):
-        sandbox_key = utils.get_sandbox_key(fake_container_id)
-        expected = '/'.join([utils.DOCKER_NETNS_BASE, fake_container_id[:12]])
-        self.assertEqual(expected, sandbox_key)
-
-    def test_get_port_name(self):
-        fake_docker_endpoint_id = utils.get_hash()
-        generated_neutron_port_name = utils.get_neutron_port_name(
-            fake_docker_endpoint_id)
-        self.assertIn(utils.PORT_POSTFIX, generated_neutron_port_name)
-        self.assertIn(fake_docker_endpoint_id, generated_neutron_port_name)
 
     def test_get_veth_pair_names(self):
         fake_neutron_port_id = str(uuid.uuid4())
@@ -60,18 +48,3 @@ class TestKuryrUtils(base.TestKuryrBase):
         name_prefix = cfg.CONF.subnetpool_name_prefix
         self.assertIn(name_prefix, generated_neutron_subnetpool_name)
         self.assertIn(fake_subnet_cidr, generated_neutron_subnetpool_name)
-
-    def test_get_dict_format_fixed_ips_from_kv_format(self):
-        fake_fixed_ips_kv_format = \
-            ['subnet_id=5083bda8-1b7c-4625-97f3-1d4c33bfeea8',
-             'ip_address=192.168.1.2',
-             'subnet_id=6607a230-f3eb-4937-b09f-9dd659211139',
-             'ip_address=fdfa:8456:1afa:0:f816:3eff:fe67:885e']
-        expected_dict_form = \
-            [{'subnet_id': '5083bda8-1b7c-4625-97f3-1d4c33bfeea8',
-              'ip_address': '192.168.1.2'},
-             {'subnet_id': '6607a230-f3eb-4937-b09f-9dd659211139',
-              'ip_address': 'fdfa:8456:1afa:0:f816:3eff:fe67:885e'}]
-        fixed_ips = utils.get_dict_format_fixed_ips_from_kv_format(
-                        fake_fixed_ips_kv_format)
-        self.assertEqual(expected_dict_form, fixed_ips)

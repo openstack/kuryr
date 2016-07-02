@@ -11,25 +11,14 @@
 # under the License.
 
 import hashlib
-import os
 import random
 import socket
-import sys
-import traceback
 
-import flask
-import jsonschema
-
-from neutronclient.common import exceptions as n_exceptions
 from neutronclient.neutron import client
 from neutronclient.v2_0 import client as client_v2
-from oslo_concurrency import processutils
 from oslo_config import cfg
-from werkzeug import exceptions as w_exceptions
 
-from kuryr._i18n import _LE
-from kuryr.common import constants as const
-from kuryr.common import exceptions
+from kuryr.lib import constants as const
 
 DOCKER_NETNS_BASE = '/var/run/docker/netns'
 PORT_POSTFIX = 'port'
@@ -50,64 +39,9 @@ def get_neutron_client(url, username, tenant_name, password,
                             ca_cert=ca_cert, insecure=insecure)
 
 
-# Return all errors as JSON. From http://flask.pocoo.org/snippets/83/
-def make_json_app(import_name, **kwargs):
-    """Creates a JSON-oriented Flask app.
-
-    All error responses that you don't specifically manage yourself will have
-    application/json content type, and will contain JSON that follows the
-    libnetwork remote driver protocol.
-
-
-    { "Err": "405: Method Not Allowed" }
-
-
-    See:
-      - https://github.com/docker/libnetwork/blob/3c8e06bc0580a2a1b2440fe0792fbfcd43a9feca/docs/remote.md#errors  # noqa
-    """
-    app = flask.Flask(import_name, **kwargs)
-
-    @app.errorhandler(exceptions.KuryrException)
-    @app.errorhandler(n_exceptions.NeutronClientException)
-    @app.errorhandler(jsonschema.ValidationError)
-    @app.errorhandler(processutils.ProcessExecutionError)
-    def make_json_error(ex):
-        app.logger.error(_LE("Unexpected error happened: %s"), ex)
-        traceback.print_exc(file=sys.stderr)
-        response = flask.jsonify({"Err": str(ex)})
-        response.status_code = w_exceptions.InternalServerError.code
-        if isinstance(ex, w_exceptions.HTTPException):
-            response.status_code = ex.code
-        elif isinstance(ex, n_exceptions.NeutronClientException):
-            response.status_code = ex.status_code
-        elif isinstance(ex, jsonschema.ValidationError):
-            response.status_code = w_exceptions.BadRequest.code
-        content_type = 'application/vnd.docker.plugins.v1+json; charset=utf-8'
-        response.headers['Content-Type'] = content_type
-        return response
-
-    for code in w_exceptions.default_exceptions:
-        app.register_error_handler(code, make_json_error)
-
-    return app
-
-
-def get_sandbox_key(container_id):
-    """Returns a sandbox key constructed with the given container ID.
-
-    :param container_id: the ID of the Docker container as string
-    :returns: the constructed sandbox key as string
-    """
-    return os.path.join(DOCKER_NETNS_BASE, container_id[:12])
-
-
-def get_neutron_port_name(docker_endpoint_id):
-    """Returns a Neutron port name.
-
-    :param docker_endpoint_id: the EndpointID
-    :returns: the Neutron port name formatted appropriately
-    """
-    return '-'.join([docker_endpoint_id, PORT_POSTFIX])
+def get_hostname():
+    """Returns the host name."""
+    return socket.gethostname()
 
 
 def get_veth_pair_names(port_id):
@@ -116,11 +50,6 @@ def get_veth_pair_names(port_id):
     peer_name = const.CONTAINER_VETH_PREFIX + port_id
     peer_name = peer_name[:const.NIC_NAME_LEN]
     return ifname, peer_name
-
-
-def get_hostname():
-    """Returns the host name."""
-    return socket.gethostname()
 
 
 def get_neutron_subnetpool_name(subnet_cidr):
@@ -160,26 +89,6 @@ def getrandbits(bit_size=256):
 
 def get_hash(bit_size=256):
     return hashlib.sha256(getrandbits(bit_size=bit_size)).hexdigest()
-
-
-def create_net_tags(tag):
-    tags = []
-    tags.append(const.NEUTRON_ID_LH_OPTION + ':' + tag[:32])
-    if len(tag) > 32:
-        tags.append(const.NEUTRON_ID_UH_OPTION + ':' + tag[32:64])
-
-    return tags
-
-
-def make_net_tags(tag):
-    tags = create_net_tags(tag)
-    return ','.join(map(str, tags))
-
-
-def make_net_name(netid, tags=True):
-    if tags:
-        return const.NET_NAME_PREFIX + netid[:8]
-    return netid
 
 
 def string_mappings(mapping_list):

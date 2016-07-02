@@ -10,18 +10,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
 import os
 
-from neutronclient.common import exceptions as n_exceptions
 
-from kuryr.common import config
-from kuryr.common import exceptions
-from kuryr import controllers
+from kuryr.lib import config
 from kuryr.tests.unit import base
 
 
-class ConfigurationTest(base.TestKuryrBase):
+class ConfigurationTest(base.TestCase):
 
     def test_defaults(self):
         basepath = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -44,16 +40,3 @@ class ConfigurationTest(base.TestKuryrBase):
 
         self.assertEqual('http://127.0.0.1:35357/v2.0',
                          config.CONF.keystone_client.auth_uri)
-
-    def test_check_for_neutron_ext_support_with_ex(self):
-        with mock.patch.object(controllers.app.neutron,
-                            'show_extension') as mock_extension:
-            ext_alias = "subnet_allocation"
-            err = n_exceptions.NotFound.status_code
-            ext_not_found_ex = n_exceptions.NeutronClientException(
-                                                    status_code=err,
-                                                    message="")
-            mock_extension.side_effect = ext_not_found_ex
-            ex = exceptions.MandatoryApiMissing
-            self.assertRaises(ex, controllers.check_for_neutron_ext_support)
-            mock_extension.assert_called_once_with(ext_alias)

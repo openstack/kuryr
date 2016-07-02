@@ -6,7 +6,7 @@ KURYR_DIR="$BASE/new/kuryr"
 TEMPEST_DIR="$BASE/new/tempest"
 SCRIPTS_DIR="/usr/os-testr-env/bin/"
 
-venv=${1:-"fullstack"}
+venv=${1:-"debug-py27"}
 
 function generate_test_logs {
     local path="$1"

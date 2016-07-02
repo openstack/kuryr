@@ -17,9 +17,9 @@ from oslo_concurrency import processutils
 from oslo_utils import excutils
 import pyroute2
 
-from kuryr.common import config
-from kuryr.common import exceptions
-from kuryr import utils
+from kuryr.lib import config
+from kuryr.lib import exceptions
+from kuryr.lib import utils
 
 
 BINDING_SUBCOMMAND = 'bind'
