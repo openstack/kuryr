@@ -25,6 +25,14 @@ Features
 * TODO
 
 
+Getting Code
+------------
+
+::
+
+    $ git clone https://git.openstack.org/openstack/kuryr.git
+    $ cd kuryr
+
 Prerequisites
 -------------
 
@@ -32,14 +40,13 @@ Prerequisites
 
     $ sudo pip install -r requirements.txt
 
+
 Installing Kuryr's libnetwork driver
 ------------------------------------
 
-Running the following will grab the requirements and install kuryr
+For kuryr-libnetwork driver installation refer:
 
-::
-
-    $ sudo pip install .
+http://docs.openstack.org/developer/kuryr-libnetwork/readme.html
 
 
 Configuring Kuryr
