@@ -33,7 +33,7 @@ Neutron resource Id's and Docker Id's (UUID's)
    first request is made*
 
    - During this process libnetwork makes a HTTP POST call on
-     ``/Plugin.Active`` and examines the driver type, which defaults to
+     ``/Plugin.Activate`` and examines the driver type, which defaults to
      ``"NetworkDriver"`` and ``"IpamDriver"``
    - libnetwork also calls the following two API endpoints
 
