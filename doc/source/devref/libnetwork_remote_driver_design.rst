@@ -5,10 +5,10 @@ Libnetwork Remote Network Driver Design
 What is Kuryr
 -------------
 
-Kuryr implements a `libnetwork remote network driver`_ and maps its calls to OpenStack
-`Neutron`_. It works as a translator between libnetwork's
-`Container Network Model`_ (CNM) and `Neutron's networking model`_. Kuryr also acts as
-a `libnetwork IPAM driver`_.
+Kuryr implements a `libnetwork remote network driver <https://github.com/docker/libnetwork/blob/master/docs/remote.md>`_
+and maps its calls to OpenStack `Neutron <https://wiki.openstack.org/wiki/Neutron>`_.
+It works as a translator between libnetwork's `Container Network Model <https://github.com/docker/libnetwork/blob/master/docs/design.md#the-container-network-model>`_ (CNM) and `Neutron's networking model <https://wiki.openstack.org/wiki/Neutron/APIv2-specification>`_.
+Kuryr also acts as a `libnetwork IPAM driver <https://github.com/docker/libnetwork/blob/master/docs/ipam.md>`_.
 
 Goal
 ~~~~
@@ -24,13 +24,13 @@ the host, e.g., Linux bridge, Open vSwitch datapath and so on.
 
 Kuryr Workflow - Host Networking
 --------------------------------
-Kuryr resides in each host that runs Docker containers and serves `APIs`_
+Kuryr resides in each host that runs Docker containers and serves `APIs <https://github.com/docker/libnetwork/blob/master/docs/design.md#api>`_
 required for the libnetwork remote network driver. It is planned to use the
-`Adding tags to resources`_ new Neutron feature by Kuryr, to map between
+`Adding tags to resources <https://review.openstack.org/#/c/216021/>`_
+new Neutron feature by Kuryr, to map between
 Neutron resource Id's and Docker Id's (UUID's)
 
-1. libnetwork discovers Kuryr via `plugin discovery mechanism`_ *before the
-   first request is made*
+1. libnetwork discovers Kuryr via `plugin discovery mechanism <https://github.com/docker/docker/blob/master/docs/extend/plugin_api.md#plugin-discovery>`_ *before the first request is made*
 
    - During this process libnetwork makes a HTTP POST call on
      ``/Plugin.Active`` and examines the driver type, which defaults to
@@ -51,7 +51,7 @@ Neutron resource Id's and Docker Id's (UUID's)
 
 4. libnetwork makes API calls against Kuryr
 
-5. Kuryr receives the requests and calls Neutron APIs with `Neutron client`_
+5. Kuryr receives the requests and calls Neutron APIs with `Neutron client <http://docs.openstack.org/developer/python-neutronclient/>`_
 
 6. Kuryr receives the responses from Neutron and compose the responses for
    libnetwork
@@ -61,21 +61,19 @@ Neutron resource Id's and Docker Id's (UUID's)
 8. libnetwork stores the returned information to its key/value datastore
    backend
 
-   - the key/value datastore is abstracted by `libkv`_
+   - the key/value datastore is abstracted by `libkv <https://github.com/docker/libkv>`_
 
 
 Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 ---------------------------------------------------------------------------------
-1. A user creates a network ``foo`` with the subnet information
-   ::
+1. A user creates a network ``foo`` with the subnet information::
 
        $ sudo docker network create --driver=kuryr --ipam-driver=kuryr \
          --subnet 10.0.0.0/16 --gateway 10.0.0.1 --ip-range 10.0.0.0/24 foo
        286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364
 
    This makes a HTTP POST call on ``/IpamDriver.RequestPool`` with the following
-   JSON data.
-   ::
+   JSON data::
 
        {
            "AddressSpace": "global_scope",
@@ -87,8 +85,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
    The value of ``SubPool`` comes from the value specified in ``--ip-range``
    option in the command above and value of ``AddressSpace`` will be ``global_scope`` or ``local_scope`` depending on value of ``capability_scope`` configuration option. Kuryr creates a subnetpool, and then returns
-   the following response.
-   ::
+   the following response::
 
        {
            "PoolID": "941f790073c3a2c70099ea527ee3a6205e037e84749f2c6e8a5287d9c62fd376",
@@ -97,8 +94,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
        }
 
    If the ``--gateway`` was specified like the command above, another HTTP POST
-   call against ``/IpamDriver.RequestAddress`` follows with the JSON data below.
-   ::
+   call against ``/IpamDriver.RequestAddress`` follows with the JSON data below::
 
        {
            "Address": "10.0.0.1",
@@ -107,8 +103,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
        }
 
    As the IPAM driver Kuryr allocates a requested IP address and returns the
-   following response.
-   ::
+   following response::
 
        {
            "Address": "10.0.0.1/16",
@@ -116,8 +111,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
        }
 
    Finally a HTTP POST call on ``/NetworkDriver.CreateNetwork`` with the
-   following JSON data.
-   ::
+   following JSON data::
 
         {
             "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
@@ -136,15 +130,13 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    will generate an empty success response to the docker daemon. Kuryr tags the
    Neutron network with the NetworkID from docker.
 
-2. A user launches a container against network ``foo``
-   ::
+2. A user launches a container against network ``foo``::
 
        $ sudo docker run --net=foo -itd --name=container1 busybox
        78c0458ba00f836f609113dd369b5769527f55bb62b5680d03aa1329eb416703
 
    This makes a HTTP POST call on ``/IpamDriver.RequestAddress`` with the
-   following JSON data.
-   ::
+   following JSON data::
 
         {
             "Address": "",
@@ -152,8 +144,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
             "Options": null,
         }
 
-   The IPAM driver Kuryr sends a port creation request to neutron and returns the following response with neutron provided ip address.
-   ::
+   The IPAM driver Kuryr sends a port creation request to neutron and returns the following response with neutron provided ip address::
 
        {
            "Address": "10.0.0.2/16",
@@ -162,8 +153,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
 
    Then another HTTP POST call on ``/NetworkDriver.CreateEndpoint`` with the
-   following JSON data is made.
-   ::
+   following JSON data is made::
 
         {
             "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
@@ -193,8 +183,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
    When the Neutron port has been updated, the Kuryr remote driver will
    generate a response to the docker daemon in following form:
-   (https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-endpoint)
-   ::
+   (https://github.com/docker/libnetwork/blob/master/docs/remote.md#create-endpoint)::
 
         {
             "Interface": {"MacAddress": "08:22:e0:a8:7d:db"}
@@ -202,8 +191,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
 
    On receiving success response, libnetwork makes a HTTP POST call on ``/NetworkDriver.Join`` with
-   the following JSON data.
-   ::
+   the following JSON data::
 
         {
             "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
@@ -227,8 +215,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    documentation for a join request.
    (https://github.com/docker/libnetwork/blob/master/docs/remote.md#join)
 
-3. A user requests information about the network
-   ::
+3. A user requests information about the network::
 
        $ sudo docker network inspect foo
         {
@@ -255,8 +242,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         }
 
 
-4. A user connects one more container to the network
-   ::
+4. A user connects one more container to the network::
 
        $ sudo docker network connect foo container2
         d7fcc280916a8b771d2375688b700b036519d92ba2989622627e641bdde6e646
@@ -292,15 +278,13 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         }
 
 
-5. A user disconnects a container from the network
-   ::
+5. A user disconnects a container from the network::
 
        $ CID=d7fcc280916a8b771d2375688b700b036519d92ba2989622627e641bdde6e646
        $ sudo docker network disconnect foo $CID
 
    This makes a HTTP POST call on ``/NetworkDriver.Leave`` with the following
-   JSON data.
-   ::
+   JSON data::
 
        {
            "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
@@ -312,8 +296,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    Docker daemon.
 
    Then libnetwork makes a HTTP POST call on ``/NetworkDriver.DeleteEndpoint`` with the
-   following JSON data.
-   ::
+   following JSON data::
 
        {
            "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
@@ -326,8 +309,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    response to the Docker daemon: {}
 
    Finally libnetwork makes a HTTP POST call on ``/IpamDriver.ReleaseAddress``
-   with the following JSON data.
-   ::
+   with the following JSON data::
 
        {
            "Address": "10.0.0.3",
@@ -335,19 +317,16 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
        }
 
    Kuryr remote IPAM driver generates a Neutron API request to delete the associated Neutron port.
-   As the IPAM driver Kuryr deallocates the IP address and returns the following response.
-   ::
+   As the IPAM driver Kuryr deallocates the IP address and returns the following response::
 
        {}
 
-7. A user deletes the network
-   ::
+7. A user deletes the network::
 
        $ sudo docker network rm foo
 
    This makes a HTTP POST call against ``/NetworkDriver.DeleteNetwork`` with the
-   following JSON data.
-   ::
+   following JSON data::
 
        {
            "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364"
@@ -359,24 +338,22 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    daemon: {}
 
    Then another HTTP POST call on ``/IpamDriver.ReleasePool`` with the
-   following JSON data is made.
-   ::
+   following JSON data is made::
 
        {
            "PoolID": "941f790073c3a2c70099ea527ee3a6205e037e84749f2c6e8a5287d9c62fd376"
        }
 
-   Kuryr delete the corresponding subnetpool and returns the following response.
-   ::
+   Kuryr delete the corresponding subnetpool and returns the following response::
 
        {}
 
 Mapping between the CNM and the Neutron's Networking Model
 ----------------------------------------------------------
 
-Kuryr communicates with Neutron via `Neutron client`_ and bridges between
-libnetwork and Neutron by translating their networking models. The following
-table depicts the current mapping between libnetwork and Neutron models:
+Kuryr communicates with Neutron via `Neutron client <http://docs.openstack.org/developer/python-neutronclient/>`_
+and bridges between libnetwork and Neutron by translating their networking models.
+The following table depicts the current mapping between libnetwork and Neutron models:
 
 ===================== ======================
 libnetwork            Neutron
@@ -404,16 +381,3 @@ Notes on implementing the libnetwork remote driver API in Kuryr
    Neutron does not use the information related to discovery of resources such as
    nodes being deleted and therefore the implementation of this API method does
    nothing.
-
-.. _libnetwork remote network driver: https://github.com/docker/libnetwork/blob/master/docs/remote.md
-.. _libnetwork IPAM driver: https://github.com/docker/libnetwork/blob/master/docs/ipam.md
-.. _Neutron: https://wiki.openstack.org/wiki/Neutron
-.. _Container Network Model: https://github.com/docker/libnetwork/blob/master/docs/design.md#the-container-network-model
-.. _Neutron's networking model: https://wiki.openstack.org/wiki/Neutron/APIv2-specification
-.. _Neutron client: http://docs.openstack.org/developer/python-neutronclient/
-.. _plugin discovery mechanism: https://github.com/docker/docker/blob/master/docs/extend/plugin_api.md#plugin-discovery
-.. _Adding tags to resources: https://review.openstack.org/#/c/216021/
-.. _APIs: https://github.com/docker/libnetwork/blob/master/docs/design.md#api
-.. _libkv: https://github.com/docker/libkv
-.. _IPAM blueprint: https://blueprints.launchpad.net/kuryr/+spec/ipam
-.. _Neutron's API reference: http://developer.openstack.org/api-ref-networking-v2.html#createSubnet

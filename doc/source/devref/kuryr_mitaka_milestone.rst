@@ -4,15 +4,15 @@
 
  http://creativecommons.org/licenses/by/3.0/legalcode
 
-=====================================
+============================
 Kuryr - Milestone for Mitaka
-=====================================
+============================
 
 https://launchpad.net/kuryr
 
 
 Kuryr Roles and Responsibilities - First Milestone for Mitaka release
------------------------------------------------------------------------
+---------------------------------------------------------------------
 
 This chapter includes the various use cases that Kuryr aims at solving,
 some were briefly described in the introduction chapter.
@@ -72,7 +72,7 @@ This list of items will need to be prioritized.
 8) Mapping between Neutron identifiers and Docker identifiers
 
    A new spec in Neutron is being proposed that we can
-   leverage for this use case: `Adding tags to resources`_ .
+   leverage for this use case: `Adding tags to resources <https://review.openstack.org/#/c/216021/>`_ .
    Tags are similar in concept to Docker labels.
 
 9) Testing (CI)
@@ -97,22 +97,3 @@ Kuryr Future Scope
 
    An example project that does this for Kubernetes and Neutron LBaaS:
    https://github.com/kubernetes/kubernetes/blob/release-1.0/pkg/cloudprovider/openstack/openstack.go
-
-
-References
-==========
-
-.. _libnetwork remote driver: https://github.com/docker/libnetwork/blob/master/docs/remote.md
-.. _Neutron: https://wiki.openstack.org/wiki/Neutron
-.. _Container Network Model: https://github.com/docker/libnetwork/blob/master/docs/design.md#the-container-network-model
-.. _Neutron's networking model: https://wiki.openstack.org/wiki/Neutron/APIv2-specification
-.. _Magnum: https://wiki.openstack.org/wiki/Magnum
-.. _OVN: https://launchpad.net/networking-ovn
-.. _Kolla: https://wiki.openstack.org/wiki/Kolla
-.. _APIs: https://github.com/docker/libnetwork/blob/master/docs/design.md#api
-.. _plugin discovery mechanism: https://github.com/docker/docker/blob/master/docs/extend/plugin_api.md#plugin-discovery
-.. _Neutron client: http://docs.openstack.org/developer/python-neutronclient/
-.. _libkv: https://github.com/docker/libkv
-.. _VIF binding: https://blueprints.launchpad.net/kuryr/+spec/vif-binding-and-unbinding-mechanism
-.. _Adding tags to resources: https://review.openstack.org/#/c/216021/
-.. _User labels in docker patch: https://github.com/docker/libnetwork/pull/222/files#diff-2b9501381623bc063b38733c35a1d254
