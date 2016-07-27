@@ -10,9 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-
-
 from kuryr.lib import config
 from kuryr.tests.unit import base
 
@@ -20,14 +17,6 @@ from kuryr.tests.unit import base
 class ConfigurationTest(base.TestCase):
 
     def test_defaults(self):
-        basepath = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                '../../../'))
-        self.assertEqual(basepath,
-                         config.CONF.pybasedir)
-        self.assertEqual(basepath + '/usr/libexec/kuryr',
-                         config.CONF.bindir)
-        self.assertEqual('http://127.0.0.1:2377',
-                         config.CONF.kuryr_uri)
 
         self.assertEqual('http://127.0.0.1:9696',
                          config.CONF.neutron_client.neutron_uri)
