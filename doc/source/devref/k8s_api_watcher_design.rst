@@ -105,7 +105,7 @@ Endpoints         LBaaS Pool Member
 K8s API behaviour
 -----------------
 
-We look at the responses from the pod endpoints as an exmple.
+We look at the responses from the pod endpoints as an example.
 
 The following behaviour is based on the 1.2.0 release, which is the latest one
 as of March 17th, 2016.
@@ -349,7 +349,7 @@ apiserver into another form such as the request against Neutron API server.
 Watchers can be considered as concerns and reactions. They should be decoupled
 from the actual task dispatcher and their consumers. A single or multiple
 watchers can be mixed into the single class that leverages them, i.e., Raven,
-or even mutliple classes leverage them can have the same concern and the same
+or even multiple classes leverage them can have the same concern and the same
 reaction. The watchers can be able to be mixed into the single entity of the
 watcher user but they should work independently. For instance, ``AliceWatcher``
 does its work and knows nothing about other watchers such as ``BobWatcher``.
@@ -387,7 +387,7 @@ on their corresponding endpoints.
 To register the watchers to Raven or any class, ``register_watchers`` decorator
 is used. It simply inserts the watchers into the dictionary in the class,
 ``WATCH_ENDPOINTS_AND_CALLBACKS`` and it's up to the class how use the
-registerd watchers. The classes passed to ``register_watchers`` are defined in
+registered watchers. The classes passed to ``register_watchers`` are defined in
 the configuration file and you can specify only what you need.
 
 In the case of Raven, it starts the event loop, open connections for each
@@ -398,7 +398,7 @@ Raven is a service implements ``oslo_service.service.Service``. When ``start``
 method is called, it starts the event loop and delegatations of the watch tasks.
 If ``SIGINT`` or ``SIGTERM`` signal is sent to Raven, it cancells all watch
 tasks, closes connections and stops immediately. Otherwise Raven lets watchers
-keep watching the API endpionts until the API server sends EOF strings. When
+keep watching the API endpoints until the API server sends EOF strings. When
 ``stop`` is called, it cancells all watch tasks, closes connections and stops
 as well.
 
@@ -408,7 +408,7 @@ Neutron and possibly the K8s API server. And it depends on the Neutron client
 that shall be shared among the watchers. Hence, Raven calls the translate
 methods of the watchers binding itself to ``self``. That is, Raven can
 propagate its contexts to the watchers and in this way watchers can share the
-same contexts. However, it's responsibilty of the writer of the watchers to
+same contexts. However, it's responsibility of the writer of the watchers to
 track which variables are defined in Raven and what they are.
 
 Appendix A: JSON response from the apiserver for each resource
