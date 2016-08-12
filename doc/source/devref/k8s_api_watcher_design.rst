@@ -16,8 +16,8 @@
 Kubernetes API Watcher Design
 =============================
 
-This documentation describes the `Kubernetes API`_ watcher daemon component,
-**Raven**, of Kuryr.
+This documentation describes the `Kubernetes API <http://kubernetes.io/docs/api/>`_
+watcher daemon component, **Raven**, of Kuryr.
 
 What is Raven
 -------------
@@ -35,7 +35,7 @@ race condition because of the lack of the lock or the serialization mechanisms
 for the requests against Neutron API.
 
 Raven doesn't take care of the bindings between the virtual ports and the
-physical interfaces on worker nodes. It is the responsibility of Kuryr CNI_
+physical interfaces on worker nodes. It is the responsibility of Kuryr `CNI <https://github.com/appc/cni>`_
 plugin for K8s and it shall recognize which Neutron port should be bound to the
 physical interface associated with the pod to be deployed. So Raven focuses
 only on building the virtual network topology translated from the events of the
@@ -66,8 +66,8 @@ Namespaces are translated into the networking basis, Neutron networks and
 subnets for the cluster and the service using the explicitly predefined values
 in the configuration file, or implicitly specified by the environment
 variables, e.g., ``FLANNEL_NET=172.16.0.0/16`` as specified
-`in the deployment phase`_. Raven also creates Neutron routers for connecting
-the cluster subnets and the service subnets.
+`in the deployment phase <https://github.com/kubernetes/kubernetes/search?utf8=%E2%9C%93&q=FLANNEL_NET>`_.
+Raven also creates Neutron routers for connecting the cluster subnets and the service subnets.
 
 When each namespace is created, a cluster network that contains a cluster
 subnet, a service network that contains a service subnet, and a router that
@@ -78,13 +78,13 @@ Pods contain the information required for creating Neutron ports. If pods are
 associated with the specific namespace, the ports are created and associated
 with the subnets for the namespace.
 
-Although it's optional, Raven can emulate kube-proxy_. This is for the network
-controller that leverages isolated datapath from ``docker0`` bridge such as
-Open vSwitch datapath. Services contain the information for the emulation. Raven
-maps kube-proxy to Neutron load balancers with VIPs. In this case Raven also
-creates a LBaaS pool member for each Endpoints to be translated coordinating
-with the associated service translation. For "externalIPs" type K8s service,
-Raven associates a floating IP with a load balancer for enabling the pubilc
+Although it's optional, Raven can emulate `kube-proxy <http://kubernetes.io/docs/user-guide/services/#virtual-ips-and-service-proxies>`_.
+This is for the network controller that leverages isolated datapath from ``docker0``
+bridge such as Open vSwitch datapath. Services contain the information for the
+emulation. Raven maps kube-proxy to Neutron load balancers with VIPs. In this case
+Raven also creates a LBaaS pool member for each Endpoints to be translated
+coordinating with the associated service translation. For "externalIPs" type K8s
+service, Raven associates a floating IP with a load balancer for enabling the pubilc
 accesses.
 
 ================= =================
@@ -108,9 +108,7 @@ K8s API behaviour
 We look at the responses from the pod endpoints as an example.
 
 The following behaviour is based on the 1.2.0 release, which is the latest one
-as of March 17th, 2016.
-
-::
+as of March 17th, 2016::
 
     $ ./kubectl.sh version
     Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.0", GitCommit:"5cb86ee022267586db386f62781338b0483733b3", GitTreeState:"clean"}
@@ -120,9 +118,7 @@ Regular requests
 ~~~~~~~~~~~~~~~~
 
 If there's no pod, the K8s API server returns the following JSON response that
-has the empty list for the ``"items"`` property.
-
-::
+has the empty list for the ``"items"`` property::
 
     $ curl -X GET -i http://127.0.0.1:8080/api/v1/pods
     HTTP/1.1 200 OK
@@ -140,17 +136,13 @@ has the empty list for the ``"items"`` property.
       "items": []
     }
 
-We deploy a pod as follow.
-
-::
+We deploy a pod as follow::
 
     $ ./kubectl.sh run --image=nginx nginx-app --port=80
     replicationcontroller "nginx-app" created
 
 Then the response from the API server contains the pod information in
-``"items"`` property of the JSON response.
-
-::
+``"items"`` property of the JSON response::
 
     $ curl -X GET -i http://127.0.0.1:8080/api/v1/pods
     HTTP/1.1 200 OK
@@ -266,9 +258,7 @@ for the specific resource name, i.e., ``/api/v1/watch/pods``, or ``watch=true``
 query string.
 
 If there's no pod, we get only the response header and the connection is kept
-open.
-
-::
+open::
 
     $ curl -X GET -i http://127.0.0.1:8080/api/v1/pods?watch=true
     HTTP/1.1 200 OK
@@ -276,20 +266,15 @@ open.
     Date: Tue, 15 Mar 2016 08:00:09 GMT
     Content-Type: text/plain; charset=utf-8
     Transfer-Encoding: chunked
-    
 
-We create a pod as we did for the case without the ``watch=true`` query string.
-
-::
+We create a pod as we did for the case without the ``watch=true`` query string::
 
     $ ./kubectl.sh run --image=nginx nginx-app --port=80
     replicationcontroller "nginx-app" created
 
 Then we observe the JSON data corresponds to the event is given by each line.
 The event type is given in ``"type"`` property of the JSON data, i.e.,
-``"ADDED"``, ``"MODIFIED"`` and ``"DELETED"``.
-
-::
+``"ADDED"``, ``"MODIFIED"`` and ``"DELETED"``::
 
     $ curl -X GET -i http://127.0.0.1:8080/api/v1/pods?watch=true
     HTTP/1.1 200 OK
@@ -310,21 +295,25 @@ Problem Statement
 ~~~~~~~~~~~~~~~~~
 
 To conform to the I/O bound requirement described in :ref:`k8s-api-behaviour`,
-the multiplexed concurrent network I/O is demanded. eventlet_ is used in
-various OpenStack projects for this purpose as well as other libraries such as
-Twisted_, Tornado_ and gevent_. However, it has problems as described in
-"`What's wrong with eventlet?`_" on the OpenStack wiki page.
+the multiplexed concurrent network I/O is demanded.
+`eventlet <http://eventlet.net/>`_ is used in various OpenStack projects for this
+purpose as well as other libraries such as `Twisted <https://twistedmatrix.com/trac/>`_,
+`Tornado <http://tornadoweb.org/>`_ and `gevent <http://www.gevent.org/>`_.
+However, it has problems as described in
+"`What's wrong with eventlet? <https://wiki.openstack.org/wiki/Oslo/blueprints/asyncio#What.27s_wrong_with_eventlet.3F>`_"
+on the OpenStack wiki page.
 
 asyncio and Python 3 by default
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-asyncio_ was introduced as a standard asynchronous I/O library in Python 3.4.
-Its event loop and coroutines provide the mechanism to multiplex network I/O
-in the asynchronous fashion. Compared with eventlet, we can explicitly mark the
-I/O operations asynchronous with ``yield from`` or ``await`` introduced in
-Python 3.5.
+`asyncio <https://www.python.org/dev/peps/pep-3156/>`_ was introduced as a
+standard asynchronous I/O library in Python 3.4. Its event loop and coroutines
+provide the mechanism to multiplex network I/O in the asynchronous fashion.
+Compared with eventlet, we can explicitly mark the I/O operations asynchronous
+with ``yield from`` or ``await`` introduced in Python 3.5.
 
-Trollius_ is a port of asyncio to Python 2.x. However `Trollius documentation`_
+`Trollius <http://trollius.readthedocs.org/>`_ is a port of asyncio to Python 2.x.
+However `Trollius documentation <http://trollius.readthedocs.org/deprecated.html>`_
 is describing a list of problems and even promoting the migration to Python 3
 with asyncio.
 
@@ -621,7 +610,7 @@ ADDED
     }
 
 MODIFIED
-~~~~~~~~
+++++++++
 
 ::
 
@@ -1050,16 +1039,3 @@ DELETED
 ++++++++
 
 The event could not be observed.
-
-.. _`Kubernetes API`: http://kubernetes.io/docs/api/
-.. _CNI: https://github.com/appc/cni
-.. _`in the deployment phase`: https://github.com/kubernetes/kubernetes/search?utf8=%E2%9C%93&q=FLANNEL_NET
-.. _kube-proxy: http://kubernetes.io/docs/user-guide/services/#virtual-ips-and-service-proxies
-.. _eventlet: http://eventlet.net/
-.. _Twisted: https://twistedmatrix.com/trac/
-.. _Tornado: http://tornadoweb.org/
-.. _gevent: http://www.gevent.org/
-.. _`What's wrong with eventlet?`: https://wiki.openstack.org/wiki/Oslo/blueprints/asyncio#What.27s_wrong_with_eventlet.3F
-.. _asyncio: https://www.python.org/dev/peps/pep-3156/
-.. _Trollius: http://trollius.readthedocs.org/
-.. _`Trollius documentation`: http://trollius.readthedocs.org/deprecated.html

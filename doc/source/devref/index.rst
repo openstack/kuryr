@@ -21,7 +21,7 @@
 
 
 Design and Developer Docs
-==========================
+=========================
 
 Kuryr goal is to bring containers networking to Neutron core API
 and advanced networking services.
