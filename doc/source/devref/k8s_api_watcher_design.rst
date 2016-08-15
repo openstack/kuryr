@@ -84,7 +84,7 @@ bridge such as Open vSwitch datapath. Services contain the information for the
 emulation. Raven maps kube-proxy to Neutron load balancers with VIPs. In this case
 Raven also creates a LBaaS pool member for each Endpoints to be translated
 coordinating with the associated service translation. For "externalIPs" type K8s
-service, Raven associates a floating IP with a load balancer for enabling the pubilc
+service, Raven associates a floating IP with a load balancer for enabling the public
 accesses.
 
 ================= =================
