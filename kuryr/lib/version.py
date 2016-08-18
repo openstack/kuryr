@@ -14,4 +14,4 @@
 
 import pbr.version
 
-version_info = pbr.version.VersionInfo('kuryr')
+version_info = pbr.version.VersionInfo('kuryr-lib')
