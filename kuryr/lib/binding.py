@@ -14,10 +14,10 @@ import os
 
 import netaddr
 from oslo_concurrency import processutils
+from oslo_config import cfg
 from oslo_utils import excutils
 import pyroute2
 
-from kuryr.lib import config
 from kuryr.lib import exceptions
 from kuryr.lib import utils
 
@@ -152,7 +152,7 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets,
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     vif_details = utils.string_mappings(neutron_port.get(VIF_DETAILS_KEY))
-    binding_exec_path = os.path.join(config.CONF.bindir, vif_type)
+    binding_exec_path = os.path.join(cfg.CONF.bindir, vif_type)
     if not os.path.exists(binding_exec_path):
         cleanup_veth(ifname)
         raise exceptions.BindingNotSupportedFailure(
@@ -186,7 +186,7 @@ def port_unbind(endpoint_id, neutron_port):
 
     vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
     vif_details = utils.string_mappings(neutron_port.get(VIF_DETAILS_KEY))
-    unbinding_exec_path = os.path.join(config.CONF.bindir, vif_type)
+    unbinding_exec_path = os.path.join(cfg.CONF.bindir, vif_type)
 
     port_id = neutron_port['id']
     ifname, _ = utils.get_veth_pair_names(port_id)

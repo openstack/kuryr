@@ -10,7 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from kuryr.lib import config
+from oslo_config import cfg
+
 from kuryr.tests.unit import base
 
 
@@ -19,13 +20,13 @@ class ConfigurationTest(base.TestCase):
     def test_defaults(self):
 
         self.assertEqual('http://127.0.0.1:9696',
-                         config.CONF.neutron_client.neutron_uri)
+                         cfg.CONF.neutron_client.neutron_uri)
 
         self.assertEqual('kuryr',
-                         config.CONF.neutron_client.default_subnetpool_v4)
+                         cfg.CONF.neutron_client.default_subnetpool_v4)
 
         self.assertEqual('kuryr6',
-                         config.CONF.neutron_client.default_subnetpool_v6)
+                         cfg.CONF.neutron_client.default_subnetpool_v6)
 
         self.assertEqual('http://127.0.0.1:35357/v2.0',
-                         config.CONF.keystone_client.auth_uri)
+                         cfg.CONF.keystone_client.auth_uri)

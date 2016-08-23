@@ -17,10 +17,8 @@ Routines for configuring Kuryr
 import os
 
 from oslo_config import cfg
-from oslo_log import log
 
 from kuryr.lib._i18n import _
-from kuryr.lib import version
 
 
 core_opts = [
@@ -82,18 +80,3 @@ binding_opts = [
                help=('The name prefix of the veth endpoint put inside the '
                      'container.'))
 ]
-
-
-CONF = cfg.CONF
-CONF.register_opts(core_opts)
-CONF.register_opts(neutron_opts, group='neutron_client')
-CONF.register_opts(keystone_opts, group='keystone_client')
-CONF.register_opts(binding_opts, 'binding')
-
-# Setting oslo.log options for logging.
-log.register_options(CONF)
-
-
-def init(args, **kwargs):
-    cfg.CONF(args=args, project='kuryr',
-             version=version.version_info.release_string(), **kwargs)

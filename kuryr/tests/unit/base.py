@@ -10,8 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from kuryr.lib import constants as const
+from oslo_config import cfg
 from oslotest import base
+
+from kuryr.lib import config
+from kuryr.lib import constants as const
 
 
 class TestCase(base.BaseTestCase):
@@ -19,6 +22,11 @@ class TestCase(base.BaseTestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
+        CONF = cfg.CONF
+        CONF.register_opts(config.core_opts)
+        CONF.register_opts(config.neutron_opts, group='neutron_client')
+        CONF.register_opts(config.keystone_opts, group='keystone_client')
+        CONF.register_opts(config.binding_opts, 'binding')
 
     @staticmethod
     def _get_fake_networks(neutron_network_id):
