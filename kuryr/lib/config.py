@@ -25,7 +25,7 @@ from kuryr.lib import version
 
 core_opts = [
     cfg.StrOpt('bindir',
-               default='$pybasedir/usr/libexec/kuryr',
+               default='/usr/libexec/kuryr',
                help=_('Directory for Kuryr vif binding executables.')),
     cfg.StrOpt('subnetpool_name_prefix',
                default='kuryrPool',
