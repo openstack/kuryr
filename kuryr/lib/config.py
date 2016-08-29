@@ -27,6 +27,10 @@ core_opts = [
     cfg.StrOpt('subnetpool_name_prefix',
                default='kuryrPool',
                help=_('Neutron subnetpool name will be prefixed by this.')),
+    cfg.StrOpt('deployment_type',
+               default='baremetal',
+               help=_("baremetal or nested-containers are the supported"
+                      " values.")),
 ]
 
 neutron_group = cfg.OptGroup(

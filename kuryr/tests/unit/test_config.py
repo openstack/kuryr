@@ -25,3 +25,5 @@ class ConfigurationTest(base.TestCase):
                          cfg.CONF.neutron.default_subnetpool_v6)
         self.assertEqual('public',
                          cfg.CONF.neutron.endpoint_type)
+        self.assertEqual('baremetal',
+                         cfg.CONF.deployment_type)
