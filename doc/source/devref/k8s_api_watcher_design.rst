@@ -62,9 +62,9 @@ The main focus of Raven is the following resources.
 * Service (Optional)
 * Endpoints (Optional)
 
-Namespaces are translated into the networking basis, Neutron networks and
-subnets for the cluster and the service using the explicitly predefined values
-in the configuration file, or implicitly specified by the environment
+Namespaces are translated into the basic Neutron constructs, Neutron networks
+and subnets for the cluster and the service using the explicitly predefined
+values in the configuration file, or implicitly specified by the environment
 variables, e.g., ``FLANNEL_NET=172.16.0.0/16`` as specified
 `in the deployment phase <https://github.com/kubernetes/kubernetes/search?utf8=%E2%9C%93&q=FLANNEL_NET>`_.
 Raven also creates Neutron routers for connecting the cluster subnets and the service subnets.
