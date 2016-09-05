@@ -18,15 +18,10 @@ from kuryr.tests.unit import base
 class ConfigurationTest(base.TestCase):
 
     def test_defaults(self):
-
-        self.assertEqual('http://127.0.0.1:9696',
-                         cfg.CONF.neutron_client.neutron_uri)
-
         self.assertEqual('kuryr',
-                         cfg.CONF.neutron_client.default_subnetpool_v4)
+                         cfg.CONF.neutron.default_subnetpool_v4)
 
         self.assertEqual('kuryr6',
-                         cfg.CONF.neutron_client.default_subnetpool_v6)
-
-        self.assertEqual('http://127.0.0.1:35357/v2.0',
-                         cfg.CONF.keystone_client.auth_uri)
+                         cfg.CONF.neutron.default_subnetpool_v6)
+        self.assertEqual('public',
+                         cfg.CONF.neutron.endpoint_type)

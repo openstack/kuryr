@@ -24,9 +24,8 @@ class TestCase(base.BaseTestCase):
         super(TestCase, self).setUp()
         CONF = cfg.CONF
         CONF.register_opts(config.core_opts)
-        CONF.register_opts(config.neutron_opts, group='neutron_client')
-        CONF.register_opts(config.keystone_opts, group='keystone_client')
         CONF.register_opts(config.binding_opts, 'binding')
+        config.register_neutron_opts(CONF)
 
     @staticmethod
     def _get_fake_networks(neutron_network_id):

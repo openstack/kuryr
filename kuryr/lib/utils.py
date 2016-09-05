@@ -14,29 +14,26 @@ import hashlib
 import random
 import socket
 
-from neutronclient.neutron import client
-from neutronclient.v2_0 import client as client_v2
+from keystoneauth1 import loading as ks_loading
+from neutronclient.v2_0 import client
 from oslo_config import cfg
 
+from kuryr.lib import config as kuryr_config
 from kuryr.lib import constants as const
 
 DOCKER_NETNS_BASE = '/var/run/docker/netns'
 PORT_POSTFIX = 'port'
 
 
-def get_neutron_client_simple(url, auth_url, token):
-    auths = auth_url.rsplit('/', 1)
-    version = auths[1][1:]
-    return client.Client(version, endpoint_url=url, token=token)
-
-
-def get_neutron_client(url, username, tenant_name, password,
-                       auth_url, ca_cert, insecure, timeout=30):
-
-    return client_v2.Client(endpoint_url=url, timeout=timeout,
-                            username=username, tenant_name=tenant_name,
-                            password=password, auth_url=auth_url,
-                            ca_cert=ca_cert, insecure=insecure)
+def get_neutron_client(*args, **kwargs):
+    auth_plugin = ks_loading.load_auth_from_conf_options(
+        cfg.CONF, kuryr_config.neutron_group.name)
+    session = ks_loading.load_session_from_conf_options(cfg.CONF,
+                                                        'neutron',
+                                                        auth=auth_plugin)
+    return client.Client(session=session,
+                         auth=auth_plugin,
+                         endpoint_type=cfg.CONF.neutron.endpoint_type)
 
 
 def get_hostname():

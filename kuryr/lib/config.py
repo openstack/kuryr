@@ -14,8 +14,7 @@
 Routines for configuring Kuryr
 """
 
-import os
-
+from keystoneauth1 import loading as ks_loading
 from oslo_config import cfg
 
 from kuryr.lib._i18n import _
@@ -29,10 +28,13 @@ core_opts = [
                default='kuryrPool',
                help=_('Neutron subnetpool name will be prefixed by this.')),
 ]
+
+neutron_group = cfg.OptGroup(
+    'neutron',
+    title='Neutron Options',
+    help=_('Configuration options for OpenStack Neutron'))
+
 neutron_opts = [
-    cfg.StrOpt('neutron_uri',
-               default=os.environ.get('OS_URL', 'http://127.0.0.1:9696'),
-               help=_('Neutron URL for accessing the network service.')),
     cfg.StrOpt('enable_dhcp',
                default='True',
                help=_('Enable or Disable dhcp for neutron subnets.')),
@@ -49,34 +51,24 @@ neutron_opts = [
     cfg.IntOpt('vif_plugging_timeout',
                default=0,
                help=_("Seconds to wait for port to become active")),
+    cfg.StrOpt('endpoint_type',
+               default='public',
+               choices=['public', 'admin', 'internal'],
+               help=_('Type of the neutron endpoint to use. This endpoint '
+                      'will be looked up in the keystone catalog and should '
+                      'be one of public, internal or admin.')),
 ]
-keystone_opts = [
-    cfg.StrOpt('auth_uri',
-               default=os.environ.get('IDENTITY_URL',
-                                      'http://127.0.0.1:35357/v2.0'),
-               help=_('The URL for accessing the identity service.')),
-    cfg.StrOpt('admin_user',
-               default=os.environ.get('SERVICE_USER'),
-               help=_('The username to auth with the identity service.')),
-    cfg.StrOpt('admin_tenant_name',
-               default=os.environ.get('SERVICE_TENANT_NAME'),
-               help=_('The tenant name to auth with the identity service.')),
-    cfg.StrOpt('admin_password',
-               default=os.environ.get('SERVICE_PASSWORD'),
-               help=_('The password to auth with the identity service.')),
-    cfg.StrOpt('admin_token',
-               default=os.environ.get('SERVICE_TOKEN'),
-               help=_('The admin token.')),
-    cfg.StrOpt('auth_ca_cert',
-               default=os.environ.get('SERVICE_CA_CERT'),
-               help=_('The CA certification file.')),
-    cfg.BoolOpt('auth_insecure',
-                default=False,
-                help=_("Turn off verification of the certificate for ssl")),
-]
+
 binding_opts = [
     cfg.StrOpt('veth_dst_prefix',
                default='eth',
                help=('The name prefix of the veth endpoint put inside the '
                      'container.'))
 ]
+
+
+def register_neutron_opts(conf):
+    conf.register_group(neutron_group)
+    conf.register_opts(neutron_opts, group=neutron_group)
+    ks_loading.register_session_conf_options(conf, neutron_group.name)
+    ks_loading.register_auth_conf_options(conf, neutron_group.name)
