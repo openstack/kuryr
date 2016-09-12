@@ -54,31 +54,20 @@ class TestKuryrUtils(base.TestCase):
         self.assertIn(name_prefix, generated_neutron_subnetpool_name)
         self.assertIn(fake_subnet_cidr, generated_neutron_subnetpool_name)
 
-    @mock.patch('neutronclient.neutron.client.Client')
-    def test_get_neutron_client_simple(self, mock_client):
-        fake_token = str(uuid.uuid4())
-        utils.get_neutron_client_simple(url=self.fake_url,
-                             auth_url=self.fake_auth_url, token=fake_token)
-        mock_client.assert_called_once_with('2.0',
-                             endpoint_url=self.fake_url, token=fake_token)
-
     @mock.patch('neutronclient.v2_0.client.Client')
-    def test_get_neutron_client(self, mock_client):
-        fake_username = 'fake_user'
-        fake_tenant_name = 'fake_tenant_name'
-        fake_password = 'fake_password'
-        fake_ca_cert = None
-        fake_insecure = False
-        fake_timeout = 60
-        utils.get_neutron_client(url=self.fake_url, username=fake_username,
-                       tenant_name=fake_tenant_name, password=fake_password,
-                       auth_url=self.fake_auth_url, ca_cert=fake_ca_cert,
-                       insecure=fake_insecure, timeout=fake_timeout)
-        mock_client.assert_called_once_with(endpoint_url=self.fake_url,
-                       timeout=fake_timeout, username=fake_username,
-                       tenant_name=fake_tenant_name, password=fake_password,
-                       auth_url=self.fake_auth_url, ca_cert=fake_ca_cert,
-                       insecure=fake_insecure)
+    @mock.patch('keystoneauth1.loading.load_auth_from_conf_options')
+    @mock.patch('keystoneauth1.loading.load_session_from_conf_options')
+    def test_get_neutron_client(self, mock_session_loader, mock_auth_loader,
+                                mock_client):
+        fake_auth = 'Fake_auth_plugin'
+        fake_session = 'Fake_session_plugin'
+        mock_auth_loader.return_value = fake_auth
+        mock_session_loader.return_value = fake_session
+        utils.get_neutron_client()
+        mock_client.assert_called_once_with(
+            auth=fake_auth,
+            session=fake_session,
+            endpoint_type=cfg.CONF.neutron.endpoint_type)
 
     @mock.patch.object(socket, 'gethostname', return_value='fake_hostname')
     def test_get_hostname(self, mock_get_hostname):

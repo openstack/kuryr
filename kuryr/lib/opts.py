@@ -16,11 +16,16 @@ __all__ = [
 
 import copy
 import itertools
+import operator
 
+from keystoneauth1 import loading as ks_loading
 from oslo_log import _options
 
 from kuryr.lib import config
 
+
+ENABLED_AUTH_PLUGINS = ('password', 'v2password', 'v2token', 'v3password',
+                        'v3token')
 
 _core_opts_with_logging = config.core_opts
 _core_opts_with_logging += _options.common_cli_opts
@@ -29,10 +34,21 @@ _core_opts_with_logging += _options.generic_log_opts
 
 _kuryr_opts = [
     (None, list(itertools.chain(_core_opts_with_logging))),
-    ('neutron_client', config.neutron_opts),
-    ('keystone_client', config.keystone_opts),
     ('binding', config.binding_opts),
 ]
+
+
+def list_neutron_opts():
+    opt_list = copy.deepcopy(config.neutron_opts)
+    opt_list.insert(0, ks_loading.get_auth_common_conf_options()[0])
+    # NOTE(apuimedo): There are a lot of auth plugins, we just generate the
+    # config options for a few common ones
+    for name in ENABLED_AUTH_PLUGINS:
+        for plugin_option in ks_loading.get_auth_plugin_conf_options(name):
+            if all(option.name != plugin_option.name for option in opt_list):
+                opt_list.append(plugin_option)
+    opt_list.sort(key=operator.attrgetter('name'))
+    return [(config.neutron_group, opt_list)]
 
 
 def list_kuryr_opts():
@@ -52,4 +68,5 @@ def list_kuryr_opts():
     :returns: a list of (group_name, opts) tuples
     """
 
-    return [(k, copy.deepcopy(o)) for k, o in _kuryr_opts]
+    return ([(k, copy.deepcopy(o)) for k, o in _kuryr_opts] +
+            list_neutron_opts())

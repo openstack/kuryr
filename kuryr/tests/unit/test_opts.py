@@ -18,10 +18,13 @@ from kuryr.tests.unit import base
 
 class OptsTest(base.TestCase):
 
-    def test_list_kuryr_opts(self):
-        fake_kuryr_opts = [(None, 'fakevalue1'),
-                           ('Key1', 'fakevalue2')]
-        fake_kuryr_opts_mock = mock.PropertyMock(return_value=fake_kuryr_opts)
-        with mock.patch.object(kuryr_opts, '_kuryr_opts',
-                  new_callable=fake_kuryr_opts_mock):
-            self.assertEqual(fake_kuryr_opts, kuryr_opts.list_kuryr_opts())
+    _fake_kuryr_opts = [(None, 'fakevalue1'), ('Key1', 'fakevalue2')]
+    _fake_neutron_opts = [('poolv4', 'swimming4'), ('poolv6', 'swimming6')]
+
+    @mock.patch.multiple(kuryr_opts, _kuryr_opts=_fake_kuryr_opts,
+                         list_neutron_opts=mock.DEFAULT)
+    def test_list_kuryr_opts(self, list_neutron_opts):
+        list_neutron_opts.return_value = self._fake_neutron_opts
+
+        self.assertEqual(self._fake_kuryr_opts + self._fake_neutron_opts,
+                         kuryr_opts.list_kuryr_opts())
