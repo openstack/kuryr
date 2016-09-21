@@ -12,11 +12,12 @@
 
 import os
 
-import netaddr
+import ipaddress
 from oslo_concurrency import processutils
 from oslo_config import cfg
 from oslo_utils import excutils
 import pyroute2
+import six
 
 from kuryr.lib import exceptions
 from kuryr.lib import utils
@@ -137,7 +138,7 @@ def port_bind(endpoint_id, neutron_port, neutron_subnets,
                 if IP_ADDRESS_KEY in fixed_ip and (SUBNET_ID_KEY in fixed_ip):
                     subnet_id = fixed_ip[SUBNET_ID_KEY]
                     subnet = subnets_dict[subnet_id]
-                    cidr = netaddr.IPNetwork(subnet['cidr'])
+                    cidr = ipaddress.ip_network(six.text_type(subnet['cidr']))
                     peer_veth.add_ip(fixed_ip[IP_ADDRESS_KEY], cidr.prefixlen)
             peer_veth.set_mtu(mtu)
             peer_veth.address = neutron_port[MAC_ADDRESS_KEY].lower()
