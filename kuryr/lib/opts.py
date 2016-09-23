@@ -41,6 +41,7 @@ _kuryr_opts = [
 def list_neutron_opts():
     opt_list = copy.deepcopy(config.neutron_opts)
     opt_list.insert(0, ks_loading.get_auth_common_conf_options()[0])
+    opt_list += ks_loading.get_session_conf_options()
     # NOTE(apuimedo): There are a lot of auth plugins, we just generate the
     # config options for a few common ones
     for name in ENABLED_AUTH_PLUGINS:
