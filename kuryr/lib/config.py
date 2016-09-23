@@ -66,7 +66,7 @@ neutron_opts = [
 binding_opts = [
     cfg.StrOpt('veth_dst_prefix',
                default='eth',
-               help=('The name prefix of the veth endpoint put inside the '
+               help=_('The name prefix of the veth endpoint put inside the '
                      'container.')),
     cfg.StrOpt('driver',
                default='kuryr.lib.binding.drivers.veth',
