@@ -67,8 +67,21 @@ binding_opts = [
     cfg.StrOpt('veth_dst_prefix',
                default='eth',
                help=('The name prefix of the veth endpoint put inside the '
-                     'container.'))
+                     'container.')),
+    cfg.StrOpt('driver',
+               default='kuryr.lib.binding.drivers.veth',
+               help=_('Driver to use for binding and unbinding ports.')),
+    cfg.StrOpt('link_iface',
+               default='',
+               help=_('Specifies the name of the Nova instance interface to '
+                      'link the virtual devices to (only applicable to some '
+                      'binding drivers.')),
 ]
+
+binding_group = cfg.OptGroup(
+    'binding',
+    title='binding options',
+    help=_('Configuration options for container interface binding.'))
 
 
 def register_neutron_opts(conf):
