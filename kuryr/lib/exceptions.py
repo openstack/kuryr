@@ -86,3 +86,11 @@ class VethDeletionFailure(KuryrException):
     This exception is thrown when the veth pair is not deleted appropriately
     and Kuryr can't proceed the unbinding further.
     """
+
+
+class ExportPortFailure(KuryrException):
+    """Exception represents setting up exported port is failed.
+
+    This exception is thrown when performing Neutron security group failed
+    for an exported port and Kuryr can't proceed the expose further.
+    """
