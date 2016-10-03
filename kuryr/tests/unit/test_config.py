@@ -27,3 +27,5 @@ class ConfigurationTest(base.TestCase):
                          cfg.CONF.neutron.endpoint_type)
         self.assertEqual('baremetal',
                          cfg.CONF.deployment_type)
+        self.assertEqual('kuryr.lib.binding.drivers.veth',
+                         cfg.CONF.binding.driver)

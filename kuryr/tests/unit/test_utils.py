@@ -13,11 +13,9 @@
 import ddt
 import mock
 import socket
-import uuid
 
 from oslo_config import cfg
 
-from kuryr.lib import constants as const
 from kuryr.lib import utils
 from kuryr.tests.unit import base
 
@@ -29,22 +27,6 @@ class TestKuryrUtils(base.TestCase):
         super(TestKuryrUtils, self).setUp()
         self.fake_url = 'http://127.0.0.1:9696'
         self.fake_auth_url = 'http://127.0.0.1:35357/v2.0'
-
-    def test_get_veth_pair_names(self):
-        fake_neutron_port_id = str(uuid.uuid4())
-        generated_ifname, generated_peer = utils.get_veth_pair_names(
-            fake_neutron_port_id)
-
-        namelen = const.NIC_NAME_LEN
-        ifname_postlen = namelen - len(const.VETH_PREFIX)
-        peer_postlen = namelen - len(const.CONTAINER_VETH_PREFIX)
-
-        self.assertEqual(namelen, len(generated_ifname))
-        self.assertEqual(namelen, len(generated_peer))
-        self.assertIn(const.VETH_PREFIX, generated_ifname)
-        self.assertIn(const.CONTAINER_VETH_PREFIX, generated_peer)
-        self.assertIn(fake_neutron_port_id[:ifname_postlen], generated_ifname)
-        self.assertIn(fake_neutron_port_id[:peer_postlen], generated_peer)
 
     def test_get_subnetpool_name(self):
         fake_subnet_cidr = "10.0.0.0/16"

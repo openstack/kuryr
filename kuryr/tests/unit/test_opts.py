@@ -20,11 +20,18 @@ class OptsTest(base.TestCase):
 
     _fake_kuryr_opts = [(None, 'fakevalue1'), ('Key1', 'fakevalue2')]
     _fake_neutron_opts = [('poolv4', 'swimming4'), ('poolv6', 'swimming6')]
+    _fake_binding_group = 'binding_group'
+    _fake_binding_opts = [('driver', 'my.ipvlan')]
 
-    @mock.patch.multiple(kuryr_opts, _kuryr_opts=_fake_kuryr_opts,
+    @mock.patch.multiple(kuryr_opts.config,
+                         binding_group=_fake_binding_group,
+                         binding_opts=_fake_binding_opts)
+    @mock.patch.multiple(kuryr_opts,
+                         _kuryr_opts=_fake_kuryr_opts,
                          list_neutron_opts=mock.DEFAULT)
     def test_list_kuryr_opts(self, list_neutron_opts):
         list_neutron_opts.return_value = self._fake_neutron_opts
 
-        self.assertEqual(self._fake_kuryr_opts + self._fake_neutron_opts,
+        self.assertEqual(self._fake_kuryr_opts + self._fake_neutron_opts +
+                         [(self._fake_binding_group, self._fake_binding_opts)],
                          kuryr_opts.list_kuryr_opts())

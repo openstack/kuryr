@@ -19,7 +19,6 @@ from neutronclient.v2_0 import client
 from oslo_config import cfg
 
 from kuryr.lib import config as kuryr_config
-from kuryr.lib import constants as const
 
 DOCKER_NETNS_BASE = '/var/run/docker/netns'
 PORT_POSTFIX = 'port'
@@ -39,14 +38,6 @@ def get_neutron_client(*args, **kwargs):
 def get_hostname():
     """Returns the host name."""
     return socket.gethostname()
-
-
-def get_veth_pair_names(port_id):
-    ifname = const.VETH_PREFIX + port_id
-    ifname = ifname[:const.NIC_NAME_LEN]
-    peer_name = const.CONTAINER_VETH_PREFIX + port_id
-    peer_name = peer_name[:const.NIC_NAME_LEN]
-    return ifname, peer_name
 
 
 def get_neutron_subnetpool_name(subnet_cidr):

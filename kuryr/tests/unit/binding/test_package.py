@@ -9,7 +9,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 import ddt
 import mock
 import uuid
@@ -27,15 +26,6 @@ mock_interface = mock.MagicMock()
 @ddt.ddt
 class BindingTest(base.TestCase):
     """Unit tests for binding."""
-
-    @ddt.data((False), (True))
-    def test_is_up(self, interface_flag):
-        fake_interface = {'flags': 0x0}
-        if interface_flag:
-            fake_interface['flags'] = binding.IFF_UP
-            self.assertEqual(True, binding._is_up(fake_interface))
-        else:
-            self.assertEqual(False, binding._is_up(fake_interface))
 
     @mock.patch('os.path.exists', return_value=True)
     @mock.patch('oslo_concurrency.processutils.execute',
@@ -63,7 +53,8 @@ class BindingTest(base.TestCase):
         fake_network['networks'][0]['mtu'] = fake_mtu
 
         binding.port_bind(fake_docker_endpoint_id, fake_port['port'],
-            fake_subnets['subnets'], fake_network['networks'][0])
+                          fake_subnets['subnets'],
+                          fake_network['networks'][0])
 
         expect_calls = [call.__enter__().set_mtu(fake_mtu),
                         call.__enter__().up()]
@@ -71,10 +62,10 @@ class BindingTest(base.TestCase):
         mock_path_exists.assert_called_once()
         mock_execute.assert_called_once()
 
-    @mock.patch('kuryr.lib.binding.cleanup_veth')
+    @mock.patch('kuryr.lib.binding.drivers.utils.remove_device')
     @mock.patch('oslo_concurrency.processutils.execute',
                 return_value=('fake_stdout', 'fake_stderr'))
-    def test_port_unbind(self, mock_execute, mock_cleanup_veth):
+    def test_port_unbind(self, mock_execute, mock_remove_device):
         fake_docker_network_id = utils.get_hash()
         fake_docker_endpoint_id = utils.get_hash()
         fake_port_id = str(uuid.uuid4())
@@ -86,4 +77,4 @@ class BindingTest(base.TestCase):
             fake_neutron_v4_subnet_id, fake_neutron_v6_subnet_id)
         binding.port_unbind(fake_docker_endpoint_id, fake_port['port'])
         mock_execute.assert_called_once()
-        mock_cleanup_veth.assert_called_once()
+        mock_remove_device.assert_called_once()

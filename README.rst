@@ -76,12 +76,26 @@ Edit keystone section in `/etc/kuryr/kuryr.conf`, replace ADMIN_PASSWORD:
     admin_password = ADMIN_PASSWORD
 
 
-In the same file uncomment the `bindir` parameter with the path for the Kuryr vif binding
-executables:
+In the same file uncomment the `bindir` parameter with the path for the Kuryr
+vif binding executables:
 
 ::
 
     bindir = /usr/local/libexec/kuryr
+
+By default, Kuryr will use veth pairs for performing the binding. However, the
+Kuryr library ships with two other drivers that you can configure in the
+**binding** section::
+
+    [binding]
+    #driver = kuryr.lib.binding.drivers.ipvlan
+    #driver = kuryr.lib.binding.drivers.macvlan
+
+Drivers may make use of other **binding** options. Both Kuryr library drivers in
+the previous snippet can be further configured setting the interface that will
+act as link interface for the virtual devices::
+
+    link_iface = enp4s0
 
 
 Running Kuryr

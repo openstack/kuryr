@@ -34,7 +34,6 @@ _core_opts_with_logging += _options.generic_log_opts
 
 _kuryr_opts = [
     (None, list(itertools.chain(_core_opts_with_logging))),
-    ('binding', config.binding_opts),
 ]
 
 
@@ -70,4 +69,5 @@ def list_kuryr_opts():
     """
 
     return ([(k, copy.deepcopy(o)) for k, o in _kuryr_opts] +
-            list_neutron_opts())
+            list_neutron_opts() +
+            [(config.binding_group, config.binding_opts)])
