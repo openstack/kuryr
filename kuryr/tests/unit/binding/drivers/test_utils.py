@@ -149,7 +149,3 @@ class BindingDriversUtilsTest(base.TestCase):
     def test_get_ipdb(self):
         ip = utils.get_ipdb()
         self.assertEqual(ip, utils.get_ipdb())
-
-    def test_get_iproute(self):
-        ipr = utils.get_iproute()
-        self.assertEqual(ipr, utils.get_iproute())
