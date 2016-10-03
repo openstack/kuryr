@@ -80,7 +80,7 @@ def remove_device(ifname):
     devices = ipr.link_lookup(ifname=ifname)
     if devices:
         dev_index = devices[0]
-        ipr.link_remove(dev_index)
+        ipr.link('del', index=dev_index)
         return dev_index
     else:
         return None
