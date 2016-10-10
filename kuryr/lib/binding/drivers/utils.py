@@ -60,7 +60,7 @@ def remove_device(ifname):
     """
     ip = get_ipdb()
 
-    dev_index = ip.interface.get(ifname, {}).get('index', None)
+    dev_index = ip.interfaces.get(ifname, {}).get('index', None)
 
     if dev_index:
         with ip.interfaces[ifname] as iface:
