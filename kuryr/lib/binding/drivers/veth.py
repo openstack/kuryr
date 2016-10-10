@@ -64,11 +64,11 @@ def port_bind(endpoint_id, port, subnets, network=None, nested_port=None):
                        reuse=True, peer=container_ifname) as host_veth:
             if not utils.is_up(host_veth):
                 host_veth.up()
-            with ip.interfaces[container_ifname] as container_veth:
-                utils._configure_container_iface(
-                    container_veth, subnets,
-                    fixed_ips=port.get(utils.FIXED_IP_KEY),
-                    mtu=mtu, hwaddr=port[utils.MAC_ADDRESS_KEY].lower())
+        with ip.interfaces[container_ifname] as container_veth:
+            utils._configure_container_iface(
+                container_veth, subnets,
+                fixed_ips=port.get(utils.FIXED_IP_KEY),
+                mtu=mtu, hwaddr=port[utils.MAC_ADDRESS_KEY].lower())
     except pyroute2.CreateException:
         raise exceptions.VethCreationFailure(
             'Virtual device creation failed.')
