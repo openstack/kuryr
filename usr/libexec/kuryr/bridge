@@ -12,10 +12,15 @@
 # under the License.
 
 bind_port() {
-    echo "plugging veth $2 (Neutron port $1)..."
+    PORT_ID=$1
+    IFNAME=$2
+    ENDPOINT_ID=$3
+    MAC_ADDRESS=$4
+    NET_ID=$5
+    echo "plugging veth $IFNAME (Neutron port $PORT_ID)..."
 
     # create a linux bridge
-    br_name="br"${4:0:12}
+    br_name="brq"${NET_ID:0:11}
     ip link show $br_name
     if [ $? -ne 0 ]; then
         echo "Bridge $br_name does not exist, create it"
@@ -28,17 +33,21 @@ bind_port() {
     fi
 
     # connect the veth outside to linux bridge
-    ip link set dev $2 master $br_name
-    ip link set $2 up
+    ip link set dev $IFNAME master $br_name
+    ip link set $IFNAME up
 }
 
 unbind_port() {
-    echo "unplugging veth $1..."
-    br_name="br"${3:0:12}
+    PORT_ID=$1
+    IFNAME=$2
+    ENDPOINT_ID=$3
+    MAC_ADDRESS=$4
+    VIF_DETAILs=$5
+    NET_ID=$6
+    echo "unplugging veth $IFNAME..."
+    br_name="brq"${NET_ID:0:11}
 
-    ip link set dev $2 nomaster
-    ip link set $br_name down
-    ip link delete $br_name type bridge
+    ip link set dev $IFNAME nomaster
 }
 
 case $1 in

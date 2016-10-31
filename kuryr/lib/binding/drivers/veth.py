@@ -108,9 +108,10 @@ def port_unbind(endpoint_id, neutron_port):
     ifname, _ = utils.get_veth_pair_names(port_id)
 
     mac_address = neutron_port['mac_address']
+    network_id = neutron_port['network_id']
     stdout, stderr = processutils.execute(
         unbinding_exec_path, UNBINDING_SUBCOMMAND, port_id, ifname,
-        endpoint_id, mac_address, vif_details, run_as_root=True)
+        endpoint_id, mac_address, vif_details, network_id, run_as_root=True)
     try:
         utils.remove_device(ifname)
     except pyroute2.NetlinkError:
