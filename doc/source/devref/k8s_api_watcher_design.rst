@@ -52,7 +52,7 @@ Translation Mapping
 -------------------
 
 The detailed specification of the translation mappings is described in another
-document, :doc:`../specs/mitaka/kuryr_k8s_integration`. In this document we touch what
+document, :doc:`../specs/newton/kuryr_k8s_integration`. In this document we touch what
 to be translated briefly.
 
 The main focus of Raven is the following resources.
