@@ -20,19 +20,19 @@ KIND = 'ipvlan'
 IPVLAN_MODE_L2 = ifinfmsg.ifinfo.ipvlan_data.modes['IPVLAN_MODE_L2']
 
 
-def port_bind(endpoint_id, port, subnets, network=None, nested_port=None):
+def port_bind(endpoint_id, port, subnets, network=None, vm_port=None):
     """Binds the Neutron port to the network interface on the host.
 
     :param endpoint_id:   the ID of the endpoint as string
-    :param port:         the instance Neutron port dictionary as returned by
+    :param port:         the container Neutron port dictionary as returned by
                          python-neutronclient
     :param subnets:      an iterable of all the Neutron subnets which the
                          endpoint is trying to join
     :param network:      the Neutron network which the endpoint is trying to
                          join
-    :param nested_port:  the dictionary, as returned by python-neutronclient,
-                         of the port that that is used when running inside
-                         another instance (either ipvlan/macvlan or a subport)
+    :param vm_port:      the Nova instance port dictionary, as returned by
+                         python-neutronclient. Container is running inside
+                         this instance (either ipvlan/macvlan or a subport)
     :returns: the tuple of the names of the veth pair and the tuple of stdout
               and stderr returned by processutils.execute invoked with the
               executable script for binding
@@ -42,14 +42,14 @@ def port_bind(endpoint_id, port, subnets, network=None, nested_port=None):
     ip = utils.get_ipdb()
     port_id = port['id']
     _, devname = utils.get_veth_pair_names(port_id)
-    link_iface = nested.get_link_iface(port)
+    link_iface = nested.get_link_iface(vm_port)
 
     with ip.create(ifname=devname, kind=KIND,
                    link=ip.interfaces[link_iface],
                    mode=IPVLAN_MODE_L2) as container_iface:
         utils._configure_container_iface(
             container_iface, subnets,
-            fixed_ips=nested_port.get(utils.FIXED_IP_KEY))
+            fixed_ips=port.get(utils.FIXED_IP_KEY))
 
     return None, devname, ('', None)
 

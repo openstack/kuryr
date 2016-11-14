@@ -13,19 +13,20 @@ from oslo_config import cfg
 from oslo_utils import importutils
 
 
-def port_bind(endpoint_id, port, subnets, network=None, nested_port=None):
+def port_bind(endpoint_id, port, subnets, network=None, vm_port=None):
     """Binds the Neutron port to the network interface on the host.
 
     :param endpoint_id:   the ID of the endpoint as string
-    :param port:         the instance Neutron port dictionary as returned by
+    :param port:         the container Neutron port dictionary as returned by
                          python-neutronclient
     :param subnets:      an iterable of all the Neutron subnets which the
                          endpoint is trying to join
     :param network:      the Neutron network which the endpoint is trying to
                          join
-    :param nested_port:  the dictionary, as returned by python-neutronclient,
-                         of the port that that is used when running inside
-                         another instance (either ipvlan/macvlan or a subport)
+    :param vm_port:      the Nova instance port dictionary, as returned by
+                         python-neutronclient. Binding is being done for the
+                         port of a container which is running inside this Nova
+                         instance (either ipvlan/macvlan or a subport).
     :returns: the tuple of the names of the veth pair and the tuple of stdout
               and stderr returned by processutils.execute invoked with the
               executable script for binding
@@ -35,7 +36,7 @@ def port_bind(endpoint_id, port, subnets, network=None, nested_port=None):
     driver = importutils.import_module(cfg.CONF.binding.driver)
 
     return driver.port_bind(endpoint_id, port, subnets, network=network,
-                            nested_port=nested_port)
+                            vm_port=vm_port)
 
 
 def port_unbind(endpoint_id, neutron_port):
