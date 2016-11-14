@@ -20,7 +20,8 @@ KIND = 'ipvlan'
 IPVLAN_MODE_L2 = ifinfmsg.ifinfo.ipvlan_data.modes['IPVLAN_MODE_L2']
 
 
-def port_bind(endpoint_id, port, subnets, network=None, vm_port=None):
+def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
+              segmentation_id=None):
     """Binds the Neutron port to the network interface on the host.
 
     :param endpoint_id:   the ID of the endpoint as string
@@ -33,6 +34,7 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None):
     :param vm_port:      the Nova instance port dictionary, as returned by
                          python-neutronclient. Container is running inside
                          this instance (either ipvlan/macvlan or a subport)
+    :param segmentation_id: ID of the segment for container traffic isolation)
     :returns: the tuple of the names of the veth pair and the tuple of stdout
               and stderr returned by processutils.execute invoked with the
               executable script for binding
