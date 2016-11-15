@@ -306,7 +306,9 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
    Kuryr remote network driver generates a Neutron API request to delete the
    associated Neutron port, in case the relevant port subnet is empty, Kuryr
    also deletes the subnet object using Neutron API and generate an empty
-   response to the Docker daemon: {}
+   response to the Docker daemon::
+
+       {}
 
    Finally libnetwork makes a HTTP POST call on ``/IpamDriver.ReleaseAddress``
    with the following JSON data::
