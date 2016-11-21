@@ -323,7 +323,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
        {}
 
-7. A user deletes the network::
+6. A user deletes the network::
 
        $ sudo docker network rm foo
 
