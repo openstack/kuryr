@@ -11,7 +11,7 @@
 #    under the License.
 import ddt
 import mock
-import uuid
+from oslo_utils import uuidutils
 
 from kuryr.lib import binding
 from kuryr.lib import constants
@@ -39,9 +39,9 @@ class BindingTest(base.TestCase):
         fake_mtu = 1450
         fake_docker_network_id = utils.get_hash()
         fake_docker_endpoint_id = utils.get_hash()
-        fake_port_id = str(uuid.uuid4())
-        fake_neutron_v4_subnet_id = str(uuid.uuid4())
-        fake_neutron_v6_subnet_id = str(uuid.uuid4())
+        fake_port_id = uuidutils.generate_uuid()
+        fake_neutron_v4_subnet_id = uuidutils.generate_uuid()
+        fake_neutron_v6_subnet_id = uuidutils.generate_uuid()
         fake_port = self._get_fake_port(
             fake_docker_endpoint_id, fake_docker_network_id,
             fake_port_id, constants.PORT_STATUS_ACTIVE,
@@ -68,9 +68,9 @@ class BindingTest(base.TestCase):
     def test_port_unbind(self, mock_execute, mock_remove_device):
         fake_docker_network_id = utils.get_hash()
         fake_docker_endpoint_id = utils.get_hash()
-        fake_port_id = str(uuid.uuid4())
-        fake_neutron_v4_subnet_id = str(uuid.uuid4())
-        fake_neutron_v6_subnet_id = str(uuid.uuid4())
+        fake_port_id = uuidutils.generate_uuid()
+        fake_neutron_v4_subnet_id = uuidutils.generate_uuid()
+        fake_neutron_v6_subnet_id = uuidutils.generate_uuid()
         fake_port = self._get_fake_port(
             fake_docker_endpoint_id, fake_docker_network_id,
             fake_port_id, constants.PORT_STATUS_ACTIVE,

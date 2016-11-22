@@ -11,7 +11,7 @@
 #    under the License.
 import ddt
 import mock
-import uuid
+from oslo_utils import uuidutils
 
 import pyroute2.ipdb.interface
 from pyroute2.netlink.rtnl import ifinfmsg
@@ -26,7 +26,7 @@ class BindingDriversUtilsTest(base.TestCase):
     """Unit tests for binding drivers utils"""
 
     def test_get_veth_pair_names(self):
-        fake_neutron_port_id = str(uuid.uuid4())
+        fake_neutron_port_id = uuidutils.generate_uuid()
         generated_ifname, generated_peer = utils.get_veth_pair_names(
             fake_neutron_port_id)
 
