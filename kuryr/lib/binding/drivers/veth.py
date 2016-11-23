@@ -115,7 +115,7 @@ def port_unbind(endpoint_id, neutron_port):
     try:
         utils.remove_device(ifname)
     except pyroute2.NetlinkError:
-        raise exceptions.VethDeleteionFailure(
+        raise exceptions.VethDeletionFailure(
             'Deleting the veth pair failed.')
     return (stdout, stderr)
 
