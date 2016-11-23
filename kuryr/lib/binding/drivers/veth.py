@@ -32,19 +32,20 @@ VIF_DETAILS_KEY = 'binding:vif_details'
 VIF_TYPE_KEY = 'binding:vif_type'
 
 
-def port_bind(endpoint_id, port, subnets, network=None, nested_port=None):
+def port_bind(endpoint_id, port, subnets, network=None, vm_port=None):
     """Binds the Neutron port to the network interface on the host.
 
     :param endpoint_id:   the ID of the endpoint as string
-    :param port:         the instance Neutron port dictionary as returned by
+    :param port:         the container Neutron port dictionary as returned by
                          python-neutronclient
     :param subnets:      an iterable of all the Neutron subnets which the
                          endpoint is trying to join
     :param network:      the Neutron network which the endpoint is trying to
                          join
-    :param nested_port:  the dictionary, as returned by python-neutronclient,
-                         of the port that that is used when running inside
-                         another instance (either ipvlan/macvlan or a subport)
+    :param vm_port:      the Nova instance dictionary, as returned by
+                         python-neutronclient. Container port under binding is
+                         running inside this instance (either ipvlan/macvlan or
+                         a subport)
     :returns: the tuple of the names of the veth pair and the tuple of stdout
               and stderr returned by processutils.execute invoked with the
               executable script for binding
