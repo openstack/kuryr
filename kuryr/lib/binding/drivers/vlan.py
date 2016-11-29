@@ -9,12 +9,16 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from oslo_config import cfg
-from oslo_utils import importutils
+"""It only supports container-in-vm deployments"""
+
+from kuryr.lib.binding.drivers import nested
+from kuryr.lib.binding.drivers import utils
+
+KIND = 'vlan'
 
 
-def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
-              segmentation_id=None):
+def port_bind(endpoint_id, port, subnets, network=None,
+              vm_port=None, segmentation_id=None):
     """Binds the Neutron port to the network interface on the host.
 
     :param endpoint_id:   the ID of the endpoint as string
@@ -25,9 +29,8 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
     :param network:      the Neutron network which the endpoint is trying to
                          join
     :param vm_port:      the Nova instance port dictionary, as returned by
-                         python-neutronclient. Binding is being done for the
-                         port of a container which is running inside this Nova
-                         instance (either ipvlan/macvlan or a subport).
+                         python-neutronclient. Container is running inside this
+                         instance (either ipvlan/macvlan or a subport)
     :param segmentation_id: ID of the segment for container traffic isolation)
     :returns: the tuple of the names of the veth pair and the tuple of stdout
               and stderr returned by processutils.execute invoked with the
@@ -35,21 +38,19 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
     :raises: kuryr.common.exceptions.VethCreationFailure,
              processutils.ProcessExecutionError
     """
-    driver = importutils.import_module(cfg.CONF.binding.driver)
-    return driver.port_bind(endpoint_id, port, subnets, network=network,
-                            vm_port=vm_port,
-                            segmentation_id=segmentation_id)
+    ip = utils.get_ipdb()
+    port_id = port['id']
+    _, devname = utils.get_veth_pair_names(port_id)
+    link_iface = nested.get_link_iface(vm_port)
+    with ip.create(ifname=devname, kind=KIND,
+                   link=ip.interfaces[link_iface],
+                   address=port.get(utils.MAC_ADDRESS_KEY),
+                   vlan_id=segmentation_id) as container_iface:
+        utils._configure_container_iface(
+            container_iface, subnets,
+            fixed_ips=port.get(utils.FIXED_IP_KEY))
+
+    return None, devname, ('', None)
 
 
-def port_unbind(endpoint_id, neutron_port):
-    """Unbinds the Neutron port from the network interface on the host.
-
-    :param endpoint_id: the ID of the Docker container as string
-    :param neutron_port: a port dictionary returned from python-neutronclient
-    :returns: the tuple of stdout and stderr returned by processutils.execute
-              invoked with the executable script for unbinding
-    :raises: processutils.ProcessExecutionError, pyroute2.NetlinkError
-    """
-    driver = importutils.import_module(cfg.CONF.binding.driver)
-
-    return driver.port_unbind(endpoint_id, neutron_port)
+port_unbind = nested.port_unbind

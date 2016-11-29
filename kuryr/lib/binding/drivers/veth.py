@@ -32,7 +32,8 @@ VIF_DETAILS_KEY = 'binding:vif_details'
 VIF_TYPE_KEY = 'binding:vif_type'
 
 
-def port_bind(endpoint_id, port, subnets, network=None, vm_port=None):
+def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
+              segmentation_id=None):
     """Binds the Neutron port to the network interface on the host.
 
     :param endpoint_id:   the ID of the endpoint as string
@@ -46,6 +47,7 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None):
                          python-neutronclient. Container port under binding is
                          running inside this instance (either ipvlan/macvlan or
                          a subport)
+    :param segmentation_id: ID of the segment for container traffic isolation)
     :returns: the tuple of the names of the veth pair and the tuple of stdout
               and stderr returned by processutils.execute invoked with the
               executable script for binding

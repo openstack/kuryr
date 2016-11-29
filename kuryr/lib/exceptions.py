@@ -94,3 +94,19 @@ class ExportPortFailure(KuryrException):
     This exception is thrown when performing Neutron security group failed
     for an exported port and Kuryr can't proceed the expose further.
     """
+
+
+class SegmentationIdAllocationFailure(KuryrException):
+    """Exception represents when segmentation id could not be allocated.
+
+    This exception is thrown when the segmentaion id for the isolation of
+    container traffic could not be allocated and Kuryr can't proceed further.
+    """
+
+
+class SegmentationDriverBindingDriverCompatibilityFailure(KuryrException):
+    """Exception represents when no segmentation type driver is loaded.
+
+    This exception is thrown when configured binding driver does not have
+    a supporting segmentation type driver.
+    """

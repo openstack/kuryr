@@ -18,3 +18,7 @@ DEVICE_OWNER = 'kuryr:container'
 NIC_NAME_LEN = 14
 VETH_PREFIX = 'tap'
 CONTAINER_VETH_PREFIX = 't_c'
+
+# For VLAN type segmentation
+MIN_VLAN_TAG = 1
+MAX_VLAN_TAG = 4094
