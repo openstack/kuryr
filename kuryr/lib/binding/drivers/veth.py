@@ -18,18 +18,12 @@ from oslo_config import cfg
 from oslo_utils import excutils
 
 from kuryr.lib.binding.drivers import utils
+from kuryr.lib import constants
 from kuryr.lib import exceptions
 from kuryr.lib import utils as lib_utils
 
 
 KIND = 'veth'
-
-BINDING_SUBCOMMAND = 'bind'
-DEFAULT_NETWORK_MTU = 1500
-FALLBACK_VIF_TYPE = 'unbound'
-UNBINDING_SUBCOMMAND = 'unbind'
-VIF_DETAILS_KEY = 'binding:vif_details'
-VIF_TYPE_KEY = 'binding:vif_type'
 
 
 def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
@@ -57,10 +51,7 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
     ip = utils.get_ipdb()
     port_id = port['id']
     host_ifname, container_ifname = utils.get_veth_pair_names(port_id)
-    if network is None:
-        mtu = DEFAULT_NETWORK_MTU
-    else:
-        mtu = network.get('mtu', DEFAULT_NETWORK_MTU)
+    mtu = utils.get_mtu_from_network(network)
 
     try:
         with ip.create(ifname=host_ifname, kind=KIND,
@@ -84,8 +75,8 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
             host_ifname, endpoint_id, port_id,
             port['network_id'], port['tenant_id'],
             port[utils.MAC_ADDRESS_KEY],
-            kind=port.get(VIF_TYPE_KEY),
-            details=port.get(VIF_DETAILS_KEY))
+            kind=port.get(constants.VIF_TYPE_KEY),
+            details=port.get(constants.VIF_DETAILS_KEY))
     except Exception:
         with excutils.save_and_reraise_exception():
             utils.remove_device(host_ifname)
@@ -103,8 +94,10 @@ def port_unbind(endpoint_id, neutron_port):
     :raises: processutils.ProcessExecutionError, pyroute2.NetlinkError
     """
 
-    vif_type = neutron_port.get(VIF_TYPE_KEY, FALLBACK_VIF_TYPE)
-    vif_details = lib_utils.string_mappings(neutron_port.get(VIF_DETAILS_KEY))
+    vif_type = neutron_port.get(constants.VIF_TYPE_KEY,
+                                constants.FALLBACK_VIF_TYPE)
+    vif_details = lib_utils.string_mappings(neutron_port.get(
+                                            constants.VIF_DETAILS_KEY))
     unbinding_exec_path = os.path.join(cfg.CONF.bindir, vif_type)
 
     port_id = neutron_port['id']
@@ -113,7 +106,7 @@ def port_unbind(endpoint_id, neutron_port):
     mac_address = neutron_port['mac_address']
     network_id = neutron_port['network_id']
     stdout, stderr = processutils.execute(
-        unbinding_exec_path, UNBINDING_SUBCOMMAND, port_id, ifname,
+        unbinding_exec_path, constants.UNBINDING_SUBCOMMAND, port_id, ifname,
         endpoint_id, mac_address, vif_details, network_id, run_as_root=True)
     try:
         utils.remove_device(ifname)
@@ -138,14 +131,14 @@ def _configure_host_iface(ifname, endpoint_id, port_id, net_id, project_id,
     :param details:     Neutron vif details
     """
     if kind is None:
-        kind = FALLBACK_VIF_TYPE
+        kind = constants.FALLBACK_VIF_TYPE
     binding_exec_path = os.path.join(cfg.CONF.bindir, kind)
     if not os.path.exists(binding_exec_path):
         raise exceptions.BindingNotSupportedFailure(
             "vif_type({0}) is not supported. A binding script for this type "
             "can't be found".format(kind))
     stdout, stderr = processutils.execute(
-        binding_exec_path, BINDING_SUBCOMMAND, port_id, ifname,
+        binding_exec_path, constants.BINDING_SUBCOMMAND, port_id, ifname,
         endpoint_id, hwaddr, net_id, project_id,
         lib_utils.string_mappings(details),
         run_as_root=True)

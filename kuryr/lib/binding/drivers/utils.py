@@ -50,6 +50,19 @@ def get_ipdb():
     return _IPDB_CACHE
 
 
+def get_mtu_from_network(network=None):
+    """Get Maximum Transfer Unit from neutron network.
+
+    :parm network: neutron network
+    :returns: mtu on the neutron network
+    """
+    if network is None:
+        mtu = constants.DEFAULT_NETWORK_MTU
+    else:
+        mtu = network.get('mtu', constants.DEFAULT_NETWORK_MTU)
+    return mtu
+
+
 def remove_device(ifname):
     """Removes the device with name ifname.
 

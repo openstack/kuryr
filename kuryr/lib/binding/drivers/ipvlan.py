@@ -45,13 +45,14 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
     port_id = port['id']
     _, devname = utils.get_veth_pair_names(port_id)
     link_iface = nested.get_link_iface(vm_port)
+    mtu = utils.get_mtu_from_network(network)
 
     with ip.create(ifname=devname, kind=KIND,
                    link=ip.interfaces[link_iface],
                    mode=IPVLAN_MODE_L2) as container_iface:
         utils._configure_container_iface(
             container_iface, subnets,
-            fixed_ips=port.get(utils.FIXED_IP_KEY))
+            fixed_ips=port.get(utils.FIXED_IP_KEY), mtu=mtu)
 
     return None, devname, ('', None)
 

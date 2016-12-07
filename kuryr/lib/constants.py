@@ -22,3 +22,10 @@ CONTAINER_VETH_PREFIX = 't_c'
 # For VLAN type segmentation
 MIN_VLAN_TAG = 1
 MAX_VLAN_TAG = 4094
+
+BINDING_SUBCOMMAND = 'bind'
+DEFAULT_NETWORK_MTU = 1500
+FALLBACK_VIF_TYPE = 'unbound'
+UNBINDING_SUBCOMMAND = 'unbind'
+VIF_DETAILS_KEY = 'binding:vif_details'
+VIF_TYPE_KEY = 'binding:vif_type'
