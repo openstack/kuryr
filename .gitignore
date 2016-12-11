@@ -58,3 +58,6 @@ etc/kuryr.conf.sample
 
 # Ignore user specific local.conf settings for vagrant
 contrib/vagrant/user_local.conf
+
+# Files created by releasenotes build
+releasenotes/build
