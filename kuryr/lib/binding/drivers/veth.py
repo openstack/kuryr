@@ -73,7 +73,7 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
     try:
         stdout, stderr = _configure_host_iface(
             host_ifname, endpoint_id, port_id,
-            port['network_id'], port['tenant_id'],
+            port['network_id'], port.get('project_id') or port['tenant_id'],
             port[utils.MAC_ADDRESS_KEY],
             kind=port.get(constants.VIF_TYPE_KEY),
             details=port.get(constants.VIF_DETAILS_KEY))
