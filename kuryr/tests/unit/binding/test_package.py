@@ -34,7 +34,7 @@ class BindingTest(base.TestCase):
                 return_value=mock_create)
     @mock.patch('pyroute2.ipdb.interface.InterfacesDict.__getitem__',
                 return_value=mock_interface)
-    def test_port_bind(self, mock_getattribute, mock_getitem,
+    def test_port_bind(self, mock_getitem, mock_getattribute,
                        mock_execute, mock_path_exists):
         fake_mtu = 1450
         fake_docker_network_id = utils.get_hash()
