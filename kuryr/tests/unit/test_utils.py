@@ -102,5 +102,6 @@ class TestKuryrUtils(base.TestCase):
 
     def test_get_random_string(self):
         fake_string_len = 20
-        self.assertEqual(fake_string_len,
+        self.assertEqual(
+             fake_string_len,
              len(utils.get_random_string(fake_string_len)))

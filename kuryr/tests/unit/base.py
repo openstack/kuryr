@@ -52,28 +52,32 @@ class TestCase(base.BaseTestCase):
         #   http://developer.openstack.org/api-ref-networking-v2.html#createSubnet  # noqa
         fake_subnet_response = {
             "subnets": [
-                {"name": '-'.join([docker_endpoint_id, '192.168.1.0']),
-                "network_id": neutron_network_id,
-                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
-                "allocation_pools": [{"start": "192.168.1.2",
-                                      "end": "192.168.1.254"}],
-                "gateway_ip": "192.168.1.1",
-                "ip_version": 4,
-                "cidr": "192.168.1.0/24",
-                "id": fake_neutron_subnet_v4_id,
-                "enable_dhcp": True,
-                "subnetpool_id": ''},
-                {"name": '-'.join([docker_endpoint_id, 'fe80::']),
-                "network_id": neutron_network_id,
-                "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
-                "allocation_pools": [{"start": "fe80::f816:3eff:fe20:57c4",
-                                      "end": "fe80::ffff:ffff:ffff:ffff"}],
-                "gateway_ip": "fe80::f816:3eff:fe20:57c3",
-                "ip_version": 6,
-                "cidr": "fe80::/64",
-                "id": fake_neutron_subnet_v6_id,
-                "enable_dhcp": True,
-                "subnetpool_id": ''}
+                {
+                    "name": '-'.join([docker_endpoint_id, '192.168.1.0']),
+                    "network_id": neutron_network_id,
+                    "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
+                    "allocation_pools": [{"start": "192.168.1.2",
+                                          "end": "192.168.1.254"}],
+                    "gateway_ip": "192.168.1.1",
+                    "ip_version": 4,
+                    "cidr": "192.168.1.0/24",
+                    "id": fake_neutron_subnet_v4_id,
+                    "enable_dhcp": True,
+                    "subnetpool_id": ''
+                },
+                {
+                    "name": '-'.join([docker_endpoint_id, 'fe80::']),
+                    "network_id": neutron_network_id,
+                    "tenant_id": "c1210485b2424d48804aad5d39c61b8f",
+                    "allocation_pools": [{"start": "fe80::f816:3eff:fe20:57c4",
+                                          "end": "fe80::ffff:ffff:ffff:ffff"}],
+                    "gateway_ip": "fe80::f816:3eff:fe20:57c3",
+                    "ip_version": 6,
+                    "cidr": "fe80::/64",
+                    "id": fake_neutron_subnet_v6_id,
+                    "enable_dhcp": True,
+                    "subnetpool_id": ''
+                }
             ]
         }
         return fake_subnet_response
