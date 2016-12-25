@@ -25,14 +25,15 @@ PORT_POSTFIX = 'port'
 
 
 def get_neutron_client(*args, **kwargs):
-    auth_plugin = ks_loading.load_auth_from_conf_options(
-        cfg.CONF, kuryr_config.neutron_group.name)
-    session = ks_loading.load_session_from_conf_options(cfg.CONF,
-                                                        'neutron',
+    conf_group = kuryr_config.neutron_group.name
+    auth_plugin = ks_loading.load_auth_from_conf_options(cfg.CONF, conf_group)
+    session = ks_loading.load_session_from_conf_options(cfg.CONF, conf_group,
                                                         auth=auth_plugin)
+    endpoint_type = getattr(getattr(cfg.CONF, conf_group), 'endpoint_type')
+
     return client.Client(session=session,
                          auth=auth_plugin,
-                         endpoint_type=cfg.CONF.neutron.endpoint_type)
+                         endpoint_type=endpoint_type)
 
 
 def get_hostname():

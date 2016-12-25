@@ -12,19 +12,21 @@
 
 from oslo_config import cfg
 
+from kuryr.lib import config as kuryr_config
 from kuryr.tests.unit import base
 
 
 class ConfigurationTest(base.TestCase):
 
     def test_defaults(self):
+        neutron_group = getattr(cfg.CONF, kuryr_config.neutron_group.name)
         self.assertEqual('kuryr',
-                         cfg.CONF.neutron.default_subnetpool_v4)
+                         neutron_group.default_subnetpool_v4)
 
         self.assertEqual('kuryr6',
-                         cfg.CONF.neutron.default_subnetpool_v6)
+                         neutron_group.default_subnetpool_v6)
         self.assertEqual('public',
-                         cfg.CONF.neutron.endpoint_type)
+                         neutron_group.endpoint_type)
         self.assertEqual('baremetal',
                          cfg.CONF.deployment_type)
         self.assertEqual('kuryr.lib.binding.drivers.veth',
