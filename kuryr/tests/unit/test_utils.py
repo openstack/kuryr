@@ -37,16 +37,38 @@ class TestKuryrUtils(base.TestCase):
         self.assertIn(name_prefix, generated_neutron_subnetpool_name)
         self.assertIn(fake_subnet_cidr, generated_neutron_subnetpool_name)
 
-    @mock.patch('neutronclient.v2_0.client.Client')
     @mock.patch('keystoneauth1.loading.load_auth_from_conf_options')
+    def test_get_auth_plugin(self, mock_auth_loader):
+        conf_group = 'neutron'
+        fake_auth = 'Fake_auth_plugin'
+        mock_auth_loader.return_value = fake_auth
+        utils.get_auth_plugin(conf_group)
+        mock_auth_loader.assert_called_once_with(cfg.CONF, conf_group)
+
     @mock.patch('keystoneauth1.loading.load_session_from_conf_options')
-    def test_get_neutron_client(self, mock_session_loader, mock_auth_loader,
-                                mock_client):
+    def test_get_keystone_session(self, mock_session_loader):
+        conf_group = 'neutron'
         fake_auth = 'Fake_auth_plugin'
         fake_session = 'Fake_session_plugin'
-        mock_auth_loader.return_value = fake_auth
         mock_session_loader.return_value = fake_session
+        utils.get_keystone_session(conf_group, fake_auth)
+        mock_session_loader.assert_called_once_with(cfg.CONF, conf_group,
+                                                    auth=fake_auth)
+
+    @mock.patch('neutronclient.v2_0.client.Client')
+    @mock.patch('kuryr.lib.utils.get_auth_plugin')
+    @mock.patch('kuryr.lib.utils.get_keystone_session')
+    def test_get_neutron_client(self, mock_get_keystone_session,
+                                mock_get_auth_plugin, mock_client):
+        fake_auth = 'Fake_auth_plugin'
+        fake_session = 'Fake_session_plugin'
+        default_conf_group = 'neutron'
+        mock_get_auth_plugin.return_value = fake_auth
+        mock_get_keystone_session.return_value = fake_session
         utils.get_neutron_client()
+        mock_get_keystone_session.assert_called_once_with(default_conf_group,
+                                                          fake_auth)
+        mock_get_auth_plugin.assert_called_once_with(default_conf_group)
         neutron_group = getattr(cfg.CONF, kuryr_config.neutron_group.name)
         mock_client.assert_called_once_with(
             auth=fake_auth,
