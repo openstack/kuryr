@@ -50,5 +50,5 @@ Kubernetes , or even OpenStack Magnum).
 Kuryr also support pre-allocating of networks, ports and subnets, and binding
 them to Docker networks/endpoints upon creation depending on specific labels
 that are passed during Docker creation. There is a patch being merged in Docker
-to support providing user labels upon network creation. you can look at this
+to support providing user labels upon network creation. You can look at this
 `User labels in docker patch <https://github.com/docker/libnetwork/pull/222/files#diff-2b9501381623bc063b38733c35a1d254>`_.

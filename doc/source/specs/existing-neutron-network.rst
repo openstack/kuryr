@@ -145,7 +145,7 @@ Proposed Workflow
        $ sudo docker kill ${CID}
 
    This process is identical to the existing logic described in `Kuryr devref`_
-   as well. libnetwork calls ``/IpamDriver.ReleaseAddress``,
+   as well. Libnetwork calls ``/IpamDriver.ReleaseAddress``,
    ``/NetworkDriver.Leave`` and then ``/NetworkDriver.DeleteEndpoint``.
 
 5. A user deletes the network
