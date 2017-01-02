@@ -37,8 +37,8 @@ _kuryr_opts = [
 ]
 
 
-def list_neutron_opts():
-    opt_list = copy.deepcopy(config.neutron_opts)
+def get_keystoneauth_conf_options():
+    opt_list = []
     opt_list.insert(0, ks_loading.get_auth_common_conf_options()[0])
     opt_list += ks_loading.get_session_conf_options()
     # NOTE(apuimedo): There are a lot of auth plugins, we just generate the
@@ -47,6 +47,12 @@ def list_neutron_opts():
         for plugin_option in ks_loading.get_auth_plugin_conf_options(name):
             if all(option.name != plugin_option.name for option in opt_list):
                 opt_list.append(plugin_option)
+    return opt_list
+
+
+def list_neutron_opts():
+    opt_list = copy.deepcopy(config.neutron_opts)
+    opt_list += get_keystoneauth_conf_options()
     opt_list.sort(key=operator.attrgetter('name'))
     return [(config.neutron_group, opt_list)]
 

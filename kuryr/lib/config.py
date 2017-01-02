@@ -84,8 +84,12 @@ binding_group = cfg.OptGroup(
     help=_('Configuration options for container interface binding.'))
 
 
+def register_keystoneauth_opts(conf, conf_group):
+    ks_loading.register_session_conf_options(conf, conf_group)
+    ks_loading.register_auth_conf_options(conf, conf_group)
+
+
 def register_neutron_opts(conf):
     conf.register_group(neutron_group)
     conf.register_opts(neutron_opts, group=neutron_group)
-    ks_loading.register_session_conf_options(conf, neutron_group.name)
-    ks_loading.register_auth_conf_options(conf, neutron_group.name)
+    register_keystoneauth_opts(conf, neutron_group.name)

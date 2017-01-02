@@ -24,11 +24,21 @@ DOCKER_NETNS_BASE = '/var/run/docker/netns'
 PORT_POSTFIX = 'port'
 
 
+def get_auth_plugin(conf_group):
+    return ks_loading.load_auth_from_conf_options(
+        cfg.CONF, conf_group)
+
+
+def get_keystone_session(conf_group, auth_plugin):
+    return ks_loading.load_session_from_conf_options(cfg.CONF,
+                                                     conf_group,
+                                                     auth=auth_plugin)
+
+
 def get_neutron_client(*args, **kwargs):
     conf_group = kuryr_config.neutron_group.name
-    auth_plugin = ks_loading.load_auth_from_conf_options(cfg.CONF, conf_group)
-    session = ks_loading.load_session_from_conf_options(cfg.CONF, conf_group,
-                                                        auth=auth_plugin)
+    auth_plugin = get_auth_plugin(conf_group)
+    session = get_keystone_session(conf_group, auth_plugin)
     endpoint_type = getattr(getattr(cfg.CONF, conf_group), 'endpoint_type')
 
     return client.Client(session=session,
