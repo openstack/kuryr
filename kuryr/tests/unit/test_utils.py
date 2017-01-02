@@ -16,6 +16,7 @@ import socket
 
 from oslo_config import cfg
 
+from kuryr.lib import config as kuryr_config
 from kuryr.lib import utils
 from kuryr.tests.unit import base
 
@@ -46,10 +47,11 @@ class TestKuryrUtils(base.TestCase):
         mock_auth_loader.return_value = fake_auth
         mock_session_loader.return_value = fake_session
         utils.get_neutron_client()
+        neutron_group = getattr(cfg.CONF, kuryr_config.neutron_group.name)
         mock_client.assert_called_once_with(
             auth=fake_auth,
             session=fake_session,
-            endpoint_type=cfg.CONF.neutron.endpoint_type)
+            endpoint_type=neutron_group.endpoint_type)
 
     @mock.patch.object(socket, 'gethostname', return_value='fake_hostname')
     def test_get_hostname(self, mock_get_hostname):
