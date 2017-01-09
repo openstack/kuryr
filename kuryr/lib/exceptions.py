@@ -110,3 +110,11 @@ class SegmentationDriverBindingDriverCompatibilityFailure(KuryrException):
     This exception is thrown when configured binding driver does not have
     a supporting segmentation type driver.
     """
+
+
+class AddressInUseException(KuryrException):
+    """Exception represents the requested ip address is used.
+
+    This exception is thrown when a specific address is requested and the
+    requested ip address already exists and is used.
+    """
