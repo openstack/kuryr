@@ -79,7 +79,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
            "AddressSpace": "global_scope",
            "Pool": "10.0.0.0/16",
            "SubPool": "10.0.0.0/24",
-           "Options": null
+           "Options": {},
            "V6": false
        }
 
@@ -89,8 +89,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 
        {
            "PoolID": "941f790073c3a2c70099ea527ee3a6205e037e84749f2c6e8a5287d9c62fd376",
-           "Pool": "10.0.0.0/16",
-           "Data": {}
+           "Pool": "10.0.0.0/24",
        }
 
    If the ``--gateway`` was specified like the command above, another HTTP POST
@@ -99,14 +98,14 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
        {
            "Address": "10.0.0.1",
            "PoolID": "941f790073c3a2c70099ea527ee3a6205e037e84749f2c6e8a5287d9c62fd376",
-           "Options": null,
+           "Options": {"RequestAddressType": "com.docker.network.gateway"},
        }
 
    As the IPAM driver Kuryr allocates a requested IP address and returns the
    following response::
 
        {
-           "Address": "10.0.0.1/16",
+           "Address": "10.0.0.1/24",
            "Data": {}
        }
 
@@ -116,12 +115,12 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         {
             "NetworkID": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
             "IPv4Data": [{
-                "Pool": "10.0.0.0/16",
-                "Gateway": "10.0.0.1/16",
+                "Pool": "10.0.0.0/24",
+                "Gateway": "10.0.0.1/24",
                 "AddressSpace": ""
             }],
             "IPv6Data": [],
-            "Options": {"com.docker.network.generic": {}}
+            "Options": {"com.docker.network.enable_ipv6", false, "com.docker.network.generic": {}}
         }
 
    The Kuryr remote network driver will then generate a Neutron API request to
@@ -141,13 +140,13 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         {
             "Address": "",
             "PoolID": "941f790073c3a2c70099ea527ee3a6205e037e84749f2c6e8a5287d9c62fd376",
-            "Options": null,
+            "Options": {},
         }
 
    The IPAM driver Kuryr sends a port creation request to neutron and returns the following response with neutron provided ip address::
 
        {
-           "Address": "10.0.0.2/16",
+           "Address": "10.0.0.2/24",
            "Data": {}
        }
 
@@ -160,7 +159,7 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
             "Interface": {
                 "AddressIPv6": "",
                 "MacAddress": "",
-                "Address": "10.0.0.2/16"
+                "Address": "10.0.0.2/24"
             },
             "Options": {
                 "com.docker.network.endpoint.exposedports": [],
@@ -218,28 +217,35 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
 3. A user requests information about the network::
 
        $ sudo docker network inspect foo
-        {
-            "Name": "foo",
-            "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "Scope": "local",
-            "Driver": "kuryr",
-            "IPAM": {
-                "Driver": "default",
-                "Config": [{
-                    "Subnet": "10.0.0.0/16",
-                    "IPRange": "10.0.0.0/24",
-                    "Gateway": "10.0.0.1"
-                }]
-            },
-            "Containers": {
-                "78c0458ba00f836f609113dd369b5769527f55bb62b5680d03aa1329eb416703": {
-                    "endpoint": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd",
-                    "mac_address": "02:42:c0:a8:7b:cb",
-                    "ipv4_address": "10.0.0.2/16",
-                    "ipv6_address": ""
-                }
+        [
+            {
+                "Name": "foo",
+                "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
+                "Scope": "local",
+                "Driver": "kuryr",
+                "EnableIPv6": false,
+                "IPAM": {
+                    "Driver": "kuryr",
+                    "Options": {},
+                    "Config": [{
+                        "Subnet": "10.0.0.0/16",
+                        "IPRange": "10.0.0.0/24",
+                        "Gateway": "10.0.0.1"
+                    }]
+                },
+                "Internal": false,
+                "Containers": {
+                    "78c0458ba00f836f609113dd369b5769527f55bb62b5680d03aa1329eb416703": {
+                        "endpoint": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd",
+                        "mac_address": "02:42:c0:a8:7b:cb",
+                        "ipv4_address": "10.0.0.2/24",
+                        "ipv6_address": ""
+                    }
+                },
+                "Options": {},
+                "Labels": {}
             }
-        }
+        ]
 
 
 4. A user connects one more container to the network::
@@ -248,34 +254,41 @@ Libnetwork User Workflow (with Kuryr as remote network driver) - Host Networking
         d7fcc280916a8b771d2375688b700b036519d92ba2989622627e641bdde6e646
 
        $ sudo docker network inspect foo
-        {
-            "Name": "foo",
-            "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
-            "Scope": "local",
-            "Driver": "kuryr",
-            "IPAM": {
-                "Driver": "default",
-                "Config": [{
-                    "Subnet": "10.0.0.0/16",
-                    "IPRange": "10.0.0.0/24",
-                    "Gateway": "10.0.0.1"
-                }]
-            },
-            "Containers": {
-                "78c0458ba00f836f609113dd369b5769527f55bb62b5680d03aa1329eb416703": {
-                    "endpoint": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd",
-                    "mac_address": "02:42:c0:a8:7b:cb",
-                    "ipv4_address": "10.0.0.2/16",
-                    "ipv6_address": ""
+        [
+            {
+                "Name": "foo",
+                "Id": "286eddb51ebca09339cb17aaec05e48ffe60659ced6f3fc41b020b0eb506d364",
+                "Scope": "local",
+                "Driver": "kuryr",
+                "EnableIPv6": false,
+                "IPAM": {
+                    "Driver": "kuryr",
+                    "Options": {},
+                    "Config": [{
+                        "Subnet": "10.0.0.0/16",
+                        "IPRange": "10.0.0.0/24",
+                        "Gateway": "10.0.0.1"
+                    }]
                 },
-                "d7fcc280916a8b771d2375688b700b036519d92ba2989622627e641bdde6e646": {
-                    "endpoint": "a55976bafaad19f2d455c4516fd3450d3c52d9996a98beb4696dc435a63417fc",
-                    "mac_address": "02:42:c0:a8:7b:cc",
-                    "ipv4_address": "10.0.0.3/16",
-                    "ipv6_address": ""
-                }
+                "Internal": false,
+                "Containers": {
+                    "78c0458ba00f836f609113dd369b5769527f55bb62b5680d03aa1329eb416703": {
+                        "endpoint": "edb23d36d77336d780fe25cdb5cf0411e5edd91b0777982b4b28ad125e28a4dd",
+                        "mac_address": "02:42:c0:a8:7b:cb",
+                        "ipv4_address": "10.0.0.2/24",
+                        "ipv6_address": ""
+                    },
+                    "d7fcc280916a8b771d2375688b700b036519d92ba2989622627e641bdde6e646": {
+                        "endpoint": "a55976bafaad19f2d455c4516fd3450d3c52d9996a98beb4696dc435a63417fc",
+                        "mac_address": "02:42:c0:a8:7b:cc",
+                        "ipv4_address": "10.0.0.3/24",
+                        "ipv6_address": ""
+                    }
+                },
+                "Options": {},
+                "Labels": {}
             }
-        }
+        ]
 
 
 5. A user disconnects a container from the network::
