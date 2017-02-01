@@ -16,17 +16,25 @@ from kuryr.lib import exceptions as ex
 
 BASE_PATH = 'kuryr.lib.segmentation_type_drivers'
 
-driver_name = cfg.CONF.binding.driver.rsplit('.', 1)[1]
+_driver = ""
 
-# REVISIT(vikasc): Need to remove this if check
-if driver_name == 'vlan':
-    seg_driver_path = '.'.join([BASE_PATH, driver_name])
-    segmentation_driver = importutils.import_module(seg_driver_path)
-    driver = segmentation_driver.SegmentationDriver()
+
+def _get_driver():
+    global _driver
+    if not _driver:
+        driver_name = cfg.CONF.binding.driver.rsplit('.', 1)[1]
+
+        # REVISIT(vikasc): Need to remove this if check
+        if driver_name == 'vlan':
+            seg_driver_path = '.'.join([BASE_PATH, driver_name])
+            segmentation_driver = importutils.import_module(seg_driver_path)
+            _driver = segmentation_driver.SegmentationDriver()
+    return _driver
 
 
 def allocate_segmentation_id(allocated_ids=set()):
     """Allocates a segmentation ID."""
+    driver = _get_driver()
     try:
         id = driver.allocate_segmentation_id(allocated_ids)
     except NameError:
@@ -36,6 +44,7 @@ def allocate_segmentation_id(allocated_ids=set()):
 
 def release_segmentation_id(id):
     """Releases the segmentation ID."""
+    driver = _get_driver()
     try:
         driver.release_segmentation_id(id)
     except NameError:
