@@ -77,8 +77,12 @@ def get_dict_format_fixed_ips_from_kv_format(fixed_ips):
             subnet_id = fixed_ip.split('=')[1]
         else:
             ip = fixed_ip.split('=')[1]
-            new_fixed_ips.append({'subnet_id': subnet_id,
-                'ip_address': ip})
+            new_fixed_ips.append(
+                {
+                    'subnet_id': subnet_id,
+                    'ip_address': ip
+                }
+            )
     return new_fixed_ips
 
 
