@@ -35,10 +35,7 @@ Programming HowTos and Tutorials
     :maxdepth: 4
 
     goals_and_use_cases
-    libnetwork_remote_driver_design
     kuryr_mitaka_milestone
-    k8s_api_watcher_design
-
 
 Indices and tables
 ------------------
