@@ -89,7 +89,9 @@ class TestCase(base.BaseTestCase):
                        neutron_subnet_v4_id=None,
                        neutron_subnet_v6_id=None,
                        neutron_subnet_v4_address="192.168.1.2",
-                       neutron_subnet_v6_address="fe80::f816:3eff:fe20:57c4"):
+                       neutron_subnet_v6_address="fe80::f816:3eff:fe20:57c4",
+                       vif_details=None,
+                       vif_type=None):
         # The following fake response is retrieved from the Neutron doc:
         #   http://developer.openstack.org/api-ref-networking-v2.html#createPort  # noqa
         fake_port = {
@@ -105,7 +107,9 @@ class TestCase(base.BaseTestCase):
                 "fixed_ips": [],
                 "id": neutron_port_id,
                 "security_groups": [],
-                "device_id": ""
+                "device_id": "",
+                "binding:vif_details": vif_details,
+                "binding:vif_type": vif_type
             }
         }
 
