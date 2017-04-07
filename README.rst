@@ -2,8 +2,8 @@
 Team and repository tags
 ========================
 
-.. image:: http://governance.openstack.org/badges/kuryr.svg
-    :target: http://governance.openstack.org/reference/tags/index.html
+.. image:: https://governance.openstack.org/badges/kuryr.svg
+    :target: https://governance.openstack.org/reference/tags/index.html
 
 .. Change things from this point on
 
@@ -24,9 +24,9 @@ common Neutron plugins.
 
 
 * Free software: Apache license
-* Documentation: http://docs.openstack.org/developer/kuryr
-* Source: http://git.openstack.org/cgit/openstack/kuryr
-* Bugs: http://bugs.launchpad.net/kuryr
+* Documentation: https://docs.openstack.org/developer/kuryr
+* Source: https://git.openstack.org/cgit/openstack/kuryr
+* Bugs: https://bugs.launchpad.net/kuryr
 
 Features
 --------
@@ -55,7 +55,7 @@ Installing Kuryr's libnetwork driver
 
 For kuryr-libnetwork driver installation refer:
 
-http://docs.openstack.org/developer/kuryr-libnetwork/readme.html
+https://docs.openstack.org/developer/kuryr-libnetwork/readme.html
 
 
 Configuring Kuryr
