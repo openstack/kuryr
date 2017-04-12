@@ -2,15 +2,15 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
-Babel>=2.3.4 # BSD
+Babel!=2.4.0,>=2.3.4 # BSD
 ipaddress>=1.0.7;python_version<'3.3' # PSF
 keystoneauth1>=2.18.0 # Apache-2.0
-neutron-lib>=1.3.0 # Apache-2.0
+neutron-lib>=1.4.0 # Apache-2.0
 oslo.concurrency>=3.8.0 # Apache-2.0
 oslo.i18n>=2.1.0 # Apache-2.0
 oslo.log>=3.22.0 # Apache-2.0
 oslo.utils>=3.20.0 # Apache-2.0
-pbr>=2.0.0 # Apache-2.0
+pbr!=2.1.0,>=2.0.0 # Apache-2.0
 pyroute2>=0.4.12 # Apache-2.0 (+ dual licensed GPL2)
 python-neutronclient>=5.1.0 # Apache-2.0
 six>=1.9.0 # MIT
