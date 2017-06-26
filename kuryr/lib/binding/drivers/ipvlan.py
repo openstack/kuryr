@@ -17,7 +17,7 @@ from kuryr.lib.binding.drivers import utils
 
 KIND = 'ipvlan'
 # We use L2 to allow broadcast frames
-IPVLAN_MODE_L2 = ifinfmsg.ifinfo.ipvlan_data.modes['IPVLAN_MODE_L2']
+IPVLAN_MODE_L2 = ifinfmsg.ifinfo.data_map['ipvlan'].modes['IPVLAN_MODE_L2']
 
 
 def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,

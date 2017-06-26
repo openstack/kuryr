@@ -28,9 +28,9 @@ class TestIpvlanDriver(base.TestCase):
     """Unit tests for nested IPVLAN driver"""
 
     @mock.patch('kuryr.lib.binding.drivers.utils._configure_container_iface')
-    @mock.patch('pyroute2.ipdb.interface.InterfacesDict.__getattribute__',
+    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getattribute__',
                 return_value=mock_create)
-    @mock.patch('pyroute2.ipdb.interface.InterfacesDict.__getitem__',
+    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getitem__',
                 return_value=mock_interface)
     def test_port_bind(self, mock_getitem, mock_getattribute,
                        mock_configure_container_iface):

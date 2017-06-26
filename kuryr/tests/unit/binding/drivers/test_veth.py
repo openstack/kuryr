@@ -30,9 +30,9 @@ class TestVethDriver(base.TestCase):
     @mock.patch('os.path.exists', return_value=True)
     @mock.patch('oslo_concurrency.processutils.execute',
                 return_value=('fake_stdout', 'fake_stderr'))
-    @mock.patch('pyroute2.ipdb.interface.InterfacesDict.__getattribute__',
+    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getattribute__',
                 return_value=mock_create)
-    @mock.patch('pyroute2.ipdb.interface.InterfacesDict.__getitem__',
+    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getitem__',
                 return_value=mock_interface)
     def test_port_bind(self, mock_getitem, mock_getattribute,
                        mock_execute, mock_path_exists):

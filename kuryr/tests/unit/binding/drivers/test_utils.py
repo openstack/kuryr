@@ -13,7 +13,7 @@ import ddt
 import mock
 from oslo_utils import uuidutils
 
-import pyroute2.ipdb.interface
+import pyroute2.ipdb.interfaces
 from pyroute2.netlink.rtnl import ifinfmsg
 
 from kuryr.lib.binding.drivers import utils
@@ -104,7 +104,7 @@ class BindingDriversUtilsTest(base.TestCase):
             'tenant_id': '51b66b97a12f42a990452967d2c555ac',
             'updated_at': '2016-09-27T08:57:13'}]
 
-        fake_iface = mock.Mock(spec=pyroute2.ipdb.interface.Interface)
+        fake_iface = mock.Mock(spec=pyroute2.ipdb.interfaces.Interface)
         _set_mtu = mock.Mock()
         _set_address = mock.Mock()
         fake_iface.attach_mock(_set_mtu, 'set_mtu')
