@@ -22,9 +22,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    #'sphinx.ext.intersphinx',
-    'oslosphinx',
-    'reno.sphinxext'
+    'openstackdocstheme',
+    'reno.sphinxext',
 ]
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
@@ -41,6 +40,12 @@ master_doc = 'index'
 project = u'kuryr'
 copyright = u'2013, OpenStack Foundation'
 
+# openstackdocstheme options
+repository_name = 'openstack/kuryr'
+bug_project = 'kuryr'
+bug_tag = ''
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
+
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
 
@@ -56,7 +61,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
 # html_theme_path = ["."]
-# html_theme = '_theme'
+html_theme = 'openstackdocs'
 # html_static_path = ['static']
 
 # Output file base name for HTML help builder.
