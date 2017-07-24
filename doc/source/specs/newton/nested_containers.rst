@@ -536,4 +536,4 @@ References
 
 [4] https://blueprints.launchpad.net/kuryr/+spec/kuryr-magnum-heat-deployment
 
-[5] http://docs.openstack.org/developer/magnum/
+[5] https://docs.openstack.org/magnum/latest/

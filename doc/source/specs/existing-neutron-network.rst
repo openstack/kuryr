@@ -172,5 +172,5 @@ References
 
 * `Add tags to neutron resources spec`_
 
-.. _Add tags to neutron resources spec: http://docs.openstack.org/developer/neutron/devref/tag.html
-.. _Kuryr devref: http://docs.openstack.org/developer/kuryr/devref/index.html
+.. _Add tags to neutron resources spec: https://docs.openstack.org/neutron/latest/contributor/internals/tag.html
+.. _Kuryr devref: https://docs.openstack.org/kuryr/latest/devref/index.html

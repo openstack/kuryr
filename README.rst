@@ -24,7 +24,7 @@ common Neutron plugins.
 
 
 * Free software: Apache license
-* Documentation: https://docs.openstack.org/developer/kuryr
+* Documentation: https://docs.openstack.org/kuryr/latest/
 * Source: https://git.openstack.org/cgit/openstack/kuryr
 * Bugs: https://bugs.launchpad.net/kuryr
 
@@ -55,7 +55,7 @@ Installing Kuryr's libnetwork driver
 
 For kuryr-libnetwork driver installation refer:
 
-https://docs.openstack.org/developer/kuryr-libnetwork/readme.html
+https://docs.openstack.org/kuryr-libnetwork/latest/readme.html
 
 
 Configuring Kuryr
