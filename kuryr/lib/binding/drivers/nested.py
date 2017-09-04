@@ -31,11 +31,12 @@ def get_link_iface(port):
     return link
 
 
-def port_unbind(endpoint_id, neutron_port):
+def port_unbind(endpoint_id, neutron_port, **kwargs):
     """Unbinds the Neutron port from the network interface on the host.
 
     :param endpoint_id: the ID of the Docker container as string
     :param neutron_port: a port dictionary returned from python-neutronclient
+    :param kwargs:       Additional driver-specific arguments
     :returns: the tuple of stdout and stderr returned by processutils.execute
               invoked with the executable script for unbinding
     :raises: processutils.ProcessExecutionError, pyroute2.NetlinkError

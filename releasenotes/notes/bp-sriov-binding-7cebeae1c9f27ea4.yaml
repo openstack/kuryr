@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Introduce hw_veb binding driver. This driver can perform binding
+    of SR-IOV neutron port.

@@ -28,4 +28,5 @@ DEFAULT_NETWORK_MTU = 1500
 FALLBACK_VIF_TYPE = 'unbound'
 UNBINDING_SUBCOMMAND = 'unbind'
 VIF_DETAILS_KEY = 'binding:vif_details'
+VIF_DETAILS_VLAN_KEY = 'vlan'
 VIF_TYPE_KEY = 'binding:vif_type'
