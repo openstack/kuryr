@@ -29,7 +29,7 @@ class VlanSegmentationDriverTest(base.TestCase):
 
     def setUp(self):
         super(VlanSegmentationDriverTest, self).setUp()
-        cfg.CONF.binding.driver = 'kuryr.lib.binding.drivers.vlan'
+        cfg.CONF.binding.default_driver = 'kuryr.lib.binding.drivers.vlan'
 
     def test_allocate_segmentation_id(self):
         vlan_seg_driver = vlan.SegmentationDriver()

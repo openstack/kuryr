@@ -22,7 +22,7 @@ _driver = ""
 def _get_driver():
     global _driver
     if not _driver:
-        driver_name = cfg.CONF.binding.driver.rsplit('.', 1)[1]
+        driver_name = cfg.CONF.binding.default_driver.rsplit('.', 1)[1]
 
         # REVISIT(vikasc): Need to remove this if check
         if driver_name == 'vlan':

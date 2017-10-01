@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add support for multiple binding drivers. Introduce a new config
+    called 'enabled_drivers' which specifies a list of binding drivers
+    allowed to use.
+deprecations:
+  - |
+    Rename the config 'driver' to 'default_driver' in 'binding' group.
+    This is for making it clear that it is allowed to have more than
+    one type of bindings.

@@ -68,9 +68,13 @@ binding_opts = [
                default='eth',
                help=_('The name prefix of the veth endpoint put inside the '
                       'container.')),
-    cfg.StrOpt('driver',
+    cfg.StrOpt('default_driver',
                default='kuryr.lib.binding.drivers.veth',
+               deprecated_name='driver',
                help=_('Driver to use for binding and unbinding ports.')),
+    cfg.ListOpt('enabled_drivers',
+                default=['kuryr.lib.binding.drivers.veth'],
+                help=_('Drivers to use for binding and unbinding ports.')),
     cfg.StrOpt('link_iface',
                default='',
                help=_('Specifies the name of the Nova instance interface to '

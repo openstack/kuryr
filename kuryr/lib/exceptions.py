@@ -118,3 +118,11 @@ class AddressInUseException(KuryrException):
     This exception is thrown when a specific address is requested and the
     requested ip address already exists and is used.
     """
+
+
+class DriverNotEnabledException(KuryrException):
+    """Exception represents the binding driver is not enabled.
+
+    This exception is thrown when kuryr tries to load a specific binding driver
+    but the driver is not enabled.
+    """

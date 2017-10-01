@@ -30,4 +30,4 @@ class ConfigurationTest(base.TestCase):
         self.assertEqual('baremetal',
                          cfg.CONF.deployment_type)
         self.assertEqual('kuryr.lib.binding.drivers.veth',
-                         cfg.CONF.binding.driver)
+                         cfg.CONF.binding.default_driver)
