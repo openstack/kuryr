@@ -9,8 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from oslo_config import cfg
-from oslo_utils import importutils
+
+from oslo_concurrency import processutils
+
+from kuryr.lib.binding.drivers import utils
+from kuryr.lib import constants
 
 
 def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
@@ -25,9 +28,9 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
     :param network:      the Neutron network which the endpoint is trying to
                          join
     :param vm_port:      the Nova instance port dictionary, as returned by
-                         python-neutronclient. Binding is being done for the
-                         port of a container which is running inside this Nova
-                         instance (either ipvlan/macvlan or a subport).
+                         python-neutronclient. Container port under binding is
+                         running inside this instance (either ipvlan/macvlan or
+                         a subport)
     :param segmentation_id: ID of the segment for container traffic isolation)
     :param kwargs:       Additional driver-specific arguments
     :returns: the tuple of the names of the veth pair and the tuple of stdout
@@ -36,11 +39,12 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
     :raises: kuryr.common.exceptions.VethCreationFailure,
              processutils.ProcessExecutionError
     """
-    driver = importutils.import_module(cfg.CONF.binding.driver)
-    return driver.port_bind(endpoint_id, port, subnets, network=network,
-                            vm_port=vm_port,
-                            segmentation_id=segmentation_id,
-                            **kwargs)
+    pf_ifname = kwargs['pf_ifname']
+    vf_num = kwargs['vf_num']
+    mac_addr = port[utils.MAC_ADDRESS_KEY]
+    vlan = port[constants.VIF_DETAILS_KEY][constants.VIF_DETAILS_VLAN_KEY]
+    _set_vf_interface_vlan(pf_ifname, vf_num, mac_addr, vlan)
+    return None, None, ('', None)
 
 
 def port_unbind(endpoint_id, neutron_port, **kwargs):
@@ -53,6 +57,18 @@ def port_unbind(endpoint_id, neutron_port, **kwargs):
               invoked with the executable script for unbinding
     :raises: processutils.ProcessExecutionError, pyroute2.NetlinkError
     """
-    driver = importutils.import_module(cfg.CONF.binding.driver)
+    pf_ifname = kwargs['pf_ifname']
+    vf_num = kwargs['vf_num']
+    mac_addr = neutron_port[utils.MAC_ADDRESS_KEY]
+    _set_vf_interface_vlan(pf_ifname, vf_num, mac_addr)
+    return '', None
 
-    return driver.port_unbind(endpoint_id, neutron_port, **kwargs)
+
+def _set_vf_interface_vlan(pf_ifname, vf_num, mac_addr, vlan=0):
+    exit_code = [0, 2, 254]
+    processutils.execute('ip', 'link', 'set', pf_ifname,
+                         'vf', vf_num,
+                         'mac', mac_addr,
+                         'vlan', vlan,
+                         run_as_root=True,
+                         check_exit_code=exit_code)
