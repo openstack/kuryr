@@ -126,3 +126,10 @@ class DriverNotEnabledException(KuryrException):
     This exception is thrown when kuryr tries to load a specific binding driver
     but the driver is not enabled.
     """
+
+
+class ConflictConfigOption(KuryrException):
+    """Exception represents when the conflict config happens.
+
+    The existed option conflicts with the given option.
+    """
