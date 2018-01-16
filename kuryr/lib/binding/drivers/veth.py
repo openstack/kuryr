@@ -129,7 +129,7 @@ def _configure_host_iface(ifname, endpoint_id, port_id, net_id, project_id,
     :param net_id:      the Neutron uuid of the network the port is part of
     :param project_id:  the Keystone project the binding is made for
     :param hwaddr:      the interface hardware address
-    :param kind:        the Neutorn port vif_type
+    :param kind:        the Neutron port vif_type
     :param details:     Neutron vif details
     """
     if kind is None:
