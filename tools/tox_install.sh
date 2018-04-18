@@ -49,5 +49,10 @@ fi
 # install will be constrained and we need to unconstrain it.
 edit-constraints $localfile -- $LIB_NAME "-e file://$PWD#egg=$LIB_NAME"
 
-$install_cmd -U $*
-exit $?
+# As a workaround for pip 10, where doing `pip install -U` without further
+# arguments is treated as an error, we're making this call conditional on the
+# content of `$*`.
+if [[ -n $* ]]; then
+    $install_cmd -U $*
+    exit $?
+fi
