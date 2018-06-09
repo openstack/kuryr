@@ -15,6 +15,7 @@ import pyroute2
 
 from oslo_concurrency import processutils
 from oslo_config import cfg
+from oslo_log import log
 from oslo_utils import excutils
 
 from kuryr.lib.binding.drivers import utils
@@ -24,6 +25,7 @@ from kuryr.lib import utils as lib_utils
 
 
 KIND = 'veth'
+LOG = log.getLogger(__name__)
 
 
 def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
@@ -65,9 +67,12 @@ def port_bind(endpoint_id, port, subnets, network=None, vm_port=None,
                 fixed_ips=port.get(utils.FIXED_IP_KEY),
                 mtu=mtu, hwaddr=port[utils.MAC_ADDRESS_KEY].lower())
     except pyroute2.CreateException:
+        LOG.exception("Error happened during virtual device creation")
         raise exceptions.VethCreationFailure(
             'Virtual device creation failed.')
     except pyroute2.CommitException:
+        LOG.exception("Error happened during configuring the container "
+                      "virtual device networking")
         raise exceptions.VethCreationFailure(
             'Could not configure the container virtual device networking.')
 
@@ -113,6 +118,7 @@ def port_unbind(endpoint_id, neutron_port, **kwargs):
     try:
         utils.remove_device(ifname)
     except pyroute2.NetlinkError:
+        LOG.exception("Error happened during deleting the veth pair")
         raise exceptions.VethDeletionFailure(
             'Deleting the veth pair failed.')
     return (stdout, stderr)
