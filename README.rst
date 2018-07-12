@@ -79,7 +79,7 @@ Edit keystone section in `/etc/kuryr/kuryr.conf`, replace ADMIN_PASSWORD:
 
 ::
 
-    auth_uri = http://127.0.0.1:35357/v2.0
+    www_authenticate_uri = http://127.0.0.1:35357/v2.0
     admin_user = admin
     admin_tenant_name = service
     admin_password = ADMIN_PASSWORD
