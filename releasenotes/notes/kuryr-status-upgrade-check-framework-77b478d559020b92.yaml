@@ -1,0 +1,13 @@
+---
+prelude: >
+    Added new tool ``kuryr-status upgrade check``.
+features:
+  - |
+    New framework for ``kuryr-status upgrade check`` command is added.
+    This framework allows adding various checks which can be run before a
+    Kuryr upgrade to ensure if the upgrade can be performed safely.
+upgrade:
+  - |
+    Operator can now use new CLI tool ``kuryr-status upgrade check``
+    to check if Kuryr deployment can be safely upgraded from
+    N-1 to N release.

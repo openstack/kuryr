@@ -29,6 +29,7 @@ Contents:
    installation
    usage
    contributing
+   cli/index
    releasenotes
 
 Design and Developer Docs
