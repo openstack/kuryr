@@ -21,4 +21,5 @@ Contents:
    :maxdepth: 1
 
    unreleased
+   stein
    queens
