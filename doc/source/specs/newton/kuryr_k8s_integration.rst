@@ -298,6 +298,6 @@ References
 .. [2] http://kubernetes.io/docs/api/
 .. [3] http://kubernetes.io/docs/admin/networking/#kubernetes-model
 .. [4] https://docs.google.com/document/d/1qAm-_oSap-f1d6a-xRTj6xaH1sYQBfK36VyjB5XOZug
-.. [5] https://review.openstack.org/#/c/290172/
+.. [5] https://review.opendev.org/#/c/290172/
 .. [6] https://github.com/appc/cni/blob/master/SPEC.md
 .. [7] https://blueprints.launchpad.net/kuryr/+spec/kuryr-cni-plugin

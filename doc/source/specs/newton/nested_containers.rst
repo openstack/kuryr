@@ -528,7 +528,7 @@ corresponding details.
 References
 ==========
 
-[1] https://review.openstack.org/#/c/204686/7
+[1] https://review.opendev.org/#/c/204686/7
 
 [2] http://specs.openstack.org/openstack/neutron-specs/specs/mitaka/vlan-aware-vms.html
 
