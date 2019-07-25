@@ -49,7 +49,7 @@ class TestCase(base.BaseTestCase):
                           fake_neutron_subnet_v4_id,
                           fake_neutron_subnet_v6_id):
         # The following fake response is retrieved from the Neutron doc:
-        #   http://developer.openstack.org/api-ref-networking-v2.html#createSubnet  # noqa
+        #   https://docs.openstack.org/api-ref/network/v2/index.html#create-subnet  # noqa
         fake_subnet_response = {
             "subnets": [
                 {
@@ -93,7 +93,7 @@ class TestCase(base.BaseTestCase):
                        vif_details=None,
                        vif_type=None):
         # The following fake response is retrieved from the Neutron doc:
-        #   http://developer.openstack.org/api-ref-networking-v2.html#createPort  # noqa
+        #   https://docs.openstack.org/api-ref/network/v2/index.html#create-port  # noqa
         fake_port = {
             'port': {
                 "status": neutron_port_status,
