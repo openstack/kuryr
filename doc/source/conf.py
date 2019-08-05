@@ -37,14 +37,12 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'kuryr'
 copyright = u'2013, OpenStack Foundation'
 
 # openstackdocstheme options
 repository_name = 'openstack/kuryr'
 bug_project = 'kuryr'
 bug_tag = ''
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -65,15 +63,15 @@ html_theme = 'openstackdocs'
 # html_static_path = ['static']
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%sdoc' % project
+htmlhelp_basename = 'kuryrdoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
     ('index',
-     '%s.tex' % project,
-     u'%s Documentation' % project,
+     'kuryr.tex',
+     u'kuryr Documentation',
      u'OpenStack Foundation', 'manual'),
 ]
 
