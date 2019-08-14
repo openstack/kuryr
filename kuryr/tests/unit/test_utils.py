@@ -27,7 +27,7 @@ class TestKuryrUtils(base.TestCase):
     def setUp(self):
         super(TestKuryrUtils, self).setUp()
         self.fake_url = 'http://127.0.0.1:9696'
-        self.fake_auth_url = 'http://127.0.0.1:35357/v2.0'
+        self.fake_auth_url = 'http://127.0.0.1:5000'
 
     def test_get_subnetpool_name(self):
         fake_subnet_cidr = "10.0.0.0/16"

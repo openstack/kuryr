@@ -79,10 +79,14 @@ Edit keystone section in `/etc/kuryr/kuryr.conf`, replace ADMIN_PASSWORD:
 
 ::
 
-    www_authenticate_uri = http://127.0.0.1:35357/v2.0
-    admin_user = admin
-    admin_tenant_name = service
-    admin_password = ADMIN_PASSWORD
+    auth_type           = v3password
+    auth_url            = http://127.0.0.1:5000
+    region_name         = regionOne
+    user_doamin_name    = Default
+    username            = admin
+    project_domain_name = Default
+    project_name        = service
+    password            = ADMIN_PASSWORD
 
 
 In the same file uncomment the `bindir` parameter with the path for the Kuryr
