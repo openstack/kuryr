@@ -40,10 +40,12 @@ def get_neutron_client(*args, **kwargs):
     auth_plugin = get_auth_plugin(conf_group)
     session = get_keystone_session(conf_group, auth_plugin)
     endpoint_type = getattr(getattr(cfg.CONF, conf_group), 'endpoint_type')
+    region_name = getattr(getattr(cfg.CONF, conf_group), 'region_name')
 
     return client.Client(session=session,
                          auth=auth_plugin,
-                         endpoint_type=endpoint_type)
+                         endpoint_type=endpoint_type,
+                         region_name=region_name)
 
 
 def get_hostname():

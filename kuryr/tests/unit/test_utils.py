@@ -73,7 +73,8 @@ class TestKuryrUtils(base.TestCase):
         mock_client.assert_called_once_with(
             auth=fake_auth,
             session=fake_session,
-            endpoint_type=neutron_group.endpoint_type)
+            endpoint_type=neutron_group.endpoint_type,
+            region_name=neutron_group.region_name)
 
     @mock.patch.object(socket, 'gethostname', return_value='fake_hostname')
     def test_get_hostname(self, mock_get_hostname):
