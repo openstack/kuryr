@@ -66,13 +66,13 @@ This list of items will need to be prioritized.
    (Used for nested VM's defining trunk port and sub-ports)
 
    DNS resolution according to port name
-   (https://review.openstack.org/#/c/90150/)
+   (https://review.opendev.org/#/c/90150/)
    (Needed for feature compatibility with Docker services publishing)
 
 8) Mapping between Neutron identifiers and Docker identifiers
 
    A new spec in Neutron is being proposed that we can
-   leverage for this use case: `Adding tags to resources <https://review.openstack.org/#/c/216021/>`_ .
+   leverage for this use case: `Adding tags to resources <https://review.opendev.org/#/c/216021/>`_ .
    Tags are similar in concept to Docker labels.
 
 9) Testing (CI)
