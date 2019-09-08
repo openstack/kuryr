@@ -56,7 +56,7 @@ neutron_opts = [
                default=0,
                help=_("Seconds to wait for port to become active")),
     cfg.StrOpt('region_name',
-               default='RegionOne',
+               default=None,
                help=_('Region name of the neturon endpoint to use.')),
     cfg.StrOpt('endpoint_type',
                default='public',
