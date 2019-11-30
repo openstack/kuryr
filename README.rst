@@ -25,7 +25,7 @@ common Neutron plugins.
 
 * Free software: Apache license
 * Documentation: https://docs.openstack.org/kuryr/latest/
-* Source: https://git.openstack.org/cgit/openstack/kuryr
+* Source: https://opendev.org/openstack/kuryr
 * Bugs: https://bugs.launchpad.net/kuryr
 
 Features
@@ -39,7 +39,7 @@ Getting Code
 
 ::
 
-    $ git clone https://git.openstack.org/openstack/kuryr.git
+    $ git clone https://opendev.org/openstack/kuryr.git
     $ cd kuryr
 
 Prerequisites
