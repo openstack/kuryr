@@ -10,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
+from unittest import mock
 
 from kuryr.lib import opts as kuryr_opts
 from kuryr.tests.unit import base
