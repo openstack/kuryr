@@ -54,9 +54,9 @@ master_doc = 'index'
 copyright = u'2016, Kuryr developers'
 
 # openstackdocstheme options
-repository_name = 'openstack/kuryr'
-bug_project = 'kuryr'
-bug_tag = ''
+openstackdocs_repo_name = 'openstack/kuryr'
+openstackdocs_bug_project = 'kuryr'
+openstackdocs_bug_tag = ''
 
 # Release notes do not need a version number in the title, they
 # cover multiple releases.
@@ -106,7 +106,7 @@ exclude_patterns = ['_build']
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
