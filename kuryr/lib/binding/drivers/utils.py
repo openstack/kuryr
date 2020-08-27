@@ -13,7 +13,6 @@ import ipaddress
 
 import pyroute2
 from pyroute2.netlink.rtnl import ifinfmsg
-import six
 
 from kuryr.lib import constants
 
@@ -107,7 +106,7 @@ def _configure_container_iface(iface, subnets, fixed_ips, mtu=None,
         if IP_ADDRESS_KEY in fixed_ip and (SUBNET_ID_KEY in fixed_ip):
             subnet_id = fixed_ip[SUBNET_ID_KEY]
             subnet = subnets_dict[subnet_id]
-            cidr = ipaddress.ip_network(six.text_type(subnet['cidr']))
+            cidr = ipaddress.ip_network(str(subnet['cidr']))
             iface.add_ip(fixed_ip[IP_ADDRESS_KEY], cidr.prefixlen)
     if mtu is not None:
         iface.set_mtu(mtu)
