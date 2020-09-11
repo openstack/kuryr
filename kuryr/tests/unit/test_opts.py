@@ -32,6 +32,6 @@ class OptsTest(base.TestCase):
     def test_list_kuryr_opts(self, list_neutron_opts):
         list_neutron_opts.return_value = self._fake_neutron_opts
 
-        self.assertEqual(self._fake_kuryr_opts + self._fake_neutron_opts +
-                         [(self._fake_binding_group, self._fake_binding_opts)],
-                         kuryr_opts.list_kuryr_opts())
+        opts = self._fake_kuryr_opts + self._fake_neutron_opts + [(
+            self._fake_binding_group, self._fake_binding_opts)]
+        self.assertEqual(opts, kuryr_opts.list_kuryr_opts())

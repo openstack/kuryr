@@ -11,5 +11,5 @@ oslo.log>=3.36.0 # Apache-2.0
 oslo.upgradecheck>=0.1.0 # Apache-2.0
 oslo.utils>=3.33.0 # Apache-2.0
 pbr!=2.1.0,>=2.0.0 # Apache-2.0
-pyroute2>=0.4.21;sys_platform!='win32' # Apache-2.0 (+ dual licensed GPL2)
+pyroute2>=0.5.6;sys_platform!='win32' # Apache-2.0 (+ dual licensed GPL2)
 python-neutronclient>=6.7.0 # Apache-2.0
