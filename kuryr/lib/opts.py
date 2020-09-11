@@ -74,6 +74,7 @@ def list_kuryr_opts():
     :returns: a list of (group_name, opts) tuples
     """
 
-    return ([(k, copy.deepcopy(o)) for k, o in _kuryr_opts] +
-            list_neutron_opts() +
-            [(config.binding_group, config.binding_opts)])
+    opts = [(k, copy.deepcopy(o)) for k, o in _kuryr_opts]
+    opts += list_neutron_opts()
+    opts += [(config.binding_group, config.binding_opts)]
+    return opts
