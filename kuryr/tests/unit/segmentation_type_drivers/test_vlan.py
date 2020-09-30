@@ -15,7 +15,6 @@
 from unittest import mock
 
 from oslo_config import cfg
-from six import moves
 
 from kuryr.lib import constants as const
 from kuryr.lib import exceptions
@@ -42,8 +41,8 @@ class VlanSegmentationDriverTest(base.TestCase):
 
     def test_allocate_segmentation_id_only_1_available(self):
         vlan_seg_driver = vlan.SegmentationDriver()
-        allocated_ids = set(moves.range(const.MIN_VLAN_TAG,
-                                        const.MAX_VLAN_TAG + 1))
+        allocated_ids = set(range(const.MIN_VLAN_TAG,
+                            const.MAX_VLAN_TAG + 1))
         allocated_ids.remove(const.MAX_VLAN_TAG)
 
         vlan_id = vlan_seg_driver.allocate_segmentation_id(allocated_ids)
@@ -59,8 +58,8 @@ class VlanSegmentationDriverTest(base.TestCase):
 
     def test_allocate_segmentation_id_no_available_vlans(self):
         vlan_seg_driver = vlan.SegmentationDriver()
-        allocated_ids = set(moves.range(const.MIN_VLAN_TAG,
-                                        const.MAX_VLAN_TAG + 1))
+        allocated_ids = set(range(const.MIN_VLAN_TAG,
+                            const.MAX_VLAN_TAG + 1))
 
         self.assertRaises(exceptions.SegmentationIdAllocationFailure,
                           vlan_seg_driver.allocate_segmentation_id,
@@ -80,7 +79,7 @@ class VlanSegmentationDriverTest(base.TestCase):
     @mock.patch('random.choice')
     def test_allocate_segmentation_id_2_retries(self, mock_choice):
         vlan_seg_driver = vlan.SegmentationDriver()
-        vlan_seg_driver.available_local_vlans = set(moves.range(1, 10))
+        vlan_seg_driver.available_local_vlans = set(range(1, 10))
         allocated_ids = set([1, 2, 3])
         mock_choice.side_effect = [1, 1, 5]
 
@@ -91,7 +90,7 @@ class VlanSegmentationDriverTest(base.TestCase):
 
     def test_release_segmentation_id(self):
         vlan_seg_driver = vlan.SegmentationDriver()
-        vlan_seg_driver.available_local_vlans = set(moves.range(1, 10))
+        vlan_seg_driver.available_local_vlans = set(range(1, 10))
         vlan_id = 20
 
         vlan_seg_driver.release_segmentation_id(vlan_id)
