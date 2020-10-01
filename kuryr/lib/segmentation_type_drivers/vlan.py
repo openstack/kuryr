@@ -11,8 +11,6 @@
 #    under the License.
 import random
 
-from six import moves
-
 from kuryr.lib import constants as const
 from kuryr.lib import exceptions
 
@@ -21,8 +19,8 @@ DEFAULT_MAX_RETRY_COUNT = 3
 
 class SegmentationDriver(object):
     def __init__(self):
-        self.available_local_vlans = set(moves.range(const.MIN_VLAN_TAG,
-                                                     const.MAX_VLAN_TAG + 1))
+        self.available_local_vlans = set(range(const.MIN_VLAN_TAG,
+                                         const.MAX_VLAN_TAG + 1))
 
     def allocate_segmentation_id(self, allocated_ids=set()):
         self.available_local_vlans.difference_update(allocated_ids)
