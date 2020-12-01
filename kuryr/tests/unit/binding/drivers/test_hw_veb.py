@@ -62,7 +62,6 @@ class TestHwVebDriver(base.TestCase):
             'vf', fake_vf_num,
             'mac', fake_port['port']['mac_address'],
             'vlan', fake_vlan_id,
-            run_as_root=True,
             check_exit_code=[0, 2, 254])
 
     @mock.patch('oslo_concurrency.processutils.execute',
@@ -90,5 +89,4 @@ class TestHwVebDriver(base.TestCase):
             'vf', fake_vf_num,
             'mac', fake_port['port']['mac_address'],
             'vlan', 0,
-            run_as_root=True,
             check_exit_code=[0, 2, 254])

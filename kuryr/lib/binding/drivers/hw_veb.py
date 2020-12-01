@@ -70,5 +70,4 @@ def _set_vf_interface_vlan(pf_ifname, vf_num, mac_addr, vlan=0):
                          'vf', vf_num,
                          'mac', mac_addr,
                          'vlan', vlan,
-                         run_as_root=True,
                          check_exit_code=exit_code)
