@@ -114,7 +114,7 @@ def port_unbind(endpoint_id, neutron_port, **kwargs):
     network_id = neutron_port['network_id']
     stdout, stderr = processutils.execute(
         unbinding_exec_path, constants.UNBINDING_SUBCOMMAND, port_id, ifname,
-        endpoint_id, mac_address, vif_details, network_id, run_as_root=True)
+        endpoint_id, mac_address, vif_details, network_id)
     try:
         utils.remove_device(ifname)
     except pyroute2.NetlinkError:
@@ -148,6 +148,5 @@ def _configure_host_iface(ifname, endpoint_id, port_id, net_id, project_id,
     stdout, stderr = processutils.execute(
         binding_exec_path, constants.BINDING_SUBCOMMAND, port_id, ifname,
         endpoint_id, hwaddr, net_id, project_id,
-        lib_utils.string_mappings(details),
-        run_as_root=True)
+        lib_utils.string_mappings(details))
     return stdout, stderr
