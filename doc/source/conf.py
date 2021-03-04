@@ -37,7 +37,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-copyright = u'2013, OpenStack Foundation'
+copyright = '2013, OpenStack Foundation'
 
 # openstackdocstheme options
 openstackdocs_repo_name = 'openstack/kuryr'
@@ -71,8 +71,8 @@ htmlhelp_basename = 'kuryrdoc'
 latex_documents = [
     ('index',
      'kuryr.tex',
-     u'kuryr Documentation',
-     u'OpenStack Foundation', 'manual'),
+     'kuryr Documentation',
+     'OpenStack Foundation', 'manual'),
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
