@@ -21,22 +21,19 @@ from kuryr.lib import utils
 from kuryr.tests.unit import base
 
 
-mock_create = mock.MagicMock()
-mock_interface = mock.MagicMock()
-
-
 class TestVethDriver(base.TestCase):
     """Unit tests for veth driver"""
 
     @mock.patch('os.path.exists', return_value=True)
     @mock.patch('oslo_concurrency.processutils.execute',
                 return_value=('fake_stdout', 'fake_stderr'))
-    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getattribute__',
-                return_value=mock_create)
-    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getitem__',
-                return_value=mock_interface)
-    def test_port_bind(self, mock_getitem, mock_getattribute,
-                       mock_execute, mock_path_exists):
+    @mock.patch('kuryr.lib.binding.drivers.utils.get_ipdb')
+    def test_port_bind(self, mock_ipdb, mock_execute, mock_path_exists):
+        mock_getitem = mock.MagicMock()
+        mock_ipdb.return_value = mock.MagicMock(
+            interfaces=mock.MagicMock(__getitem__=mock_getitem)
+        )
+
         fake_mtu = 1450
         fake_docker_endpoint_id = utils.get_hash()
         fake_docker_network_id = utils.get_hash()
@@ -63,7 +60,8 @@ class TestVethDriver(base.TestCase):
 
         expect_calls = [mock.call.__enter__().set_mtu(fake_mtu),
                         mock.call.__enter__().up()]
-        mock_interface.assert_has_calls(expect_calls, any_order=True)
+        mock_getitem.return_value.assert_has_calls(expect_calls,
+                                                   any_order=True)
         mock_path_exists.assert_called_once()
         mock_execute.assert_called_once()
 

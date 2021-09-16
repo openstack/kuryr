@@ -21,20 +21,12 @@ from kuryr.lib import utils
 from kuryr.tests.unit import base
 
 
-mock_create = mock.MagicMock()
-mock_interface = mock.MagicMock()
-
-
 class TestVlanDriver(base.TestCase):
     """Unit tests for nested vlan driver"""
 
     @mock.patch('kuryr.lib.binding.drivers.utils._configure_container_iface')
-    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getattribute__',
-                return_value=mock_create)
-    @mock.patch('pyroute2.ipdb.interfaces.InterfacesDict.__getitem__',
-                return_value=mock_interface)
-    def test_port_bind(self, mock_getitem, mock_getattribute,
-                       mock_configure_container_iface):
+    @mock.patch('kuryr.lib.binding.drivers.utils.get_ipdb', mock.MagicMock())
+    def test_port_bind(self, mock_configure_container_iface):
         fake_segmentation_id = 100
         fake_docker_endpoint_id = utils.get_hash()
         fake_docker_network_id = utils.get_hash()
