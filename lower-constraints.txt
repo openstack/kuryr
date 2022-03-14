@@ -10,7 +10,7 @@ contextlib2==0.4.0
 coverage==4.0
 ddt==1.0.1
 debtcollector==1.2.0
-decorator==3.4.0
+decorator==4.2.1
 deprecation==1.0
 docutils==0.11
 dogpile.cache==0.6.2
@@ -32,8 +32,8 @@ jsonpointer==1.13
 keystoneauth1==3.4.0
 kombu==4.0.0
 linecache2==1.0.0
-Mako==0.4.0
-MarkupSafe==1.0
+Mako==1.0.7
+MarkupSafe==1.1.0
 monotonic==0.6
 mox3==0.20.0
 msgpack-python==0.4.0
