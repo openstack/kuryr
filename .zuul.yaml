@@ -1,4 +1,5 @@
 - project:
+    queue: kuryr
     templates:
       - openstack-cover-jobs
       - openstack-lower-constraints-jobs
@@ -6,5 +7,4 @@
       - release-notes-jobs-python3
       - publish-openstack-docs-pti
       - check-requirements
-    gate:
-      queue: kuryr
+    gate: {}
