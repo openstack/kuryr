@@ -12,7 +12,6 @@
 import ipaddress
 
 import pyroute2
-from pyroute2.netlink.rtnl import ifinfmsg
 
 from kuryr.lib import constants
 
@@ -82,10 +81,7 @@ def remove_device(ifname):
 
 
 def is_up(interface):
-    flags = interface['flags']
-    if not flags:
-        return False
-    return (flags & ifinfmsg.IFF_UP) == 1
+    return interface.get('state', '') == 'up'
 
 
 def _configure_container_iface(iface, subnets, fixed_ips, mtu=None,
