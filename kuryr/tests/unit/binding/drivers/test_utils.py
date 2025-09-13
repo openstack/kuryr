@@ -14,8 +14,7 @@ from unittest import mock
 import ddt
 from oslo_utils import uuidutils
 
-import pyroute2.ipdb
-from pyroute2.netlink.rtnl import ifinfmsg
+import pyroute2.ipdb.interfaces
 
 from kuryr.lib.binding.drivers import utils
 from kuryr.lib import constants
@@ -44,9 +43,9 @@ class BindingDriversUtilsTest(base.TestCase):
 
     @ddt.data((False), (True))
     def test_is_up(self, interface_flag):
-        fake_interface = {'flags': 0x0}
+        fake_interface = {}
         if interface_flag:
-            fake_interface['flags'] = ifinfmsg.IFF_UP
+            fake_interface['state'] = 'up'
             self.assertEqual(True, utils.is_up(fake_interface))
         else:
             self.assertEqual(False, utils.is_up(fake_interface))
@@ -105,7 +104,7 @@ class BindingDriversUtilsTest(base.TestCase):
             'tenant_id': '51b66b97a12f42a990452967d2c555ac',
             'updated_at': '2016-09-27T08:57:13'}]
 
-        fake_iface = mock.Mock(spec=pyroute2.ipdb.Interface)
+        fake_iface = mock.Mock(spec=pyroute2.ipdb.interfaces.Interface)
         _set_mtu = mock.Mock()
         _set_address = mock.Mock()
         fake_iface.attach_mock(_set_mtu, 'set_mtu')
