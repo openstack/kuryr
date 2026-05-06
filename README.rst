@@ -1,38 +1,23 @@
-========================
-Team and repository tags
-========================
+=====
+Kuryr
+=====
 
 .. image:: https://governance.openstack.org/badges/kuryr.svg
-    :target: https://governance.openstack.org/reference/tags/index.html
-
-.. Change things from this point on
-
-===============================
-kuryr
-===============================
 
 .. image:: https://raw.githubusercontent.com/openstack/kuryr/master/doc/images/kuryr_logo.png
     :alt: Kuryr mascot
     :align: center
 
-
-Docker for OpenStack Neutron
+Docker for OpenStack Neutron.
 
 Kuryr is a Docker network plugin that uses Neutron to provide networking
 services to Docker containers. It provides containerised images for the
 common Neutron plugins.
 
-
 * Free software: Apache license
 * Documentation: https://docs.openstack.org/kuryr/latest/
 * Source: https://opendev.org/openstack/kuryr
 * Bugs: https://bugs.launchpad.net/kuryr
-
-Features
---------
-
-* TODO
-
 
 Getting Code
 ------------
@@ -56,7 +41,6 @@ Installing Kuryr's libnetwork driver
 For kuryr-libnetwork driver installation refer:
 
 https://docs.openstack.org/kuryr-libnetwork/latest/readme.html
-
 
 Configuring Kuryr
 -----------------
